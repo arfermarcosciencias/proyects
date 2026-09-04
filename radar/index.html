@@ -107,7 +107,6 @@ function plataLine(card) {
 }
 
 function humanWhy(card) {
-  if (card.why_line && String(card.why_line).trim()) return String(card.why_line).trim();
   const ev = card.evidence || {};
   const bits = [];
   if (ev.soh === 0) bits.push("se te acabó");
@@ -149,18 +148,18 @@ function fallbackMlUrl(name) {
 /** Prefer schema links from emitter; never invent Amazon/Ali product pages. */
 function cardLinks(card) {
   const name = productName(card);
-  const fromSchema = Array.isArray(card.marketplace_urls) ? card.marketplace_urls.filter(l => l && l.url) : [];
-  if (fromSchema.length) {
-    return fromSchema.map((l, i) => ({
-      label: l.label || (i === 0 ? "Buscar precio" : "Abrir"),
-      url: l.url,
-      primary: i === 0 || l.kind === "search"
-    }));
-  }
   const links = [];
-  if (card.shopping_url) links.push({ label: "Buscar precio", url: card.shopping_url, primary: true });
-  else links.push({ label: "Buscar precio", url: fallbackShoppingUrl(name), primary: true });
-  links.push({ label: "Ver en Mercado Libre", url: fallbackMlUrl(name), primary: false });
+  const seen = new Set();
+  function add(label, url, primary) {
+    if (!url || seen.has(url)) return;
+    seen.add(url);
+    links.push({ label: label || "Abrir", url, primary: !!primary });
+  }
+  add("Buscar precio", card.shopping_url || fallbackShoppingUrl(name), true);
+  if (card.marketplace_url) add("Ver en Mercado Libre", card.marketplace_url, false);
+  else add("Ver en Mercado Libre", fallbackMlUrl(name), false);
+  const suppliers = Array.isArray(card.marketplace_urls) ? card.marketplace_urls : [];
+  suppliers.forEach(l => { if (l && l.url) add(l.label || "Proveedor", l.url, false); });
   return links;
 }
 
@@ -375,4 +374,3 @@ load();
 </script>
 </body>
 </html>
-
