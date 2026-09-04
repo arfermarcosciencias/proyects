@@ -19,7 +19,7 @@
       "roi_pct": null,
       "sku": "01BX001",
       "tipo": "BUSCAR",
-      "title": "Set De Biberones Options + 4 Oz Rosa 0 A 6M+ - Dr Browns"
+      "title": "Busca proveedor · 1"
     },
     {
       "action": "BUSCAR",
@@ -39,7 +39,7 @@
       "roi_pct": null,
       "sku": "10EU001",
       "tipo": "BUSCAR",
-      "title": "Soporte Vertical Ventilador Blanco Usb Xbox Series S - Dobe"
+      "title": "Busca proveedor · 1"
     },
     {
       "action": "BUSCAR",
@@ -59,25 +59,25 @@
       "roi_pct": null,
       "sku": "10MU006",
       "tipo": "BUSCAR",
-      "title": "Mouse Pulsefire Core RGB Gaming - HyperX"
+      "title": "Busca proveedor · 1"
     }
   ],
   "date": "2026-09-04",
   "freshness": {
     "inventory": {
-      "age_hours": 0.28,
+      "age_hours": 0.55,
       "modified_at": "2026-09-04T12:46:37"
     },
     "message": "",
     "sales": {
-      "age_hours": 0.28,
-      "modified_at": "2026-09-04T12:46:37"
+      "age_hours": 0.07,
+      "modified_at": "2026-09-04T13:15:34"
     },
     "stale": false,
-    "worst_age_hours": 0.28
+    "worst_age_hours": 0.55
   },
-  "generated_at": "2026-09-04T13:03:30",
-  "headline": "Set De Biberones Options + 4 Oz Rosa 0 A 6M+ - Dr Browns",
+  "generated_at": "2026-09-04T13:19:46",
+  "headline": "Busca proveedor · 1",
   "kind": "producto_nuevo",
   "lead": "Vuelve a buscar proveedor de 01BX001 · Set De Biberones Options + 4 Oz Rosa 0 A 6M+…: buen historial, sin buy path / agotado el canal.",
   "meta": {
