@@ -23,7 +23,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://arfermarcosciencias.github.io/proyects/radar/img/01BX001.jpg",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-2326632373",
       "marketplace_urls": [],
       "max_landed_cost": 440,
@@ -78,7 +78,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://arfermarcosciencias.github.io/proyects/radar/img/10EU001.jpg",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-3777173376",
       "marketplace_urls": [],
       "max_landed_cost": 335,
@@ -624,18 +624,18 @@
   },
   "freshness": {
     "inventory": {
-      "age_hours": 3.25,
+      "age_hours": 3.37,
       "modified_at": "2026-09-04T12:46:37"
     },
     "message": "",
     "sales": {
-      "age_hours": 2.77,
+      "age_hours": 2.88,
       "modified_at": "2026-09-04T13:15:34"
     },
     "stale": false,
-    "worst_age_hours": 3.25
+    "worst_age_hours": 3.37
   },
-  "generated_at": "2026-09-04T16:01:35",
+  "generated_at": "2026-09-04T16:08:38",
   "headline": "Busca proveedor · 1",
   "hide_days_default": {
     "descartado": 30,
