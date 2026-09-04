@@ -555,7 +555,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — NIPU010\nProducto: Peluche Jax The Amazing Digital Circus Genérico\nAcción: BUSCAR\nTecho (max_landed / alert_price): $0 MXN\nSi el precio de la captura es ≤ $0: compra 1 pieza(s) de NIPU010.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 2\nUtilidad est. / u: $47 · ROI: 78% · margen u: $47\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $0\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "NIPU010|PAUSAR COMPRA|0|1|0|0",
       "evidence": {
-        "days_since_last_sale": 109,
+        "days_since_last_sale": 110,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -624,18 +624,18 @@
   },
   "freshness": {
     "inventory": {
-      "age_hours": 3.37,
+      "age_hours": 3.88,
       "modified_at": "2026-09-04T12:46:37"
     },
     "message": "",
     "sales": {
-      "age_hours": 2.88,
+      "age_hours": 3.4,
       "modified_at": "2026-09-04T13:15:34"
     },
     "stale": false,
-    "worst_age_hours": 3.37
+    "worst_age_hours": 3.88
   },
-  "generated_at": "2026-09-04T16:08:38",
+  "generated_at": "2026-09-04T16:39:29",
   "headline": "Busca proveedor · 1",
   "hide_days_default": {
     "descartado": 30,
@@ -1046,7 +1046,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — NIPU010\nProducto: Peluche Jax The Amazing Digital Circus Genérico\nAcción: BUSCAR\nTecho (max_landed / alert_price): $0 MXN\nSi el precio de la captura es ≤ $0: compra 1 pieza(s) de NIPU010.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 2\nUtilidad est. / u: $47 · ROI: 78% · margen u: $47\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $0\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "NIPU010|PAUSAR COMPRA|0|1|0|0",
       "evidence": {
-        "days_since_last_sale": 109,
+        "days_since_last_sale": 110,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -1122,7 +1122,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://arfermarcosciencias.github.io/proyects/radar/img/02BU001.jpg",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-4241107014",
       "marketplace_urls": [],
       "max_landed_cost": 621,
@@ -1177,7 +1177,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://i5.walmartimages.com/asr/134767e4-9a82-41e0-bbb1-518bae75a80c.1891b6e9885e5eecc48416041a9b847f.jpeg?odnHeight=450&odnWidth=450&odnBg=ffffff",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-2916706919",
       "marketplace_urls": [],
       "max_landed_cost": 509,
@@ -1232,7 +1232,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://pics.walgreens.com/prodimg/669744/450.jpg",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-2917623547",
       "marketplace_urls": [],
       "max_landed_cost": 74,
@@ -1287,7 +1287,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://arfermarcosciencias.github.io/proyects/radar/img/00BU002.jpg",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-2318338829",
       "marketplace_urls": [],
       "max_landed_cost": 579,
@@ -1342,7 +1342,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://i5.walmartimages.com/asr/3eb912d4-6c29-4068-a3a4-73601d3ab7ea.3e011e4a6215e3e211ea3d5eca2d78de.jpeg?odnHeight=450&odnWidth=450&odnBg=ffffff",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-5311217690",
       "marketplace_urls": [],
       "max_landed_cost": 310,
@@ -1397,7 +1397,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://media.kohlsimg.com/is/image/kohls/1006049?wid=800&hei=800&op_sharpen=1&ver=1",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-6056645590",
       "marketplace_urls": [],
       "max_landed_cost": 296,
@@ -1452,7 +1452,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://mediacdn.aent-m.com/prod-img/500/97/4415897-3415794.jpg",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-4726808084",
       "marketplace_urls": [],
       "max_landed_cost": 462,
@@ -1507,7 +1507,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Youtube_interface%2C_showing_search_results_of_Burger_Recipe.png/1280px-Youtube_interface%2C_showing_search_results_of_Burger_Recipe.png",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-2916668797",
       "marketplace_urls": [],
       "max_landed_cost": 82,
@@ -1562,7 +1562,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://covers4.booksamillion.com/covers/gift/8/89/698/530/889698530439.jpg",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-4999072586",
       "marketplace_urls": [],
       "max_landed_cost": 147,
@@ -1617,7 +1617,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://arfermarcosciencias.github.io/proyects/radar/img/05NU004.jpg",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-2518084257",
       "marketplace_urls": [],
       "max_landed_cost": 625,
@@ -1672,7 +1672,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "http://scene7.samsclub.com/is/image/samsclub/0085728800825_A?$img_size_211x208$",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-2846266337",
       "marketplace_urls": [],
       "max_landed_cost": 560,
@@ -1727,7 +1727,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://arfermarcosciencias.github.io/proyects/radar/img/10AU012.jpg",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-2848528201",
       "marketplace_urls": [],
       "max_landed_cost": 240,
@@ -1782,7 +1782,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://media.kohlsimg.com/is/image/kohls/4584182?wid=800&hei=800&op_sharpen=1",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-5081443854",
       "marketplace_urls": [],
       "max_landed_cost": 3061,
@@ -1837,7 +1837,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://arfermarcosciencias.github.io/proyects/radar/img/10MU001.jpg",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-5140539106",
       "marketplace_urls": [],
       "max_landed_cost": 1159,
@@ -1892,7 +1892,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://arfermarcosciencias.github.io/proyects/radar/img/10VU004.jpg",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-3876398796",
       "marketplace_urls": [],
       "max_landed_cost": 334,
@@ -1947,7 +1947,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://mediacdn.aent-m.com/prod-img/500/03/3985203-2721564.jpg",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-5081552740",
       "marketplace_urls": [],
       "max_landed_cost": 602,
@@ -2002,7 +2002,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://i5.walmartimages.com/asr/e55b24c3-7578-49c0-882f-f07c6f4d8f66.90c4fa94679b59bb5e2585b9f62ff20f.jpeg?odnHeight=450&odnWidth=450&odnBg=ffffff",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-5311257636",
       "marketplace_urls": [],
       "max_landed_cost": 193,
@@ -2057,7 +2057,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://arfermarcosciencias.github.io/proyects/radar/img/NIPU011.jpg",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-5351943768",
       "marketplace_urls": [],
       "max_landed_cost": 235,
@@ -2112,7 +2112,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://pisces.bbystatic.com/prescaled/500/500/image2/BestBuy_US/images/products/6402/6402115_sd.jpg",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-2848048409",
       "marketplace_urls": [],
       "max_landed_cost": 525,
@@ -2167,7 +2167,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://pisces.bbystatic.com/prescaled/500/500/image2/BestBuy_US/images/products/6384/6384932_sd.jpg",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-5147212044",
       "marketplace_urls": [],
       "max_landed_cost": 725,
@@ -2222,7 +2222,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://assets.bwbx.io/images/users/iqjWHBFdfxIU/ivmBSSfoqD9g/v0/1200x630.jpg",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-5311370584",
       "marketplace_urls": [],
       "max_landed_cost": 399,
@@ -2277,7 +2277,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://covers1.booksamillion.com/covers/gift/1/93/052/033/193052033116.jpg",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-5258678766",
       "marketplace_urls": [],
       "max_landed_cost": 114,
@@ -2332,7 +2332,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://i5.walmartimages.com/asr/dd38d592-7b98-4b1d-ad80-14433f86e233.a920fc037b8a31f285df40c7f5fc129a.jpeg?odnHeight=450&odnWidth=450&odnBg=ffffff",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-5148622392",
       "marketplace_urls": [],
       "max_landed_cost": 466,
@@ -2387,7 +2387,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://i5.walmartimages.com/asr/58239786-8963-4f71-b7ac-4039085ab8f8_3.9e3495c322a8ad5200fb042a6b385b85.png?odnHeight=450&odnWidth=450&odnBg=ffffff",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-5148707760",
       "marketplace_urls": [],
       "max_landed_cost": 352,
@@ -2442,7 +2442,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://arfermarcosciencias.github.io/proyects/radar/img/10BMU001.jpg",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-5140516054",
       "marketplace_urls": [],
       "max_landed_cost": 572,
@@ -2497,7 +2497,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://media.kohlsimg.com/is/image/kohls/2997433?wid=800&hei=800&op_sharpen=1&ver=1",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-5081527516",
       "marketplace_urls": [],
       "max_landed_cost": 786,
@@ -2552,7 +2552,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://i5.walmartimages.com/asr/802f0eb2-0636-4bcd-b5e1-676fe250e902.832030a72c745b24a8ac11950f92d7ed.jpeg?odnHeight=450&odnWidth=450&odnBg=ffffff",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-2848046931",
       "marketplace_urls": [],
       "max_landed_cost": 478,
@@ -2607,7 +2607,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://slimages.macysassets.com/is/image/MCY/products/9/optimized/24504469_fpx.tif?wid=1200&fmt=jpeg&qlt=100",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-5258703106",
       "marketplace_urls": [],
       "max_landed_cost": 492,
@@ -2662,7 +2662,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "http://mediacdn.aent-m.com/prod-img/500/75/3889075-2650173.jpg",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-2786073183",
       "marketplace_urls": [],
       "max_landed_cost": 518,
@@ -2717,7 +2717,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://pisces.bbystatic.com/prescaled/500/500/image2/BestBuy_US/images/products/6434/6434278_sd.jpg",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-2786108803",
       "marketplace_urls": [],
       "max_landed_cost": 518,
@@ -2757,7 +2757,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 10AU006\nProducto: Audífonos Cloud II Inalámbricos Gaming - HyperX\nAcción: BUSCAR\nTecho (max_landed / alert_price): $1,500 MXN\nSi el precio de la captura es ≤ $1,500: compra 1 pieza(s) de 10AU006.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 1\nUtilidad est. / u: $33 · ROI: 2% · margen u: $33\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $1,500\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "10AU006|BUSCAR PROVEEDOR|0|1|1|1500",
       "evidence": {
-        "days_since_last_sale": 123,
+        "days_since_last_sale": 124,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -2772,7 +2772,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://media.officedepot.com/images/t_extralarge%2Cf_auto/products/9356019/9356019_o01/1.jpg",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-5141450448",
       "marketplace_urls": [],
       "max_landed_cost": 1500,
@@ -2827,7 +2827,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://arfermarcosciencias.github.io/proyects/radar/img/05NN001.jpg",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-2326622329",
       "marketplace_urls": [],
       "max_landed_cost": 331,
@@ -2882,7 +2882,7 @@
         "skip": 1,
         "tomorrow": 1
       },
-      "image_url": "",
+      "image_url": "https://arfermarcosciencias.github.io/proyects/radar/img/07VU003.jpg",
       "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-3777157852",
       "marketplace_urls": [],
       "max_landed_cost": 600,
