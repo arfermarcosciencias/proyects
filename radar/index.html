@@ -31,6 +31,7 @@
   .copy{min-width:0;flex:1}
   .index{margin:0;font-size:11px;color:var(--muted-2);font-weight:700}
   .title{margin:2px 0 6px;font-size:17px;line-height:1.3;font-weight:700;letter-spacing:-.01em}
+  .supplier{margin:0 0 6px;font-size:12px;color:var(--muted-2)}
   .plata{margin:0 0 6px;font-size:14px;font-weight:650;color:var(--green)}
   .why{margin:0 0 8px;font-size:13px;line-height:1.4;color:var(--muted)}
   .why strong{color:var(--text);font-weight:650}
@@ -59,13 +60,15 @@
   .skel{height:140px;border-radius:16px;background:linear-gradient(90deg,#e8eef6,#f7fafc,#e8eef6);background-size:200% 100%;animation:sh 1.2s infinite}
   @keyframes sh{0%{background-position:100% 0}100%{background-position:-100% 0}}
   footer{margin-top:22px;font-size:11px;color:var(--muted-2);text-align:center}
+  footer .sync{margin-top:10px}
+  footer button{padding:10px 12px;font-size:12px;width:100%;max-width:280px}
 </style>
 </head>
 <body>
 <div class="wrap" id="app"></div>
 <script>
 const JSON_URL = "./hoy_3_tarjetas.json";
-const HIDE_DAYS = { purchased: 7, not_found: 3, tomorrow: 1, descartado: 30 };
+const HIDE_DAYS = { purchased: 7, not_found: 3, tomorrow: 1, descartado: 30, skip: 1 };
 const OUTCOME_TEXT = {
   purchased: "Anotado como comprado",
   not_found: "Anotado: no lo encontraste",
@@ -73,6 +76,7 @@ const OUTCOME_TEXT = {
   descartado: "Lo retiro por 30 días",
   skip: "Saltado por hoy"
 };
+const PENDING_KEY = "radar-hoy:pending-inbox:v1";
 
 const money0 = (n) => new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(Number(n));
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -134,11 +138,29 @@ function evidenceLine(ev) {
   return a.join(" · ");
 }
 
-function shoppingUrl(name) {
+function fallbackShoppingUrl(name) {
   return "https://www.google.com/search?tbm=shop&q=" + encodeURIComponent(name);
 }
-function mlUrl(name) {
+function fallbackMlUrl(name) {
   return "https://listado.mercadolibre.com.mx/" + encodeURIComponent(name).replace(/%20/g, "-");
+}
+
+/** Prefer schema links from emitter; never invent Amazon/Ali product pages. */
+function cardLinks(card) {
+  const name = productName(card);
+  const fromSchema = Array.isArray(card.marketplace_urls) ? card.marketplace_urls.filter(l => l && l.url) : [];
+  if (fromSchema.length) {
+    return fromSchema.map((l, i) => ({
+      label: l.label || (i === 0 ? "Buscar precio" : "Abrir"),
+      url: l.url,
+      primary: i === 0 || l.kind === "search"
+    }));
+  }
+  const links = [];
+  if (card.shopping_url) links.push({ label: "Buscar precio", url: card.shopping_url, primary: true });
+  else links.push({ label: "Buscar precio", url: fallbackShoppingUrl(name), primary: true });
+  links.push({ label: "Ver en Mercado Libre", url: fallbackMlUrl(name), primary: false });
+  return links;
 }
 
 function readState(id) {
@@ -146,6 +168,17 @@ function readState(id) {
 }
 function writeState(id, obj) {
   localStorage.setItem(storeKey(id), JSON.stringify(obj));
+}
+function readPending() {
+  try { return JSON.parse(localStorage.getItem(PENDING_KEY) || "[]"); } catch { return []; }
+}
+function writePending(list) {
+  localStorage.setItem(PENDING_KEY, JSON.stringify(list || []));
+}
+function queueInbox(entry) {
+  const list = readPending().filter(x => !(x.action_key === entry.action_key && x.outcome === entry.outcome));
+  list.push(entry);
+  writePending(list);
 }
 
 function pageHeadline(data) {
@@ -189,16 +222,22 @@ function statusMessage(st) {
   return days ? `${base} · no vuelve por ${days} días` : base;
 }
 
+function renderLinks(card) {
+  return `<div class="links">${cardLinks(card).map((l, i) =>
+    `<a class="${i === 0 ? "primary" : "secondary"}" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a>`
+  ).join("")}</div>`;
+}
+
 function renderCard(card, i) {
-  const name = productName(card);
   const st = readState(card.done_id);
-  const cls = !st ? "" : (st.outcome === "skip" ? "skipped" : "done");
+  const cls = !st ? "" : (st.outcome === "skip" || st.outcome === "tomorrow" ? "skipped" : "done");
   const img = card.image_url
     ? `<img class="photo" src="${esc(card.image_url)}" alt=""/>`
     : `<div class="photo ph">Sin foto</div>`;
   const plata = plataLine(card);
   const ev = evidenceLine(card.evidence);
   const locked = !!st;
+  const supplier = card.supplier_name ? `<p class="supplier">Última tienda: ${esc(card.supplier_name)}</p>` : "";
   return `<article class="card ${cls}" data-done-id="${esc(card.done_id)}" data-sku="${esc(card.sku)}">
     <span class="badge ${esc(card.tipo)}">${esc(card.tipo)}</span>
     <div class="row">
@@ -206,13 +245,11 @@ function renderCard(card, i) {
       <div class="copy">
         <p class="index">#${i + 1}</p>
         <h2 class="title">${esc(verbTitle(card))}</h2>
+        ${supplier}
         ${plata ? `<p class="plata">${esc(plata)}</p>` : ""}
         <p class="why"><strong>Por qué:</strong> ${esc(humanWhy(card))}</p>
         ${ev ? `<p class="evidence">${esc(ev)}</p>` : ""}
-        <div class="links">
-          <a class="primary" href="${esc(shoppingUrl(name))}" target="_blank" rel="noopener">Buscar precio</a>
-          <a class="secondary" href="${esc(mlUrl(name))}" target="_blank" rel="noopener">Ver en Mercado Libre</a>
-        </div>
+        ${renderLinks(card)}
       </div>
     </div>
     <div class="actions">
@@ -232,19 +269,48 @@ function renderCard(card, i) {
 function renderData(data) {
   const cards = (data.cards || []).slice(0, 3);
   if (!cards.length) return renderEmpty(data);
+  const pending = readPending().length;
   return `<p class="eyebrow">Radar · Hoy</p>
     <h1>${esc(pageHeadline(data))}</h1>
     <p class="lead">${esc(pageLead(data))}</p>
     <div class="stack">${cards.map(renderCard).join("")}</div>
-    <footer>Actualizado ${esc(data.generated_at || "")}</footer>`;
+    <footer>
+      Actualizado ${esc(data.generated_at || "")}
+      <div class="sync">
+        <button class="btn-secondary" id="export-inbox">Exportar ${pending} para el Mac</button>
+      </div>
+    </footer>`;
+}
+
+function tryDeepLink(entry) {
+  // Optional future handler on Mac; no-op if unregistered. FA OK to wire scheme.
+  try {
+    const u = new URL("arfershop-radar://action");
+    u.searchParams.set("action_key", entry.action_key);
+    u.searchParams.set("sku", entry.sku || "");
+    u.searchParams.set("outcome", entry.outcome);
+    const img = new Image();
+    img.src = u.toString();
+  } catch (_) {}
 }
 
 function lockCard(card, outcome) {
   const id = card.getAttribute("data-done-id");
+  const sku = card.getAttribute("data-sku") || "";
   const payload = { outcome, at: new Date().toISOString(), days: HIDE_DAYS[outcome] || 0 };
   writeState(id, payload);
-  card.classList.toggle("done", outcome !== "skip");
-  card.classList.toggle("skipped", outcome === "skip");
+  const entry = {
+    action_key: id,
+    done_id: id,
+    sku,
+    outcome: outcome === "skip" ? "tomorrow" : outcome,
+    created_at: new Date().toISOString(),
+    source: "pages"
+  };
+  queueInbox(entry);
+  tryDeepLink(entry);
+  card.classList.toggle("done", outcome !== "skip" && outcome !== "tomorrow");
+  card.classList.toggle("skipped", outcome === "skip" || outcome === "tomorrow");
   card.querySelectorAll(".actions button").forEach(b => b.disabled = true);
   const panel = card.querySelector("[data-outcomes]");
   if (panel) panel.classList.remove("open");
@@ -253,6 +319,18 @@ function lockCard(card, outcome) {
     status.textContent = statusMessage(payload);
     status.classList.add("show");
   }
+  const btn = document.getElementById("export-inbox");
+  if (btn) btn.textContent = `Exportar ${readPending().length} para el Mac`;
+}
+
+function exportInbox() {
+  const actions = readPending();
+  const blob = new Blob([JSON.stringify({ actions }, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "pages_action_inbox.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
 }
 
 function wire(root) {
@@ -275,6 +353,7 @@ function wire(root) {
       }
     });
   });
+  root.querySelector("#export-inbox")?.addEventListener("click", exportInbox);
 }
 
 async function load() {
