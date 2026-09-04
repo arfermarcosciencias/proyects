@@ -241,16 +241,18 @@ function renderEmpty(data, reason) {
   if (!reason && meta.paused_by_operator) datum = `Tienes ${meta.paused_by_operator} pausados a propósito.`;
   return `<p class="eyebrow">Radar · Hoy</p><h1>Hoy no tienes que comprar nada</h1>
     <p class="lead">${esc(data.lead || "Hoy no hace falta comprar.")}</p>
-    <div class="state"><h2>Hoy no hace falta comprar</h2><p>${esc(datum)}</p></div>`;
+    <div class="state"><h2>Hoy no hace falta comprar</h2><p>${esc(datum)}</p><div class="actions"><button class="btn-secondary" id="resetHidden">Ver de nuevo</button></div></div>`;
 }
 
 function renderCard(card, i) {
   const name = productName(card);
   const st = readState(card.done_id);
   const cls = !st ? "" : (st.outcome === "skip" ? "skipped" : "done");
-  const img = card.image_url
-    ? `<img class="photo" src="${esc(card.image_url)}" alt=""/>`
-    : `<div class="photo ph">Sin foto</div>`;
+  const rawImg = card.image_url || "";
+  const imgOk = rawImg && !(rawImg.startsWith("data:") && rawImg.length > 120000);
+  const img = imgOk
+    ? `<img class="photo" src="${esc(rawImg)}" alt=""/>`
+    : `<div class="photo ph">${rawImg ? "Foto pesada" : "Sin foto"}</div>`;
   const plata = plataLine(card);
   const ev = evidenceLine(card.evidence);
   const locked = !!st && isHidden(st);
@@ -304,7 +306,7 @@ function renderData(data) {
     <h1>${esc(pageHeadline(cards.length))}</h1>
     <p class="lead">${esc(pageLead(cards, data))}</p>
     <div class="stack">${cards.map(renderCard).join("")}</div>
-    <footer>Actualizado ${esc(data.generated_at || "")}</footer>`;
+    <footer>Actualizado ${esc(data.generated_at || "")} · <button type="button" id="resetHidden" style="all:unset;color:var(--blue);font-weight:700;cursor:pointer">Ver de nuevo</button></footer>`;
 }
 
 async function mirrorLocal(card, outcome) {
@@ -367,6 +369,16 @@ function wire(root) {
   });
 }
 
+function radarResetHidden() {
+  const keys = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith("radar-hoy:")) keys.push(k);
+  }
+  keys.forEach(k => localStorage.removeItem(k));
+  load();
+}
+
 async function load() {
   const app = document.getElementById("app");
   app.innerHTML = renderLoading();
@@ -376,6 +388,7 @@ async function load() {
     const data = await res.json();
     app.innerHTML = renderData(data);
     wire(app);
+    document.getElementById("resetHidden")?.addEventListener("click", radarResetHidden);
   } catch (e) {
     app.innerHTML = renderError(e.message || "Error");
     document.getElementById("retry")?.addEventListener("click", load);
