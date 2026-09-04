@@ -31,25 +31,22 @@
   .copy{min-width:0;flex:1}
   .index{margin:0;font-size:11px;color:var(--muted-2);font-weight:700}
   .title{margin:2px 0 6px;font-size:17px;line-height:1.3;font-weight:700;letter-spacing:-.01em}
-  .supplier{margin:0 0 6px;font-size:12px;color:var(--muted-2)}
   .plata{margin:0 0 6px;font-size:14px;font-weight:650;color:var(--green)}
   .why{margin:0 0 8px;font-size:13px;line-height:1.4;color:var(--muted)}
   .why strong{color:var(--text);font-weight:650}
   .evidence{margin:0 0 8px;font-size:12px;color:var(--muted-2)}
   .links{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 4px}
-  .links a{
-    display:inline-flex;align-items:center;justify-content:center;
-    padding:10px 12px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;
-  }
+  .links a{display:inline-flex;align-items:center;justify-content:center;padding:10px 12px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none}
   .links a.primary{background:var(--blue-bg);color:var(--blue)}
   .links a.secondary{background:#fff;color:var(--text);border:1px solid var(--line)}
+  .links a.ghost{background:transparent;color:var(--blue);border:1px solid var(--line)}
   .actions{margin-top:12px;display:grid;grid-template-columns:1.3fr 1fr;gap:8px}
   button{appearance:none;border:0;cursor:pointer;font:inherit;font-weight:700;border-radius:10px;padding:12px 10px;font-size:14px}
   button:disabled{opacity:.5;cursor:default}
   .btn-primary{background:var(--green-bg);color:var(--green)}
   .btn-secondary{background:#fff;color:var(--text);border:1px solid var(--line)}
-  .outcomes{display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
-  .outcomes.open{display:grid;gap:8px;grid-template-columns:1fr 1fr}
+  .outcomes{display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);gap:8px;grid-template-columns:1fr 1fr}
+  .outcomes.open{display:grid}
   .outcomes button{font-size:13px;padding:11px 8px;background:#f7fafc;border:1px solid var(--line);color:var(--text)}
   .status{margin-top:10px;font-size:13px;color:var(--green);font-weight:650;display:none}
   .status.show{display:block}
@@ -60,23 +57,22 @@
   .skel{height:140px;border-radius:16px;background:linear-gradient(90deg,#e8eef6,#f7fafc,#e8eef6);background-size:200% 100%;animation:sh 1.2s infinite}
   @keyframes sh{0%{background-position:100% 0}100%{background-position:-100% 0}}
   footer{margin-top:22px;font-size:11px;color:var(--muted-2);text-align:center}
-  footer .sync{margin-top:10px}
-  footer button{padding:10px 12px;font-size:12px;width:100%;max-width:280px}
 </style>
 </head>
 <body>
 <div class="wrap" id="app"></div>
 <script>
 const JSON_URL = "./hoy_3_tarjetas.json";
-const HIDE_DAYS = { purchased: 7, not_found: 3, tomorrow: 1, descartado: 30, skip: 1 };
+const LOCAL_API = "http://127.0.0.1:8766/api/actions";
+const HIDE_DAYS = { purchased: 7, not_found: 3, tomorrow: 1, descartado: 30, done: 1, skip: 1 };
 const OUTCOME_TEXT = {
   purchased: "Anotado como comprado",
   not_found: "Anotado: no lo encontraste",
   tomorrow: "Lo dejamos para mañana",
   descartado: "Lo retiro por 30 días",
+  done: "Hecho",
   skip: "Saltado por hoy"
 };
-const PENDING_KEY = "radar-hoy:pending-inbox:v1";
 
 const money0 = (n) => new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(Number(n));
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -86,7 +82,7 @@ function productName(card) {
   const t = (card.title || "").trim();
   const generic = !t || /^Busca proveedor/i.test(t) || (/^Compra\s+\d+/i.test(t) && t.length < 28);
   if (!generic) return t;
-  const m = (card.por_que || "").match(/·\s*([^:]+?)(?::|$)/);
+  const m = (card.por_que || card.why_line || "").match(/·\s*([^:]+?)(?::|$)/);
   if (m) return m[1].replace(/…/g, "").trim();
   return card.sku || "este producto";
 }
@@ -106,7 +102,30 @@ function plataLine(card) {
   return `~gánele ${money0(g)}`;
 }
 
-function humanWhy(card) {
+/** Precio máximo a buscar + ganancia/ROI en una frase humana */
+function priceGoalLine(card) {
+  const cap = card.max_landed_cost;
+  const g = card.ganancia_estimada_mxn;
+  const r = card.roi_pct;
+  const hasCap = cap != null && !Number.isNaN(Number(cap)) && Number(cap) > 0;
+  if (!hasCap) return null;
+  const price = money0(cap);
+  const hasG = g != null && !Number.isNaN(Number(g));
+  const hasR = r != null && !Number.isNaN(Number(r));
+  if (hasG && hasR) {
+    return `Búscalo en menos de ${price} para ganar ~${money0(g)} (ROI ~${Number(r).toFixed(0)}%)`;
+  }
+  if (hasG) {
+    return `Búscalo en menos de ${price} para ganar ~${money0(g)}`;
+  }
+  if (hasR) {
+    return `Búscalo en menos de ${price} para mantener un ROI de ~${Number(r).toFixed(0)}%`;
+  }
+  return `Búscalo en menos de ${price} para no comerse la ganancia`;
+}
+
+function whyText(card) {
+  if (card.why_line && String(card.why_line).trim()) return String(card.why_line).trim();
   const ev = card.evidence || {};
   const bits = [];
   if (ev.soh === 0) bits.push("se te acabó");
@@ -138,56 +157,46 @@ function evidenceLine(ev) {
   return a.join(" · ");
 }
 
-function fallbackShoppingUrl(name) {
+function shoppingHref(card, name) {
+  if (card.shopping_url) return card.shopping_url;
   return "https://www.google.com/search?tbm=shop&q=" + encodeURIComponent(name);
 }
-function fallbackMlUrl(name) {
+function mlHref(card, name) {
+  if (card.marketplace_url) return card.marketplace_url;
+  if (card.meli_id) return "https://www.mercadolibre.com.mx/p/" + encodeURIComponent(card.meli_id);
   return "https://listado.mercadolibre.com.mx/" + encodeURIComponent(name).replace(/%20/g, "-");
 }
-
-/** Prefer schema links from emitter; never invent Amazon/Ali product pages. */
-function cardLinks(card) {
-  const name = productName(card);
-  const links = [];
-  const seen = new Set();
-  function add(label, url, primary) {
-    if (!url || seen.has(url)) return;
-    seen.add(url);
-    links.push({ label: label || "Abrir", url, primary: !!primary });
-  }
-  add("Buscar precio", card.shopping_url || fallbackShoppingUrl(name), true);
-  if (card.marketplace_url) add("Ver en Mercado Libre", card.marketplace_url, false);
-  else add("Ver en Mercado Libre", fallbackMlUrl(name), false);
-  const suppliers = Array.isArray(card.marketplace_urls) ? card.marketplace_urls : [];
-  suppliers.forEach(l => { if (l && l.url) add(l.label || "Proveedor", l.url, false); });
-  return links;
+function storeLinks(card) {
+  const arr = Array.isArray(card.marketplace_urls) ? card.marketplace_urls : [];
+  return arr.filter(u => typeof u === "string" && /^https?:\/\//i.test(u));
 }
 
 function readState(id) {
   try { return JSON.parse(localStorage.getItem(storeKey(id)) || "null"); } catch { return null; }
 }
-function writeState(id, obj) {
-  localStorage.setItem(storeKey(id), JSON.stringify(obj));
+function writeState(obj) {
+  localStorage.setItem(storeKey(obj.done_id), JSON.stringify(obj));
 }
-function readPending() {
-  try { return JSON.parse(localStorage.getItem(PENDING_KEY) || "[]"); } catch { return []; }
+function isHidden(st) {
+  if (!st || !st.hide_until) return false;
+  const t = Date.parse(st.hide_until);
+  return !Number.isNaN(t) && t > Date.now();
 }
-function writePending(list) {
-  localStorage.setItem(PENDING_KEY, JSON.stringify(list || []));
+function hideDaysFor(outcome, card) {
+  if (card && card.hide_days_default != null && outcome === "done") return Number(card.hide_days_default) || 1;
+  return HIDE_DAYS[outcome] != null ? HIDE_DAYS[outcome] : 1;
 }
-function queueInbox(entry) {
-  const list = readPending().filter(x => !(x.action_key === entry.action_key && x.outcome === entry.outcome));
-  list.push(entry);
-  writePending(list);
+function hideUntilIso(days) {
+  const d = new Date();
+  d.setDate(d.getDate() + (Number(days) || 0));
+  return d.toISOString();
 }
 
-function pageHeadline(data) {
-  const n = (data.cards || []).length;
+function pageHeadline(n) {
   if (!n) return "Hoy no tienes que comprar nada";
   return n === 1 ? "Hoy: 1 cosa" : `Hoy: ${n} cosas`;
 }
-function pageLead(data) {
-  const cards = data.cards || [];
+function pageLead(cards, data) {
   if (!cards.length) return data.lead || "Respira. Nada urgente.";
   const buscar = cards.filter(c => c.action === "BUSCAR" || c.tipo === "BUSCAR").length;
   const comprar = cards.length - buscar;
@@ -195,6 +204,13 @@ function pageLead(data) {
   if (comprar > 0) bits.push(comprar === 1 ? "1 para comprar" : `${comprar} para comprar`);
   if (buscar > 0) bits.push(buscar === 1 ? "1 para buscar quién te lo venda" : `${buscar} para buscar proveedor`);
   return bits.join(". ") + ".";
+}
+
+function statusMessage(st) {
+  if (!st) return "";
+  const base = OUTCOME_TEXT[st.outcome] || "Guardado";
+  const days = st.hide_days;
+  return days ? `${base} · no vuelve por ${days} días` : base;
 }
 
 function renderLoading() {
@@ -205,51 +221,42 @@ function renderError(msg) {
     <div class="state"><h2>Algo falló</h2><p>${esc(msg)}</p>
     <div class="actions"><button class="btn-primary" id="retry">Reintentar</button></div></div>`;
 }
-function renderEmpty(data) {
+function renderEmpty(data, reason) {
   const meta = data.meta || {};
-  let datum = "Nada pendiente.";
-  if (meta.paused_by_operator) datum = `Tienes ${meta.paused_by_operator} pausados a propósito.`;
-  return `<p class="eyebrow">Radar · Hoy</p><h1>${esc(pageHeadline(data))}</h1>
+  let datum = reason || "Nada pendiente.";
+  if (!reason && meta.paused_by_operator) datum = `Tienes ${meta.paused_by_operator} pausados a propósito.`;
+  return `<p class="eyebrow">Radar · Hoy</p><h1>Hoy no tienes que comprar nada</h1>
     <p class="lead">${esc(data.lead || "Hoy no hace falta comprar.")}</p>
     <div class="state"><h2>Hoy no hace falta comprar</h2><p>${esc(datum)}</p></div>`;
 }
 
-function statusMessage(st) {
-  if (!st) return "";
-  if (st.outcome === "skip") return OUTCOME_TEXT.skip;
-  const base = OUTCOME_TEXT[st.outcome] || "Guardado";
-  const days = HIDE_DAYS[st.outcome];
-  return days ? `${base} · no vuelve por ${days} días` : base;
-}
-
-function renderLinks(card) {
-  return `<div class="links">${cardLinks(card).map((l, i) =>
-    `<a class="${i === 0 ? "primary" : "secondary"}" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a>`
-  ).join("")}</div>`;
-}
-
 function renderCard(card, i) {
+  const name = productName(card);
   const st = readState(card.done_id);
-  const cls = !st ? "" : (st.outcome === "skip" || st.outcome === "tomorrow" ? "skipped" : "done");
+  const cls = !st ? "" : (st.outcome === "skip" ? "skipped" : "done");
   const img = card.image_url
     ? `<img class="photo" src="${esc(card.image_url)}" alt=""/>`
     : `<div class="photo ph">Sin foto</div>`;
   const plata = plataLine(card);
   const ev = evidenceLine(card.evidence);
-  const locked = !!st;
-  const supplier = card.supplier_name ? `<p class="supplier">Última tienda: ${esc(card.supplier_name)}</p>` : "";
-  return `<article class="card ${cls}" data-done-id="${esc(card.done_id)}" data-sku="${esc(card.sku)}">
+  const locked = !!st && isHidden(st);
+  const stores = storeLinks(card);
+  const storeHtml = stores.map(u => `<a class="ghost" href="${esc(u)}" target="_blank" rel="noopener">Abrir tienda</a>`).join("");
+  return `<article class="card ${cls}" data-done-id="${esc(card.done_id)}" data-sku="${esc(card.sku)}" data-action-key="${esc(card.done_id)}">
     <span class="badge ${esc(card.tipo)}">${esc(card.tipo)}</span>
     <div class="row">
       ${img}
       <div class="copy">
         <p class="index">#${i + 1}</p>
         <h2 class="title">${esc(verbTitle(card))}</h2>
-        ${supplier}
-        ${plata ? `<p class="plata">${esc(plata)}</p>` : ""}
-        <p class="why"><strong>Por qué:</strong> ${esc(humanWhy(card))}</p>
+        ${priceGoalLine(card) ? `<p class="plata">${esc(priceGoalLine(card))}</p>` : (plata ? `<p class="plata">${esc(plata)}</p>` : "")}
+        <p class="why"><strong>Por qué:</strong> ${esc(whyText(card))}</p>
         ${ev ? `<p class="evidence">${esc(ev)}</p>` : ""}
-        ${renderLinks(card)}
+        <div class="links">
+          <a class="primary" href="${esc(shoppingHref(card, name))}" target="_blank" rel="noopener">Buscar precio</a>
+          <a class="secondary" href="${esc(mlHref(card, name))}" target="_blank" rel="noopener">Ver en Mercado Libre</a>
+          ${storeHtml}
+        </div>
       </div>
     </div>
     <div class="actions">
@@ -262,75 +269,70 @@ function renderCard(card, i) {
       <button type="button" data-outcome="tomorrow">Mañana</button>
       <button type="button" data-outcome="descartado">Descartar 30d</button>
     </div>
-    <p class="status ${locked ? "show" : ""}" data-status>${esc(statusMessage(st))}</p>
+    <p class="status ${st ? "show" : ""}" data-status>${esc(statusMessage(st))}</p>
   </article>`;
 }
 
-function renderData(data) {
-  const cards = (data.cards || []).slice(0, 3);
-  if (!cards.length) return renderEmpty(data);
-  const pending = readPending().length;
-  return `<p class="eyebrow">Radar · Hoy</p>
-    <h1>${esc(pageHeadline(data))}</h1>
-    <p class="lead">${esc(pageLead(data))}</p>
-    <div class="stack">${cards.map(renderCard).join("")}</div>
-    <footer>
-      Actualizado ${esc(data.generated_at || "")}
-      <div class="sync">
-        <button class="btn-secondary" id="export-inbox">Exportar ${pending} para el Mac</button>
-      </div>
-    </footer>`;
+function filterVisible(cards) {
+  return cards.filter(c => !isHidden(readState(c.done_id)));
 }
 
-function tryDeepLink(entry) {
-  // Optional future handler on Mac; no-op if unregistered. FA OK to wire scheme.
+function renderData(data) {
+  const all = (data.cards || []).slice(0, 3);
+  const cards = filterVisible(all);
+  if (!cards.length) {
+    const hidden = all.length && all.length !== cards.length;
+    return renderEmpty(data, hidden ? "Ya resolviste las de hoy (siguen ocultas un rato)." : null);
+  }
+  return `<p class="eyebrow">Radar · Hoy</p>
+    <h1>${esc(pageHeadline(cards.length))}</h1>
+    <p class="lead">${esc(pageLead(cards, data))}</p>
+    <div class="stack">${cards.map(renderCard).join("")}</div>
+    <footer>Actualizado ${esc(data.generated_at || "")}</footer>`;
+}
+
+async function mirrorLocal(card, outcome) {
   try {
-    const u = new URL("arfershop-radar://action");
-    u.searchParams.set("action_key", entry.action_key);
-    u.searchParams.set("sku", entry.sku || "");
-    u.searchParams.set("outcome", entry.outcome);
-    const img = new Image();
-    img.src = u.toString();
-  } catch (_) {}
+    await fetch(LOCAL_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sku: card.getAttribute("data-sku"),
+        action_key: card.getAttribute("data-action-key"),
+        outcome
+      })
+    });
+  } catch (_) { /* silencioso — Pages no depende de :8766 */ }
 }
 
 function lockCard(card, outcome) {
-  const id = card.getAttribute("data-done-id");
-  const sku = card.getAttribute("data-sku") || "";
-  const payload = { outcome, at: new Date().toISOString(), days: HIDE_DAYS[outcome] || 0 };
-  writeState(id, payload);
-  const entry = {
-    action_key: id,
-    done_id: id,
+  const doneId = card.getAttribute("data-done-id");
+  const sku = card.getAttribute("data-sku");
+  const days = hideDaysFor(outcome, null);
+  const payload = {
+    done_id: doneId,
     sku,
-    outcome: outcome === "skip" ? "tomorrow" : outcome,
-    created_at: new Date().toISOString(),
-    source: "pages"
+    outcome,
+    hide_until: hideUntilIso(days),
+    hide_days: days
   };
-  queueInbox(entry);
-  tryDeepLink(entry);
-  card.classList.toggle("done", outcome !== "skip" && outcome !== "tomorrow");
-  card.classList.toggle("skipped", outcome === "skip" || outcome === "tomorrow");
-  card.querySelectorAll(".actions button").forEach(b => b.disabled = true);
-  const panel = card.querySelector("[data-outcomes]");
-  if (panel) panel.classList.remove("open");
-  const status = card.querySelector("[data-status]");
-  if (status) {
-    status.textContent = statusMessage(payload);
-    status.classList.add("show");
+  writeState(payload);
+  mirrorLocal(card, outcome);
+  // quitar de la lista si hide_until está activo
+  if (isHidden(payload)) {
+    card.remove();
+    const stack = document.querySelector(".stack");
+    if (stack && !stack.children.length) {
+      document.getElementById("app").innerHTML = renderEmpty({ lead: "Listo por ahora." }, "Ya resolviste las de hoy.");
+    }
+    return;
   }
-  const btn = document.getElementById("export-inbox");
-  if (btn) btn.textContent = `Exportar ${readPending().length} para el Mac`;
-}
-
-function exportInbox() {
-  const actions = readPending();
-  const blob = new Blob([JSON.stringify({ actions }, null, 2)], { type: "application/json" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "pages_action_inbox.json";
-  a.click();
-  URL.revokeObjectURL(a.href);
+  card.classList.toggle("done", outcome !== "skip");
+  card.classList.toggle("skipped", outcome === "skip");
+  card.querySelectorAll(".actions button").forEach(b => b.disabled = true);
+  card.querySelector("[data-outcomes]")?.classList.remove("open");
+  const status = card.querySelector("[data-status]");
+  if (status) { status.textContent = statusMessage(payload); status.classList.add("show"); }
 }
 
 function wire(root) {
@@ -340,20 +342,13 @@ function wire(root) {
       const skipBtn = ev.target.closest("button[data-act='skip']");
       const outBtn = ev.target.closest("button[data-outcome]");
       if (doneBtn && !doneBtn.disabled) {
-        const panel = card.querySelector("[data-outcomes]");
-        panel?.classList.toggle("open");
+        card.querySelector("[data-outcomes]")?.classList.toggle("open");
         return;
       }
-      if (skipBtn && !skipBtn.disabled) {
-        lockCard(card, "skip");
-        return;
-      }
-      if (outBtn) {
-        lockCard(card, outBtn.getAttribute("data-outcome"));
-      }
+      if (skipBtn && !skipBtn.disabled) { lockCard(card, "skip"); return; }
+      if (outBtn) lockCard(card, outBtn.getAttribute("data-outcome"));
     });
   });
-  root.querySelector("#export-inbox")?.addEventListener("click", exportInbox);
 }
 
 async function load() {
