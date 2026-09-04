@@ -107,6 +107,7 @@ function plataLine(card) {
 }
 
 function humanWhy(card) {
+  if (card.why_line && String(card.why_line).trim()) return String(card.why_line).trim();
   const ev = card.evidence || {};
   const bits = [];
   if (ev.soh === 0) bits.push("se te acabó");
