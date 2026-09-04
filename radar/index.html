@@ -260,7 +260,7 @@ function renderCard(card, i) {
         <div class="links">
           <a class="primary" href="${esc(shoppingHref(card, name))}" target="_blank" rel="noopener">Buscar precio</a>
           <a class="secondary" href="${esc(mlHref(card, name))}" target="_blank" rel="noopener">Ver en Mercado Libre</a>
-          ${keepaHref(card) ? `<a class="ghost" href="${esc(keepaHref(card))}" target="_blank" rel="noopener">Enviar a Keepa</a>` : ""}
+          ${keepaHref(card) ? `<a class="ghost" href="${esc(keepaHref(card))}" target="_blank" rel="noopener">Abrir en Keepa</a>` : ""}
           ${storeHtml}
         </div>
       </div>
