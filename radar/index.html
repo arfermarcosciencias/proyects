@@ -166,6 +166,11 @@ function mlHref(card, name) {
   if (card.meli_id) return "https://www.mercadolibre.com.mx/p/" + encodeURIComponent(card.meli_id);
   return "https://listado.mercadolibre.com.mx/" + encodeURIComponent(name).replace(/%20/g, "-");
 }
+function keepaHref(card) {
+  const asin = (card.asin || "").trim();
+  if (!asin) return null;
+  return "https://keepa.com/#!product/11-" + encodeURIComponent(asin);
+}
 function storeLinks(card) {
   const arr = Array.isArray(card.marketplace_urls) ? card.marketplace_urls : [];
   return arr.filter(u => typeof u === "string" && /^https?:\/\//i.test(u));
@@ -255,6 +260,7 @@ function renderCard(card, i) {
         <div class="links">
           <a class="primary" href="${esc(shoppingHref(card, name))}" target="_blank" rel="noopener">Buscar precio</a>
           <a class="secondary" href="${esc(mlHref(card, name))}" target="_blank" rel="noopener">Ver en Mercado Libre</a>
+          ${keepaHref(card) ? `<a class="ghost" href="${esc(keepaHref(card))}" target="_blank" rel="noopener">Enviar a Keepa</a>` : ""}
           ${storeHtml}
         </div>
       </div>
@@ -369,4 +375,3 @@ load();
 </script>
 </body>
 </html>
-
