@@ -3,6 +3,8 @@
   "cards": [
     {
       "action": "BUSCAR",
+      "alert_price": 440.0,
+      "asin": null,
       "done_id": "01BX001|BUSCAR PROVEEDOR|0|1|1|440",
       "evidence": {
         "days_since_last_sale": 144,
@@ -25,6 +27,7 @@
       "marketplace_urls": [],
       "max_landed_cost": 440,
       "por_que": "Vuelve a buscar proveedor de 01BX001 · Set De Biberones Options + 4 Oz Rosa 0 A 6M+…: buen historial, sin buy path / agotado el canal.",
+      "prompt_alerta": "TAREA Keepa Pro (Arfershop Radar Rotación) — modo WATCH_ONLY\nSKU: 01BX001\nProducto: Set De Biberones Options + 4 Oz Rosa 0 A 6M+ - Dr Browns\nProveedor habitual: Amazon México\nTecho / alert_price: $440 MXN\nASIN verificado: NO HAY en inventario — NO inventar por título.\nUPC disponible (pista, no ASIN): 72239315347\nShopping search: https://www.google.com/search?tbm=shop&q=Set+De+Biberones+Options+%2B+4+Oz+Rosa+0+A+6M%2B+-+Dr+Browns+72239315347\n\nPasos:\n1) Primero resuelve ASIN EXACTO en Amazon MX (identidad UPC/EAN/ASIN; no fuzzy por nombre).\n2) Si no hay ASIN confiable: DETENTE y reporta; no crees alerta Keepa.\n3) Con ASIN exacto: Keepa MX domain=11 → tracking Amazon Nuevo, umbral ABSOLUTO menor a $440 MXN, memo WATCH_ONLY, TTL ~1 año, email ON.\n4) No compres. No mezclar Radar Keepa discovery. Devuelve ASIN + alert id.\nReferencia operativa: CODEX_PERSONAL_VAULT/02_NEGOCIO/KEEPA_ALERTAS.md\nAl terminar: deja status active en watches (sku, asin, max_landed, keepa_alert_id).",
       "qty": 1,
       "roi_pct": null,
       "shopping_label": "Buscar precio",
@@ -47,6 +50,8 @@
     },
     {
       "action": "BUSCAR",
+      "alert_price": 335.0,
+      "asin": null,
       "done_id": "10EU001|BUSCAR PROVEEDOR|0|1|1|335",
       "evidence": {
         "days_since_last_sale": 144,
@@ -69,6 +74,7 @@
       "marketplace_urls": [],
       "max_landed_cost": 335,
       "por_que": "Vuelve a buscar proveedor de 10EU001 · Soporte Vertical Ventilador Blanco Usb Xbox S…: buen historial, sin buy path / agotado el canal.",
+      "prompt_alerta": "TAREA Keepa Pro (Arfershop Radar Rotación) — modo WATCH_ONLY\nSKU: 10EU001\nProducto: Soporte Vertical Ventilador Blanco Usb Xbox Series S - Dobe\nProveedor habitual: Aliexpress\nTecho / alert_price: $335 MXN\nASIN verificado: NO HAY en inventario — NO inventar por título.\nUPC disponible (pista, no ASIN): 6972520253614\nShopping search: https://www.google.com/search?tbm=shop&q=Soporte+Vertical+Ventilador+Blanco+Usb+Xbox+Series+S+-+Dobe+6972520253614\n\nPasos:\n1) Primero resuelve ASIN EXACTO en Amazon MX (identidad UPC/EAN/ASIN; no fuzzy por nombre).\n2) Si no hay ASIN confiable: DETENTE y reporta; no crees alerta Keepa.\n3) Con ASIN exacto: Keepa MX domain=11 → tracking Amazon Nuevo, umbral ABSOLUTO menor a $335 MXN, memo WATCH_ONLY, TTL ~1 año, email ON.\n4) No compres. No mezclar Radar Keepa discovery. Devuelve ASIN + alert id.\nReferencia operativa: CODEX_PERSONAL_VAULT/02_NEGOCIO/KEEPA_ALERTAS.md\nAl terminar: deja status active en watches (sku, asin, max_landed, keepa_alert_id).",
       "qty": 1,
       "roi_pct": null,
       "shopping_label": "Buscar precio",
@@ -91,6 +97,8 @@
     },
     {
       "action": "BUSCAR",
+      "alert_price": 363.0,
+      "asin": null,
       "done_id": "10MU006|BUSCAR PROVEEDOR|0|1|1|363",
       "evidence": {
         "days_since_last_sale": 122,
@@ -113,6 +121,7 @@
       "marketplace_urls": [],
       "max_landed_cost": 363,
       "por_que": "Vuelve a buscar proveedor de 10MU006 · Mouse Pulsefire Core RGB Gaming - HyperX: buen historial, sin buy path / agotado el canal.",
+      "prompt_alerta": "TAREA Keepa Pro (Arfershop Radar Rotación) — modo WATCH_ONLY\nSKU: 10MU006\nProducto: Mouse Pulsefire Core RGB Gaming - HyperX\nProveedor habitual: Desconocida\nTecho / alert_price: $363 MXN\nASIN verificado: NO HAY en inventario — NO inventar por título.\nUPC disponible (pista, no ASIN): 740617279078\nShopping search: https://www.google.com/search?tbm=shop&q=Mouse+Pulsefire+Core+RGB+Gaming+-+HyperX+740617279078\n\nPasos:\n1) Primero resuelve ASIN EXACTO en Amazon MX (identidad UPC/EAN/ASIN; no fuzzy por nombre).\n2) Si no hay ASIN confiable: DETENTE y reporta; no crees alerta Keepa.\n3) Con ASIN exacto: Keepa MX domain=11 → tracking Amazon Nuevo, umbral ABSOLUTO menor a $363 MXN, memo WATCH_ONLY, TTL ~1 año, email ON.\n4) No compres. No mezclar Radar Keepa discovery. Devuelve ASIN + alert id.\nReferencia operativa: CODEX_PERSONAL_VAULT/02_NEGOCIO/KEEPA_ALERTAS.md\nAl terminar: deja status active en watches (sku, asin, max_landed, keepa_alert_id).",
       "qty": 1,
       "roi_pct": null,
       "shopping_label": "Buscar precio",
@@ -151,18 +160,18 @@
   },
   "freshness": {
     "inventory": {
-      "age_hours": 0.82,
+      "age_hours": 1.08,
       "modified_at": "2026-09-04T12:46:37"
     },
     "message": "",
     "sales": {
-      "age_hours": 0.34,
+      "age_hours": 0.6,
       "modified_at": "2026-09-04T13:15:34"
     },
     "stale": false,
-    "worst_age_hours": 0.82
+    "worst_age_hours": 1.08
   },
-  "generated_at": "2026-09-04T13:35:58",
+  "generated_at": "2026-09-04T13:51:36",
   "headline": "Busca proveedor · 1",
   "hide_days_default": {
     "descartado": 30,
@@ -181,7 +190,7 @@
     "paused_by_operator": 7,
     "supplier_search": 36
   },
-  "schema": "arfershop.radar.hoy_3_tarjetas.v4",
+  "schema": "arfershop.radar.hoy_3_tarjetas.v5",
   "skus": [
     "01BX001",
     "10EU001",
