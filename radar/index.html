@@ -7,71 +7,40 @@
 <title>Radar · Hoy</title>
 <style>
   :root {
-    --bg: #f3f7fb;
-    --card: #ffffff;
-    --text: #12212f;
-    --muted: #65748a;
-    --muted-2: #8a95a5;
-    --line: #e3ebf5;
-    --green: #1f6349;
-    --green-bg: #eaf7f1;
-    --accent: #0a84ff;
+    --bg: #f3f7fb; --card: #fff; --text: #12212f; --muted: #65748a; --muted-2: #8a95a5;
+    --line: #e3ebf5; --green: #1f6349; --green-bg: #eaf7f1;
     --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
   }
   * { box-sizing: border-box; }
-  body {
-    margin: 0; background: var(--bg); color: var(--text);
-    font-family: var(--font); -webkit-font-smoothing: antialiased;
-  }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font); -webkit-font-smoothing: antialiased; }
   .wrap { max-width: 440px; margin: 0 auto; padding: 18px 14px 40px; }
   .eyebrow { margin: 0 0 6px; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted-2); }
   h1 { margin: 0 0 8px; font-size: 24px; line-height: 1.2; letter-spacing: -0.02em; font-weight: 700; }
   .lead { margin: 0; font-size: 15px; line-height: 1.45; color: var(--muted); }
-  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-  .chip { font-size: 12px; color: var(--muted); background: #fff; border: 1px solid var(--line); padding: 6px 10px; border-radius: 999px; }
   .stack { display: flex; flex-direction: column; gap: 14px; margin-top: 18px; }
-  .card {
-    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
-    padding: 14px; box-shadow: 0 8px 24px rgba(18,33,47,.06);
-  }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; box-shadow: 0 8px 24px rgba(18,33,47,.06); }
   .card.done, .card.skipped { opacity: .45; }
-  .badge {
-    display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .08em;
-    padding: 4px 10px; border-radius: 999px; margin-bottom: 10px;
-  }
+  .badge { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .08em; padding: 4px 10px; border-radius: 999px; margin-bottom: 10px; }
   .badge.BUSCAR { color: #5b4a8a; background: #f1ecfb; }
   .badge.REPONER { color: #1d4f91; background: #e8f1fb; }
   .badge.ESTRELLA { color: #8a6a00; background: #fff6d6; }
   .badge.CASHFLOW { color: #1f6349; background: var(--green-bg); }
   .row { display: flex; gap: 12px; align-items: flex-start; }
-  .photo {
-    width: 92px; height: 92px; object-fit: cover; border-radius: 12px;
-    background: #eef3f9; flex: 0 0 auto;
-  }
-  .photo.ph {
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: 700; color: var(--muted-2); text-align: center; padding: 6px;
-  }
+  .photo { width: 92px; height: 92px; object-fit: cover; border-radius: 12px; background: #eef3f9; flex: 0 0 auto; }
+  .photo.ph { display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--muted-2); text-align: center; padding: 6px; }
   .copy { min-width: 0; flex: 1; }
   .index { margin: 0; font-size: 11px; color: var(--muted-2); font-weight: 700; }
-  .title { margin: 2px 0 6px; font-size: 17px; line-height: 1.25; font-weight: 700; letter-spacing: -0.01em; }
-  .action-line { margin: 0 0 4px; font-size: 15px; font-weight: 650; color: var(--text); }
-  .ceiling { margin: 0 0 4px; font-size: 14px; font-weight: 650; color: var(--green); }
-  .money { margin: 0 0 6px; font-size: 14px; color: var(--green); font-weight: 650; }
-  .why { margin: 0 0 6px; font-size: 13px; line-height: 1.4; color: var(--muted); }
+  .title { margin: 2px 0 6px; font-size: 17px; line-height: 1.3; font-weight: 700; letter-spacing: -0.01em; }
+  .plata { margin: 0 0 6px; font-size: 14px; font-weight: 650; color: var(--green); }
+  .why { margin: 0 0 4px; font-size: 13px; line-height: 1.4; color: var(--muted); }
+  .hint { margin: 0 0 6px; font-size: 13px; color: var(--text); font-weight: 600; }
   .evidence { margin: 0; font-size: 12px; color: var(--muted-2); }
   .actions { margin-top: 12px; display: grid; grid-template-columns: 1.3fr 1fr; gap: 8px; }
-  button {
-    appearance: none; border: 0; cursor: pointer; font: inherit; font-weight: 700;
-    border-radius: 10px; padding: 12px 10px; font-size: 14px;
-  }
+  button { appearance: none; border: 0; cursor: pointer; font: inherit; font-weight: 700; border-radius: 10px; padding: 12px 10px; font-size: 14px; }
   button:disabled { opacity: .5; cursor: default; }
   .btn-primary { background: var(--green-bg); color: var(--green); }
   .btn-secondary { background: #fff; color: var(--text); border: 1px solid var(--line); }
-  .state {
-    margin-top: 18px; background: #fff; border-radius: 16px; padding: 28px 18px;
-    border: 1px solid var(--line); text-align: center;
-  }
+  .state { margin-top: 18px; background: #fff; border-radius: 16px; padding: 28px 18px; border: 1px solid var(--line); text-align: center; }
   .state h2 { margin: 0 0 8px; font-size: 18px; }
   .state p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.45; }
   .state .actions { max-width: 200px; margin: 16px auto 0; grid-template-columns: 1fr; }
@@ -84,119 +53,115 @@
 <div class="wrap" id="app"></div>
 <script>
 const JSON_URL = "./hoy_3_tarjetas.json";
-
-const money = (n) => {
-  if (n == null || Number.isNaN(Number(n))) return null;
-  return new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(Number(n));
-};
+const money0 = (n) => new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(Number(n));
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const storeKey = (id) => `radar-hoy:${id}`;
 
 function productName(card) {
   const t = (card.title || "").trim();
-  const generic = !t || /^Busca proveedor/i.test(t) || /^Compra\s+\d+/i.test(t) && t.length < 24;
+  const generic = !t || /^Busca proveedor/i.test(t) || (/^Compra\s+\d+/i.test(t) && t.length < 28);
   if (!generic) return t;
   const m = (card.por_que || "").match(/·\s*([^:]+?)(?::|$)/);
   if (m) return m[1].replace(/…/g, "").trim();
-  return card.sku || "Producto";
+  return card.sku || "este producto";
 }
 
-function actionSentence(card) {
+/** Verbo primero — orden del día (Bilse) */
+function verbTitle(card) {
+  const name = productName(card);
   const n = Number(card.qty) || 1;
-  const piezas = n === 1 ? "1 pieza" : `${n} piezas`;
-  if (card.action === "COMPRAR" || card.tipo === "REPONER" || card.tipo === "ESTRELLA" || card.tipo === "CASHFLOW") {
-    if (card.action === "BUSCAR") return `Busca ${piezas} con un proveedor nuevo`;
-    return `Compra ${piezas} hoy`;
+  if (card.action === "BUSCAR" || card.tipo === "BUSCAR") {
+    return n === 1
+      ? `Busca quién te venda ${name}`
+      : `Busca quién te venda ${name} (${n} piezas)`;
   }
-  if (card.action === "BUSCAR") return `Busca ${piezas} con un proveedor`;
-  return `Revisa este SKU`;
+  return n === 1 ? `Compra ${name}` : `Compra ${n} de ${name}`;
 }
 
-function ceilingSentence(card) {
-  const m = money(card.max_landed_cost);
-  if (!m || Number(card.max_landed_cost) <= 0) return null;
-  return `No pagues más de ${m} por pieza`;
+function plataLine(card) {
+  const g = card.ganancia_estimada_mxn;
+  if (g == null || Number.isNaN(Number(g))) return null; // nada si no hay número
+  return `~gánele ${money0(g)}`;
 }
 
-function moneySentence(card) {
-  const g = money(card.ganancia_estimada_mxn);
-  const r = card.roi_pct;
-  if (g) {
-    if (r != null && !Number.isNaN(Number(r))) {
-      return `Ganarías más o menos ${g} (ROI ${Number(r).toFixed(0)}%)`;
-    }
-    return `Ganarías más o menos ${g}`;
+function humanReason(card) {
+  const ev = card.evidence || {};
+  const bits = [];
+  if (ev.soh === 0) bits.push("se te acabó");
+  if ((ev.sales_30 || 0) > 0 || (ev.sales_90 || 0) > 0) bits.push("se vende seguido");
+  if (card.tipo === "ESTRELLA") bits.push("es de tus estrellas");
+  if (card.tipo === "CASHFLOW") bits.push("suelta caja rápido");
+  if (card.action === "BUSCAR" || card.tipo === "BUSCAR") bits.push("ya no tienes de dónde comprarlo");
+
+  // prefer short human line from por_que if cleanable
+  let s = (card.por_que || "");
+  s = s.replace(/\bsin buy path\b/gi, "")
+       .replace(/\bagotado el canal\b/gi, "")
+       .replace(/\bbuen historial\b/gi, "")
+       .replace(/\bVuelve a buscar proveedor de[^:]+:\s*/i, "")
+       .replace(/\bBusca de nuevo proveedor de[^:]+:\s*/i, "")
+       .replace(/\s*\/\s*/g, " ")
+       .replace(/\s{2,}/g, " ")
+       .trim();
+
+  if (bits.length) {
+    // unique-ish join
+    const uniq = [...new Set(bits)];
+    return uniq.slice(0, 2).join(" y ") + ".";
   }
-  return "La ganancia sale cuando cotices el precio";
+  if (s && s.length < 90) return s.charAt(0).toUpperCase() + s.slice(1);
+  return "Vale la pena checarlo hoy.";
 }
 
-function humanWhy(card) {
-  let s = (card.por_que || "").trim();
-  if (!s) return "";
-  // quitar ruido de jerga
-  s = s
-    .replace(/\bsin buy path\b/gi, "sin canal de compra")
-    .replace(/\bagotado el canal\b/gi, "se te acabó de dónde comprarlo")
-    .replace(/\bbuen historial\b/gi, "se ha vendido bien")
-    .replace(/\bmicroventa\b/gi, "venta chica")
-    .replace(/\s*\/\s*/g, ". ");
-  // si empieza con plantilla larga, acortar a lo útil tras :
-  const parts = s.split(":");
-  if (parts.length > 1 && parts[0].length > 40) {
-    const rest = parts.slice(1).join(":").trim();
-    if (rest) s = rest.charAt(0).toUpperCase() + rest.slice(1);
+function tapHint(card) {
+  if (card.action === "BUSCAR" || card.tipo === "BUSCAR") {
+    const cap = card.max_landed_cost;
+    if (cap && Number(cap) > 0) return `Busca en ML y no pases de ${money0(cap)}. Luego toca Ya lo hice.`;
+    return "Busca en ML un proveedor. Luego toca Ya lo hice.";
   }
-  return s;
+  const cap = card.max_landed_cost;
+  if (cap && Number(cap) > 0) return `Cómpralo sin pasar de ${money0(cap)}. Luego toca Ya lo hice.`;
+  return "Cuando lo tengas, toca Ya lo hice.";
 }
 
-function evidenceLine(ev) {
+function evidenceTiny(ev) {
   if (!ev) return "";
   const a = [];
-  if (ev.sales_30 != null) a.push(`${ev.sales_30} venta${ev.sales_30 === 1 ? "" : "s"} en 30 días`);
-  if (ev.sales_90 != null) a.push(`${ev.sales_90} en 90 días`);
+  if (ev.sales_30 != null) a.push(`${ev.sales_30} en 30d`);
+  if (ev.sales_90 != null) a.push(`${ev.sales_90} en 90d`);
   if (ev.soh != null) a.push(`stock ${ev.soh}`);
   return a.join(" · ");
 }
 
 function pageHeadline(data) {
   const n = (data.cards || []).length;
-  if (!n) return data.headline || "Hoy no tienes que comprar nada";
-  if (data.kind === "tarea_del_dia" || n > 0) {
-    if (n === 1) return "Hoy: 1 cosa que hacer";
-    return `Hoy: ${n} cosas que hacer`;
-  }
-  return data.headline || `Hoy: ${n} cosas`;
+  if (!n) return "Hoy no tienes que comprar nada";
+  return n === 1 ? "Hoy: 1 cosa" : `Hoy: ${n} cosas`;
 }
-
 function pageLead(data) {
   const cards = data.cards || [];
-  if (!cards.length) return data.lead || "Respira. No hay reposición urgente.";
+  if (!cards.length) return data.lead || "Respira. Nada urgente.";
   const buscar = cards.filter(c => c.action === "BUSCAR" || c.tipo === "BUSCAR").length;
-  const comprar = cards.filter(c => c.action === "COMPRAR").length;
+  const comprar = cards.length - buscar;
   const bits = [];
-  if (comprar) bits.push(comprar === 1 ? "1 para comprar" : `${comprar} para comprar`);
-  if (buscar) bits.push(buscar === 1 ? "1 para buscar proveedor" : `${buscar} para buscar proveedor`);
-  return bits.length ? bits.join(". ") + "." : (data.lead || "");
+  if (comprar > 0) bits.push(comprar === 1 ? "1 para comprar" : `${comprar} para comprar`);
+  if (buscar > 0) bits.push(buscar === 1 ? "1 para buscar quién te lo venda" : `${buscar} para buscar proveedor`);
+  return bits.join(". ") + ".";
 }
 
 function renderLoading() {
-  return `<p class="eyebrow">Radar · Hoy</p><h1>Cargando…</h1>
-    <div class="stack"><div class="skel"></div><div class="skel"></div></div>`;
+  return `<p class="eyebrow">Radar · Hoy</p><h1>Cargando…</h1><div class="stack"><div class="skel"></div><div class="skel"></div></div>`;
 }
-
 function renderError(msg) {
   return `<p class="eyebrow">Radar · Hoy</p><h1>No pude cargar el día</h1>
     <div class="state"><h2>Algo falló</h2><p>${esc(msg)}</p>
     <div class="actions"><button class="btn-primary" id="retry">Reintentar</button></div></div>`;
 }
-
 function renderEmpty(data) {
   const meta = data.meta || {};
-  let datum = "Nada pendiente por ahora.";
+  let datum = "Nada pendiente.";
   if (meta.paused_by_operator) datum = `Tienes ${meta.paused_by_operator} pausados a propósito.`;
-  else if (meta.last_sale_at) datum = `Última venta: ${new Date(meta.last_sale_at).toLocaleDateString("es-MX")}.`;
-  return `<p class="eyebrow">Radar · Hoy</p>
-    <h1>${esc(pageHeadline(data))}</h1>
+  return `<p class="eyebrow">Radar · Hoy</p><h1>${esc(pageHeadline(data))}</h1>
     <p class="lead">${esc(data.lead || "Hoy no hace falta comprar.")}</p>
     <div class="state"><h2>Hoy no hace falta comprar</h2><p>${esc(datum)}</p></div>`;
 }
@@ -204,24 +169,21 @@ function renderEmpty(data) {
 function renderCard(card, i) {
   const status = localStorage.getItem(storeKey(card.done_id)) || "";
   const cls = status === "done" ? "done" : status === "skip" ? "skipped" : "";
-  const name = productName(card);
   const img = card.image_url
     ? `<img class="photo" src="${esc(card.image_url)}" alt=""/>`
     : `<div class="photo ph">Sin foto</div>`;
-  const ceil = ceilingSentence(card);
-  const why = humanWhy(card);
-  const ev = evidenceLine(card.evidence);
+  const plata = plataLine(card);
+  const ev = evidenceTiny(card.evidence);
   return `<article class="card ${cls}" data-done-id="${esc(card.done_id)}">
     <span class="badge ${esc(card.tipo)}">${esc(card.tipo)}</span>
     <div class="row">
       ${img}
       <div class="copy">
         <p class="index">#${i + 1}</p>
-        <h2 class="title">${esc(name)}</h2>
-        <p class="action-line">${esc(actionSentence(card))}</p>
-        ${ceil ? `<p class="ceiling">${esc(ceil)}</p>` : ""}
-        <p class="money">${esc(moneySentence(card))}</p>
-        ${why ? `<p class="why">${esc(why)}</p>` : ""}
+        <h2 class="title">${esc(verbTitle(card))}</h2>
+        ${plata ? `<p class="plata">${esc(plata)}</p>` : ""}
+        <p class="why">${esc(humanReason(card))}</p>
+        <p class="hint">${esc(tapHint(card))}</p>
         ${ev ? `<p class="evidence">${esc(ev)}</p>` : ""}
       </div>
     </div>
