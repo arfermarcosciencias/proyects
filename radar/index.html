@@ -133,7 +133,7 @@ function qtyAdviceLine(card) {
   const piezas = n === 1 ? "1 pieza" : n + " piezas";
   return "Si lo consigues a ese precio, compra " + piezas;
 }
-function whyText(card)function whyText(card) {
+function whyText(card) {
   if (card.why_line && String(card.why_line).trim()) return String(card.why_line).trim();
   const ev = card.evidence || {};
   const bits = [];
@@ -398,4 +398,3 @@ load();
 </script>
 </body>
 </html>
-
