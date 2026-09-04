@@ -102,6 +102,17 @@ const money0 = (n) => new Intl.NumberFormat("es-MX", { style: "currency", curren
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const storeKey = (id) => `radar-hoy:v1:${id}`;
 
+function asText(v) {
+  if (v == null) return "";
+  if (typeof v === "string") return v.trim();
+  if (typeof v === "object") {
+    for (const k of ["detail", "text", "why_line", "por_que", "summary", "label"]) {
+      if (typeof v[k] === "string" && v[k].trim()) return v[k].trim();
+    }
+  }
+  return "";
+}
+
 function productName(card) {
   const t = (card.title || "").trim();
   const generic = !t || /^Busca proveedor/i.test(t) || (/^Compra\s+\d+/i.test(t) && t.length < 28);
@@ -160,11 +171,11 @@ function qtyAdviceLine(card) {
 }
 
 function whyText(card) {
-  const candidates = [card.why_line, card.why, card.por_que, card.contexto_prompt];
+  const candidates = [card.why_line, asText(card.why), card.por_que, card.contexto_prompt];
   for (const raw of candidates) {
-    let s = String(raw || "").trim();
+    let s = asText(raw);
     if (!s) continue;
-    if (/\bsoh\b|\btecho\b|\d+d\s*\/|buy path/i.test(s)) continue;
+    if (/\bsoh\b|\btecho\b|\d+d\s*\/|buy path|\[object Object\]/i.test(s)) continue;
     s = s.replace(/\bsin buy path\b/gi, "")
          .replace(/\bagotado el canal\b/gi, "")
          .replace(/\bbuen historial\b/gi, "")
@@ -208,7 +219,7 @@ function mlHref(card, name) {
 }
 
 function contextText(card) {
-  return (card.contexto_prompt || card.why_line || card.por_que || card.why || "").trim();
+  return asText(card.contexto_prompt) || asText(card.why_line) || asText(card.por_que) || asText(card.why) || "";
 }
 function keepaHref(card) {
   const asin = (card.asin || "").trim();
