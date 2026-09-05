@@ -369,15 +369,149 @@ function renderTabs(counts) {
   ).join("")}</div>`;
 }
 
-function photoHtml(card) {
-  const rawImg = card.image_url || "";
-  const isData = /^data:/i.test(rawImg);
-  const heavyData = isData && rawImg.length > 120000;
-  // http(s) images always show; heavy data URIs → «Foto pesada» (never label that as «Sin foto»)
-  if (rawImg && !heavyData) {
-    return `<img class="photo" src="${esc(rawImg)}" alt=""/>`;
+const SKU_IMG_RE = /^[A-Za-z0-9._-]+$/;
+const HEAVY_DATA_URI = 120000;
+
+/** Same photo pipeline for Hoy / cola / Ya decididas.
+ *  Motor (Sistema_Arfershop_V4/radar_rotacion.py on FA's Mac) currently
+ *  builds dismissed_or_paused/parked with include_image=False, so image_url
+ *  arrives empty. Do not depend on that field alone:
+ *  image_url → marketplace thumbs → ./img/{SKU}.jpg → ML item API → placeholder.
+ */
+function isHeavyDataUri(u) {
+  return /^data:/i.test(u) && u.length > HEAVY_DATA_URI;
+}
+
+function isUsablePhotoSrc(u) {
+  const s = String(u || "").trim();
+  if (!s || isHeavyDataUri(s)) return false;
+  if (/^data:/i.test(s)) return true;
+  return /^(https?:\/\/|\.{0,2}\/)/i.test(s);
+}
+
+function skuPhotoUrls(sku) {
+  const s = String(sku || "").trim();
+  if (!SKU_IMG_RE.test(s)) return [];
+  return [`./img/${s}.jpg`];
+}
+
+function marketplaceThumbs(card) {
+  const out = [];
+  const push = (v) => { if (typeof v === "string" && v.trim()) out.push(v.trim()); };
+  for (const k of [
+    "thumbnail", "secure_thumbnail", "thumb_url", "thumbnail_url",
+    "picture_url", "picture", "marketplace_image", "marketplace_thumbnail"
+  ]) push(card[k]);
+  const pics = card.pictures;
+  if (Array.isArray(pics)) {
+    for (const p of pics) {
+      if (typeof p === "string") push(p);
+      else if (p && typeof p === "object") push(p.secure_url || p.url || p.src);
+    }
   }
-  return `<div class="photo ph">${rawImg ? "Foto pesada" : "Sin foto"}</div>`;
+  return out;
+}
+
+function mlItemIdFromCard(card) {
+  const urls = [card.marketplace_url, card.permalink];
+  if (typeof card.meli_id === "string") urls.push(card.meli_id);
+  const extra = card.marketplace_urls;
+  if (Array.isArray(extra)) {
+    for (const x of extra) urls.push(typeof x === "string" ? x : (x && x.url));
+  }
+  for (const u of urls) {
+    const m = String(u || "").match(/(ML[A-Z])-?(\d{6,})/i);
+    if (m) return m[1].toUpperCase() + m[2];
+  }
+  return "";
+}
+
+function photoCandidates(card) {
+  const seen = new Set();
+  const out = [];
+  const add = (u) => {
+    const s = String(u || "").trim();
+    if (!isUsablePhotoSrc(s) || seen.has(s)) return;
+    seen.add(s);
+    out.push(s);
+  };
+  add(card.image_url);
+  marketplaceThumbs(card).forEach(add);
+  skuPhotoUrls(card.sku).forEach(add);
+  return out;
+}
+
+function photoPlaceholder(label) {
+  return `<div class="photo ph">${esc(label || "Sin foto")}</div>`;
+}
+
+function replacePhotoWithPlaceholder(el, label) {
+  const ph = document.createElement("div");
+  ph.className = "photo ph";
+  ph.textContent = label || "Sin foto";
+  el.replaceWith(ph);
+}
+
+function mlThumbFromPayload(j) {
+  if (!j || typeof j !== "object") return "";
+  const pics = Array.isArray(j.pictures) ? j.pictures : [];
+  const first = pics[0] || {};
+  return j.secure_thumbnail || j.thumbnail || first.secure_url || first.url || "";
+}
+
+function fetchMlThumb(itemId) {
+  return fetch("https://api.mercadolibre.com/items/" + encodeURIComponent(itemId))
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(mlThumbFromPayload)
+    .then(u => (isUsablePhotoSrc(u) ? u : Promise.reject()));
+}
+
+function radarPhotoFallback(img) {
+  let next = [];
+  try { next = JSON.parse(img.getAttribute("data-fallbacks") || "[]"); } catch { next = []; }
+  while (next.length && next[0] === img.getAttribute("src")) next.shift();
+  if (next.length) {
+    img.setAttribute("data-fallbacks", JSON.stringify(next.slice(1)));
+    img.src = next[0];
+    return;
+  }
+  const ml = img.getAttribute("data-ml-item");
+  if (ml && !img.dataset.mlTried) {
+    img.dataset.mlTried = "1";
+    fetchMlThumb(ml).then(u => { img.src = u; }).catch(() => replacePhotoWithPlaceholder(img));
+    return;
+  }
+  replacePhotoWithPlaceholder(img);
+}
+
+function hydratePlaceholderPhotos(root) {
+  root.querySelectorAll(".photo.ph[data-ml-item]").forEach(el => {
+    const ml = el.getAttribute("data-ml-item");
+    if (!ml) return;
+    fetchMlThumb(ml).then(u => {
+      const img = document.createElement("img");
+      img.className = "photo";
+      img.alt = "";
+      img.referrerPolicy = "no-referrer";
+      img.addEventListener("error", () => replacePhotoWithPlaceholder(img));
+      img.src = u;
+      el.replaceWith(img);
+    }).catch(() => { /* honest Sin foto */ });
+  });
+}
+
+function photoHtml(card) {
+  const rawImg = String(card.image_url || "");
+  const cands = photoCandidates(card);
+  const ml = mlItemIdFromCard(card);
+  if (!cands.length) {
+    if (isHeavyDataUri(rawImg)) return photoPlaceholder("Foto pesada");
+    if (ml) return `<div class="photo ph" data-ml-item="${esc(ml)}">Sin foto</div>`;
+    return photoPlaceholder("Sin foto");
+  }
+  const rest = JSON.stringify(cands.slice(1));
+  const mlAttr = ml ? ` data-ml-item="${esc(ml)}"` : "";
+  return `<img class="photo" src="${esc(cands[0])}" alt="" referrerpolicy="no-referrer" data-fallbacks="${esc(rest)}"${mlAttr} onerror="radarPhotoFallback(this)"/>`;
 }
 
 function renderCard(card, i, opts) {
@@ -558,6 +692,7 @@ function paint(data) {
   const app = document.getElementById("app");
   app.innerHTML = renderData(data);
   wire(app);
+  hydratePlaceholderPhotos(app);
   document.getElementById("resetHidden")?.addEventListener("click", radarResetHidden);
 }
 
@@ -591,5 +726,5 @@ load();
 </script>
 </body>
 </html>
-<!-- pages-bump 1788560779 -->
+<!-- pages-bump 1788649000 -->
 
