@@ -8,7 +8,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 01BX001\nProducto: Set De Biberones Options + 4 Oz Rosa 0 A 6M+ - Dr Browns\nAcción: BUSCAR\nTecho (max_landed / alert_price): $440 MXN\nSi el precio de la captura es ≤ $440: compra 1 pieza(s) de 01BX001.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 3\nUtilidad est. / u: $181 · ROI: 46% · margen u: $181\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $440\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "01BX001|BUSCAR PROVEEDOR|0|1|1|440",
       "evidence": {
-        "days_since_last_sale": 145,
+        "days_since_last_sale": 146,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -63,7 +63,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 10EU001\nProducto: Soporte Vertical Ventilador Blanco Usb Xbox Series S - Dobe\nAcción: BUSCAR\nTecho (max_landed / alert_price): $335 MXN\nSi el precio de la captura es ≤ $335: compra 1 pieza(s) de 10EU001.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 3\nUtilidad est. / u: $215 · ROI: 90% · margen u: $215\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $335\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "10EU001|BUSCAR PROVEEDOR|0|1|1|335",
       "evidence": {
-        "days_since_last_sale": 145,
+        "days_since_last_sale": 146,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -176,7 +176,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — NIJU004\nProducto: Peluche de Juguete The Child Talking Plush - Hasbro\nAcción: BUSCAR\nTecho (max_landed / alert_price): $246 MXN\nSi el precio de la captura es ≤ $246: compra 1 pieza(s) de NIJU004.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 4 · históricas: 5\nUtilidad est. / u: $177 · ROI: 65% · margen u: $177\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $246\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "NIJU004|PAUSAR COMPRA|0|3|0|246",
       "evidence": {
-        "days_since_last_sale": 59,
+        "days_since_last_sale": 60,
         "sales_30": 0,
         "sales_90": 4,
         "soh": 0,
@@ -235,7 +235,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 10LU001\nProducto: Lentes para Eclipse Solar 1 Pieza - American Paper Optics\nAcción: BUSCAR\nTecho (max_landed / alert_price): $72 MXN\nSi el precio de la captura es ≤ $72: compra 1 pieza(s) de 10LU001.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 2 · históricas: 2\nUtilidad est. / u: $92 · ROI: 92% · margen u: $92\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $72\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "10LU001|PAUSAR COMPRA|0|1|0|72",
       "evidence": {
-        "days_since_last_sale": 51,
+        "days_since_last_sale": 52,
         "sales_30": 0,
         "sales_90": 2,
         "soh": 0,
@@ -294,7 +294,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 07BU001\nProducto: Jurassic World Cráneo T. Rex 76964 577 Piezas - Lego\nAcción: BUSCAR\nTecho (max_landed / alert_price): $663 MXN\nSi el precio de la captura es ≤ $663: compra 1 pieza(s) de 07BU001.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 1 · 90d: 5 · históricas: 5\nUtilidad est. / u: $65 · ROI: 9% · margen u: $65\nASIN: (no verificado — no inventar)\nPor qué: 1·30d / soh 0 / techo $663\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "07BU001|PAUSAR COMPRA|0|3|0|663",
       "evidence": {
-        "days_since_last_sale": 2,
+        "days_since_last_sale": 3,
         "sales_30": 1,
         "sales_90": 5,
         "soh": 0,
@@ -378,7 +378,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — NICX002\nProducto: Casa De Muñecas Gabby Purrfect Dollhouse 15 Pzs - SpinMaster\nAcción: BUSCAR\nTecho (max_landed / alert_price): $1,000 MXN\nSi el precio de la captura es ≤ $1,000: compra 1 pieza(s) de NICX002.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 1 · históricas: 1\nUtilidad est. / u: $501 · ROI: 63% · margen u: $501\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $1,000\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "NICX002|PAUSAR COMPRA|0|1|0|1000",
       "evidence": {
-        "days_since_last_sale": 73,
+        "days_since_last_sale": 74,
         "sales_30": 0,
         "sales_90": 1,
         "soh": 0,
@@ -437,7 +437,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — NIFU011\nProducto: Figura Coleccionable Star Wars Grogu 3+ - Funko Pop\nAcción: BUSCAR\nTecho (max_landed / alert_price): $289 MXN\nSi el precio de la captura es ≤ $289: compra 1 pieza(s) de NIFU011.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 1 · históricas: 1\nUtilidad est. / u: $151 · ROI: 58% · margen u: $151\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $289\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "NIFU011|PAUSAR COMPRA|0|1|0|289",
       "evidence": {
-        "days_since_last_sale": 82,
+        "days_since_last_sale": 83,
         "sales_30": 0,
         "sales_90": 1,
         "soh": 0,
@@ -496,7 +496,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 05NU006\nProducto: Peluche De Pomni The Amazing Digital Circus +3 - Genérico\nAcción: BUSCAR\nTecho (max_landed / alert_price): $60 MXN\nSi el precio de la captura es ≤ $60: compra 1 pieza(s) de 05NU006.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 3\nUtilidad est. / u: $103 · ROI: 134% · margen u: $103\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $60\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "05NU006|PAUSAR COMPRA|0|1|0|60",
       "evidence": {
-        "days_since_last_sale": 111,
+        "days_since_last_sale": 112,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -555,7 +555,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — NIPU010\nProducto: Peluche Jax The Amazing Digital Circus Genérico\nAcción: BUSCAR\nTecho (max_landed / alert_price): $0 MXN\nSi el precio de la captura es ≤ $0: compra 1 pieza(s) de NIPU010.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 2\nUtilidad est. / u: $47 · ROI: 78% · margen u: $47\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $0\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "NIPU010|PAUSAR COMPRA|0|1|0|0",
       "evidence": {
-        "days_since_last_sale": 110,
+        "days_since_last_sale": 111,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -624,18 +624,18 @@
   },
   "freshness": {
     "inventory": {
-      "age_hours": 21.97,
+      "age_hours": 33.56,
       "modified_at": "2026-09-04T12:46:37"
     },
     "message": "",
     "sales": {
-      "age_hours": 21.49,
+      "age_hours": 33.08,
       "modified_at": "2026-09-04T13:15:34"
     },
     "stale": false,
-    "worst_age_hours": 21.97
+    "worst_age_hours": 33.56
   },
-  "generated_at": "2026-09-05T10:45:06",
+  "generated_at": "2026-09-05T22:20:26",
   "headline": "Busca proveedor · Set De Biberones Options + 4 Oz Rosa 0 A",
   "hide_days_default": {
     "descartado": 30,
@@ -667,7 +667,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — NIJU004\nProducto: Peluche de Juguete The Child Talking Plush - Hasbro\nAcción: BUSCAR\nTecho (max_landed / alert_price): $246 MXN\nSi el precio de la captura es ≤ $246: compra 1 pieza(s) de NIJU004.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 4 · históricas: 5\nUtilidad est. / u: $177 · ROI: 65% · margen u: $177\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $246\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "NIJU004|PAUSAR COMPRA|0|3|0|246",
       "evidence": {
-        "days_since_last_sale": 59,
+        "days_since_last_sale": 60,
         "sales_30": 0,
         "sales_90": 4,
         "soh": 0,
@@ -726,7 +726,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 10LU001\nProducto: Lentes para Eclipse Solar 1 Pieza - American Paper Optics\nAcción: BUSCAR\nTecho (max_landed / alert_price): $72 MXN\nSi el precio de la captura es ≤ $72: compra 1 pieza(s) de 10LU001.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 2 · históricas: 2\nUtilidad est. / u: $92 · ROI: 92% · margen u: $92\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $72\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "10LU001|PAUSAR COMPRA|0|1|0|72",
       "evidence": {
-        "days_since_last_sale": 51,
+        "days_since_last_sale": 52,
         "sales_30": 0,
         "sales_90": 2,
         "soh": 0,
@@ -785,7 +785,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 07BU001\nProducto: Jurassic World Cráneo T. Rex 76964 577 Piezas - Lego\nAcción: BUSCAR\nTecho (max_landed / alert_price): $663 MXN\nSi el precio de la captura es ≤ $663: compra 1 pieza(s) de 07BU001.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 1 · 90d: 5 · históricas: 5\nUtilidad est. / u: $65 · ROI: 9% · margen u: $65\nASIN: (no verificado — no inventar)\nPor qué: 1·30d / soh 0 / techo $663\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "07BU001|PAUSAR COMPRA|0|3|0|663",
       "evidence": {
-        "days_since_last_sale": 2,
+        "days_since_last_sale": 3,
         "sales_30": 1,
         "sales_90": 5,
         "soh": 0,
@@ -869,7 +869,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — NICX002\nProducto: Casa De Muñecas Gabby Purrfect Dollhouse 15 Pzs - SpinMaster\nAcción: BUSCAR\nTecho (max_landed / alert_price): $1,000 MXN\nSi el precio de la captura es ≤ $1,000: compra 1 pieza(s) de NICX002.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 1 · históricas: 1\nUtilidad est. / u: $501 · ROI: 63% · margen u: $501\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $1,000\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "NICX002|PAUSAR COMPRA|0|1|0|1000",
       "evidence": {
-        "days_since_last_sale": 73,
+        "days_since_last_sale": 74,
         "sales_30": 0,
         "sales_90": 1,
         "soh": 0,
@@ -928,7 +928,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — NIFU011\nProducto: Figura Coleccionable Star Wars Grogu 3+ - Funko Pop\nAcción: BUSCAR\nTecho (max_landed / alert_price): $289 MXN\nSi el precio de la captura es ≤ $289: compra 1 pieza(s) de NIFU011.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 1 · históricas: 1\nUtilidad est. / u: $151 · ROI: 58% · margen u: $151\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $289\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "NIFU011|PAUSAR COMPRA|0|1|0|289",
       "evidence": {
-        "days_since_last_sale": 82,
+        "days_since_last_sale": 83,
         "sales_30": 0,
         "sales_90": 1,
         "soh": 0,
@@ -987,7 +987,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 05NU006\nProducto: Peluche De Pomni The Amazing Digital Circus +3 - Genérico\nAcción: BUSCAR\nTecho (max_landed / alert_price): $60 MXN\nSi el precio de la captura es ≤ $60: compra 1 pieza(s) de 05NU006.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 3\nUtilidad est. / u: $103 · ROI: 134% · margen u: $103\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $60\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "05NU006|PAUSAR COMPRA|0|1|0|60",
       "evidence": {
-        "days_since_last_sale": 111,
+        "days_since_last_sale": 112,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -1046,7 +1046,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — NIPU010\nProducto: Peluche Jax The Amazing Digital Circus Genérico\nAcción: BUSCAR\nTecho (max_landed / alert_price): $0 MXN\nSi el precio de la captura es ≤ $0: compra 1 pieza(s) de NIPU010.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 2\nUtilidad est. / u: $47 · ROI: 78% · margen u: $47\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $0\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "NIPU010|PAUSAR COMPRA|0|1|0|0",
       "evidence": {
-        "days_since_last_sale": 110,
+        "days_since_last_sale": 111,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -1107,7 +1107,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 02BU001\nProducto: Panda Juguete De Peluche Aprendizaje Musical - Fisher Price\nAcción: BUSCAR\nTecho (max_landed / alert_price): $621 MXN\nSi el precio de la captura es ≤ $621: compra 1 pieza(s) de 02BU001.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 1 · históricas: 2\nUtilidad est. / u: $229 · ROI: 39% · margen u: $229\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $621\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "02BU001|BUSCAR PROVEEDOR|0|1|1|621",
       "evidence": {
-        "days_since_last_sale": 64,
+        "days_since_last_sale": 65,
         "sales_30": 0,
         "sales_90": 1,
         "soh": 0,
@@ -1217,7 +1217,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 5AFU001\nProducto: Juguete Cápsula Disney Store Series 2 - 5 Surprise\nAcción: BUSCAR\nTecho (max_landed / alert_price): $74 MXN\nSi el precio de la captura es ≤ $74: compra 1 pieza(s) de 5AFU001.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 1 · históricas: 2\nUtilidad est. / u: $75 · ROI: 62% · margen u: $75\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $74\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "5AFU001|BUSCAR PROVEEDOR|0|1|1|74",
       "evidence": {
-        "days_since_last_sale": 88,
+        "days_since_last_sale": 89,
         "sales_30": 0,
         "sales_90": 1,
         "soh": 0,
@@ -1272,7 +1272,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 00BU002\nProducto: Baby Cojín de Actividades 0m+ Oso Perezoso - Fisher Price\nAcción: BUSCAR\nTecho (max_landed / alert_price): $579 MXN\nSi el precio de la captura es ≤ $579: compra 1 pieza(s) de 00BU002.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 2\nUtilidad est. / u: $279 · ROI: 59% · margen u: $279\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $579\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "00BU002|BUSCAR PROVEEDOR|0|1|1|579",
       "evidence": {
-        "days_since_last_sale": 172,
+        "days_since_last_sale": 173,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -1327,7 +1327,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 10MU014\nProducto: Memoria USB Ultra Fit 128GB USB 3.1 - SanDisk\nAcción: BUSCAR\nTecho (max_landed / alert_price): $310 MXN\nSi el precio de la captura es ≤ $310: compra 1 pieza(s) de 10MU014.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 2\nUtilidad est. / u: $73 · ROI: 21% · margen u: $73\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $310\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "10MU014|BUSCAR PROVEEDOR|0|1|1|310",
       "evidence": {
-        "days_since_last_sale": 97,
+        "days_since_last_sale": 98,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -1382,7 +1382,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 05RU001\nProducto: Rompecabezas Cubos De Madera Granja 16 Pzs - Melissa & Doug\nAcción: BUSCAR\nTecho (max_landed / alert_price): $296 MXN\nSi el precio de la captura es ≤ $296: compra 1 pieza(s) de 05RU001.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 1 · 90d: 1 · históricas: 1\nUtilidad est. / u: $236 · ROI: 131% · margen u: $236\nASIN: (no verificado — no inventar)\nPor qué: 1·30d / soh 0 / techo $296\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "05RU001|BUSCAR PROVEEDOR|0|1|1|296",
       "evidence": {
-        "days_since_last_sale": 2,
+        "days_since_last_sale": 3,
         "sales_30": 1,
         "sales_90": 1,
         "soh": 0,
@@ -1437,7 +1437,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — NIFU006\nProducto: Figura Coleccionable DANDADAN Okarun +3 Chase - Funko Pop\nAcción: BUSCAR\nTecho (max_landed / alert_price): $462 MXN\nSi el precio de la captura es ≤ $462: compra 1 pieza(s) de NIFU006.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 1 · 90d: 1 · históricas: 1\nUtilidad est. / u: $301 · ROI: 100% · margen u: $301\nASIN: (no verificado — no inventar)\nPor qué: 1·30d / soh 0 / techo $462\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "NIFU006|BUSCAR PROVEEDOR|0|1|1|462",
       "evidence": {
-        "days_since_last_sale": 23,
+        "days_since_last_sale": 24,
         "sales_30": 1,
         "sales_90": 1,
         "soh": 0,
@@ -1492,7 +1492,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 8AJU003\nProducto: Juego de Mesa Twister Air - Hasbro\nAcción: BUSCAR\nTecho (max_landed / alert_price): $82 MXN\nSi el precio de la captura es ≤ $82: compra 1 pieza(s) de 8AJU003.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 1 · históricas: 1\nUtilidad est. / u: $102 · ROI: 102% · margen u: $102\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $82\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "8AJU003|BUSCAR PROVEEDOR|0|1|1|82",
       "evidence": {
-        "days_since_last_sale": 58,
+        "days_since_last_sale": 59,
         "sales_30": 0,
         "sales_90": 1,
         "soh": 0,
@@ -1542,67 +1542,12 @@
     },
     {
       "action": "BUSCAR",
-      "alert_price": 147.0,
-      "asin": null,
-      "contexto_prompt": "CONTEXTO Radar Rotación — NIFU013\nProducto: Figura Coleccionable The Child Grogu 3+ Star War - Funko Pop\nAcción: BUSCAR\nTecho (max_landed / alert_price): $147 MXN\nSi el precio de la captura es ≤ $147: compra 1 pieza(s) de NIFU013.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 1 · históricas: 1\nUtilidad est. / u: $78 · ROI: 41% · margen u: $78\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $147\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
-      "done_id": "NIFU013|BUSCAR PROVEEDOR|0|1|1|147",
-      "evidence": {
-        "days_since_last_sale": 89,
-        "sales_30": 0,
-        "sales_90": 1,
-        "soh": 0,
-        "unit_margin": 77.61
-      },
-      "ganancia_estimada_mxn": null,
-      "hide_days_default": {
-        "descartado": 30,
-        "done": 1,
-        "not_found": 3,
-        "purchased": 7,
-        "skip": 1,
-        "tomorrow": 1
-      },
-      "image_url": "https://covers4.booksamillion.com/covers/gift/8/89/698/530/889698530439.jpg",
-      "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-4999072586",
-      "marketplace_urls": [],
-      "max_landed_cost": 147.0,
-      "por_que": "Vuelve a buscar proveedor de NIFU013 · Figura Coleccionable The Child Grogu 3+ Star…: buen historial, sin buy path / agotado el canal.",
-      "priority_top3": false,
-      "prompt_alerta": "TAREA Keepa Pro (Arfershop Radar Rotación) — modo WATCH_ONLY\nSKU: NIFU013\nProducto: Figura Coleccionable The Child Grogu 3+ Star War - Funko Pop\nProveedor habitual: Amazon México\nTecho / alert_price: $147 MXN\nASIN verificado: NO HAY en inventario — NO inventar por título.\nUPC disponible (pista, no ASIN): 889698530439\nShopping search: https://www.google.com/search?tbm=shop&q=Figura+Coleccionable+The+Child+Grogu+3%2B+Star+War+-+Funko+Pop+889698530439\n\nPasos:\n1) Primero resuelve ASIN EXACTO en Amazon MX (identidad UPC/EAN/ASIN; no fuzzy por nombre).\n2) Si no hay ASIN confiable: DETENTE y reporta; no crees alerta Keepa.\n3) Con ASIN exacto: Keepa MX domain=11 → tracking Amazon Nuevo, umbral ABSOLUTO menor a $147 MXN, memo WATCH_ONLY, TTL ~1 año, email ON.\n4) No compres. No mezclar Radar Keepa discovery. Devuelve ASIN + alert id.\nReferencia operativa: CODEX_PERSONAL_VAULT/02_NEGOCIO/KEEPA_ALERTAS.md\nAl terminar: deja status active en watches (sku, asin, max_landed, keepa_alert_id).",
-      "qty": 1,
-      "qty_si_techo": 1,
-      "roi_pct": null,
-      "sales_30": 0,
-      "sales_90": 1,
-      "sales_total": 1,
-      "shopping_label": "Buscar precio",
-      "shopping_url": "https://www.google.com/search?tbm=shop&q=Figura+Coleccionable+The+Child+Grogu+3%2B+Star+War+-+Funko+Pop+889698530439",
-      "sku": "NIFU013",
-      "soh": 0,
-      "supplier_name": "Amazon México",
-      "tipo": "BUSCAR",
-      "title": "Busca proveedor · Figura Coleccionable The Child Grogu 3+ ",
-      "unit_margin": 77.61,
-      "why": {
-        "detail": "No lo has vendido en los últimos 30 días y ya no te queda ninguna. Comprándolo en $147 o menos, cada pieza te deja cerca de $78.",
-        "max_landed_cost": 147,
-        "max_landed_cost_label": "$147",
-        "sales_30": 0,
-        "sales_30_label": "Ninguna",
-        "soh": 0,
-        "soh_label": "Ninguna",
-        "unit_margin_label": "$78"
-      },
-      "why_line": "0·30d / soh 0 / techo $147"
-    },
-    {
-      "action": "BUSCAR",
       "alert_price": 625.0,
       "asin": null,
       "contexto_prompt": "CONTEXTO Radar Rotación — 05NU004\nProducto: Juguete Tienda De Modas City Life 100Pzs +4 - Playmobil\nAcción: BUSCAR\nTecho (max_landed / alert_price): $625 MXN\nSi el precio de la captura es ≤ $625: compra 1 pieza(s) de 05NU004.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 1\nUtilidad est. / u: $250 · ROI: 44% · margen u: $250\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $625\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "05NU004|BUSCAR PROVEEDOR|0|1|1|625",
       "evidence": {
-        "days_since_last_sale": 141,
+        "days_since_last_sale": 142,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -1657,7 +1602,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 10AU007\nProducto: Audífonos TX70 Inalámbricos Gaming - VoltEdge\nAcción: BUSCAR\nTecho (max_landed / alert_price): $560 MXN\nSi el precio de la captura es ≤ $560: compra 1 pieza(s) de 10AU007.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 1 · 90d: 1 · históricas: 1\nUtilidad est. / u: $65 · ROI: 10% · margen u: $65\nASIN: (no verificado — no inventar)\nPor qué: 1·30d / soh 0 / techo $560\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "10AU007|BUSCAR PROVEEDOR|0|1|1|560",
       "evidence": {
-        "days_since_last_sale": 11,
+        "days_since_last_sale": 12,
         "sales_30": 1,
         "sales_90": 1,
         "soh": 0,
@@ -1767,7 +1712,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 10CU002\nProducto: Cafetera Todo en Uno Café y Espresso COM530M - De'Longhi\nAcción: BUSCAR\nTecho (max_landed / alert_price): $3,061 MXN\nSi el precio de la captura es ≤ $3,061: compra 1 pieza(s) de 10CU002.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 1\nUtilidad est. / u: $1,479 · ROI: 59% · margen u: $1,479\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $3,061\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "10CU002|BUSCAR PROVEEDOR|0|1|1|3061",
       "evidence": {
-        "days_since_last_sale": 145,
+        "days_since_last_sale": 146,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -1877,7 +1822,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 10VU004\nProducto: Comfort Grip Pikachu Nintendo - Power A\nAcción: BUSCAR\nTecho (max_landed / alert_price): $334 MXN\nSi el precio de la captura es ≤ $334: compra 1 pieza(s) de 10VU004.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 1\nUtilidad est. / u: $215 · ROI: 90% · margen u: $215\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $334\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "10VU004|BUSCAR PROVEEDOR|0|1|1|334",
       "evidence": {
-        "days_since_last_sale": 172,
+        "days_since_last_sale": 173,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -1932,7 +1877,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 8AJU002\nProducto: Juego de Mesa de Estrategia Azul 8+ - Next Move\nAcción: BUSCAR\nTecho (max_landed / alert_price): $602 MXN\nSi el precio de la captura es ≤ $602: compra 1 pieza(s) de 8AJU002.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 1\nUtilidad est. / u: $189 · ROI: 32% · margen u: $189\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $602\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "8AJU002|BUSCAR PROVEEDOR|0|1|1|602",
       "evidence": {
-        "days_since_last_sale": 145,
+        "days_since_last_sale": 146,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -1987,7 +1932,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — NICU001\nProducto: Juguete Color Reveal 2Pack - Hot Wheels\nAcción: BUSCAR\nTecho (max_landed / alert_price): $193 MXN\nSi el precio de la captura es ≤ $193: compra 1 pieza(s) de NICU001.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 1\nUtilidad est. / u: $164 · ROI: 110% · margen u: $164\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $193\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "NICU001|BUSCAR PROVEEDOR|0|1|1|193",
       "evidence": {
-        "days_since_last_sale": 103,
+        "days_since_last_sale": 104,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -2037,12 +1982,67 @@
     },
     {
       "action": "BUSCAR",
+      "alert_price": 147.0,
+      "asin": null,
+      "contexto_prompt": "CONTEXTO Radar Rotación — NIFU013\nProducto: Figura Coleccionable The Child Grogu 3+ Star War - Funko Pop\nAcción: BUSCAR\nTecho (max_landed / alert_price): $147 MXN\nSi el precio de la captura es ≤ $147: compra 1 pieza(s) de NIFU013.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 1\nUtilidad est. / u: $78 · ROI: 41% · margen u: $78\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $147\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
+      "done_id": "NIFU013|BUSCAR PROVEEDOR|0|1|1|147",
+      "evidence": {
+        "days_since_last_sale": 90,
+        "sales_30": 0,
+        "sales_90": 0,
+        "soh": 0,
+        "unit_margin": 77.61
+      },
+      "ganancia_estimada_mxn": null,
+      "hide_days_default": {
+        "descartado": 30,
+        "done": 1,
+        "not_found": 3,
+        "purchased": 7,
+        "skip": 1,
+        "tomorrow": 1
+      },
+      "image_url": "https://covers4.booksamillion.com/covers/gift/8/89/698/530/889698530439.jpg",
+      "marketplace_url": "https://articulo.mercadolibre.com.mx/MLM-4999072586",
+      "marketplace_urls": [],
+      "max_landed_cost": 147.0,
+      "por_que": "Vuelve a buscar proveedor de NIFU013 · Figura Coleccionable The Child Grogu 3+ Star…: buen historial, sin buy path / agotado el canal.",
+      "priority_top3": false,
+      "prompt_alerta": "TAREA Keepa Pro (Arfershop Radar Rotación) — modo WATCH_ONLY\nSKU: NIFU013\nProducto: Figura Coleccionable The Child Grogu 3+ Star War - Funko Pop\nProveedor habitual: Amazon México\nTecho / alert_price: $147 MXN\nASIN verificado: NO HAY en inventario — NO inventar por título.\nUPC disponible (pista, no ASIN): 889698530439\nShopping search: https://www.google.com/search?tbm=shop&q=Figura+Coleccionable+The+Child+Grogu+3%2B+Star+War+-+Funko+Pop+889698530439\n\nPasos:\n1) Primero resuelve ASIN EXACTO en Amazon MX (identidad UPC/EAN/ASIN; no fuzzy por nombre).\n2) Si no hay ASIN confiable: DETENTE y reporta; no crees alerta Keepa.\n3) Con ASIN exacto: Keepa MX domain=11 → tracking Amazon Nuevo, umbral ABSOLUTO menor a $147 MXN, memo WATCH_ONLY, TTL ~1 año, email ON.\n4) No compres. No mezclar Radar Keepa discovery. Devuelve ASIN + alert id.\nReferencia operativa: CODEX_PERSONAL_VAULT/02_NEGOCIO/KEEPA_ALERTAS.md\nAl terminar: deja status active en watches (sku, asin, max_landed, keepa_alert_id).",
+      "qty": 1,
+      "qty_si_techo": 1,
+      "roi_pct": null,
+      "sales_30": 0,
+      "sales_90": 0,
+      "sales_total": 1,
+      "shopping_label": "Buscar precio",
+      "shopping_url": "https://www.google.com/search?tbm=shop&q=Figura+Coleccionable+The+Child+Grogu+3%2B+Star+War+-+Funko+Pop+889698530439",
+      "sku": "NIFU013",
+      "soh": 0,
+      "supplier_name": "Amazon México",
+      "tipo": "BUSCAR",
+      "title": "Busca proveedor · Figura Coleccionable The Child Grogu 3+ ",
+      "unit_margin": 77.61,
+      "why": {
+        "detail": "No lo has vendido en los últimos 30 días y ya no te queda ninguna. Comprándolo en $147 o menos, cada pieza te deja cerca de $78.",
+        "max_landed_cost": 147,
+        "max_landed_cost_label": "$147",
+        "sales_30": 0,
+        "sales_30_label": "Ninguna",
+        "soh": 0,
+        "soh_label": "Ninguna",
+        "unit_margin_label": "$78"
+      },
+      "why_line": "0·30d / soh 0 / techo $147"
+    },
+    {
+      "action": "BUSCAR",
       "alert_price": 235.0,
       "asin": null,
       "contexto_prompt": "CONTEXTO Radar Rotación — NIPU011\nProducto: Peluche Jax Kawaii The Amazing Digital Circus Genérico\nAcción: BUSCAR\nTecho (max_landed / alert_price): $235 MXN\nSi el precio de la captura es ≤ $235: compra 1 pieza(s) de NIPU011.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 1\nUtilidad est. / u: $209 · ROI: 143% · margen u: $209\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $235\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "NIPU011|BUSCAR PROVEEDOR|0|1|1|235",
       "evidence": {
-        "days_since_last_sale": 110,
+        "days_since_last_sale": 111,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -2097,7 +2097,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 10MU002\nProducto: Mouse Viper Mini Gaming - Razer\nAcción: BUSCAR\nTecho (max_landed / alert_price): $525 MXN\nSi el precio de la captura es ≤ $525: compra 1 pieza(s) de 10MU002.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 1\nUtilidad est. / u: $154 · ROI: 29% · margen u: $154\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $525\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "10MU002|BUSCAR PROVEEDOR|0|1|1|525",
       "evidence": {
-        "days_since_last_sale": 135,
+        "days_since_last_sale": 136,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -2152,7 +2152,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 10MU003\nProducto: Mouse Basilisk X HyperSpeed Wireless Gaming - Razer\nAcción: BUSCAR\nTecho (max_landed / alert_price): $725 MXN\nSi el precio de la captura es ≤ $725: compra 1 pieza(s) de 10MU003.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 1\nUtilidad est. / u: $211 · ROI: 29% · margen u: $211\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $725\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "10MU003|BUSCAR PROVEEDOR|0|1|1|725",
       "evidence": {
-        "days_since_last_sale": 135,
+        "days_since_last_sale": 136,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -2207,7 +2207,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — NIJU003\nProducto: Juguete Toy Mini Brands Series 2 Mistery 3+ - Zuru\nAcción: BUSCAR\nTecho (max_landed / alert_price): $114 MXN\nSi el precio de la captura es ≤ $114: compra 1 pieza(s) de NIJU003.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 1 · históricas: 1\nUtilidad est. / u: $44 · ROI: 23% · margen u: $44\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $114\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "NIJU003|BUSCAR PROVEEDOR|0|1|1|114",
       "evidence": {
-        "days_since_last_sale": 60,
+        "days_since_last_sale": 61,
         "sales_30": 0,
         "sales_90": 1,
         "soh": 0,
@@ -2372,7 +2372,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 10RU001\nProducto: Reproductor Fire TV Stick Lite Alexa - Amazon\nAcción: BUSCAR\nTecho (max_landed / alert_price): $399 MXN\nSi el precio de la captura es ≤ $399: compra 1 pieza(s) de 10RU001.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 1 · históricas: 1\nUtilidad est. / u: $71 · ROI: 16% · margen u: $71\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $399\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "10RU001|BUSCAR PROVEEDOR|0|1|1|399",
       "evidence": {
-        "days_since_last_sale": 30,
+        "days_since_last_sale": 31,
         "sales_30": 0,
         "sales_90": 1,
         "soh": 0,
@@ -2427,7 +2427,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 10BMU001\nProducto: Bebés Avent Bomba Manual Breast SCF430 - Philips\nAcción: BUSCAR\nTecho (max_landed / alert_price): $572 MXN\nSi el precio de la captura es ≤ $572: compra 1 pieza(s) de 10BMU001.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 1\nUtilidad est. / u: $95 · ROI: 15% · margen u: $95\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $572\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "10BMU001|BUSCAR PROVEEDOR|0|1|1|572",
       "evidence": {
-        "days_since_last_sale": 145,
+        "days_since_last_sale": 146,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -2482,7 +2482,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 10AU003\nProducto: Accesorio Fresh Prep Cortador y Rallador - Kitchenaid\nAcción: BUSCAR\nTecho (max_landed / alert_price): $786 MXN\nSi el precio de la captura es ≤ $786: compra 1 pieza(s) de 10AU003.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 1\nUtilidad est. / u: $124 · ROI: 14% · margen u: $124\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $786\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "10AU003|BUSCAR PROVEEDOR|0|1|1|786",
       "evidence": {
-        "days_since_last_sale": 115,
+        "days_since_last_sale": 116,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -2537,7 +2537,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 10CU005\nProducto: Control Enhanced para Xbox Alámbrico - Power A\nAcción: BUSCAR\nTecho (max_landed / alert_price): $478 MXN\nSi el precio de la captura es ≤ $478: compra 1 pieza(s) de 10CU005.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 1 · históricas: 1\nUtilidad est. / u: $68 · ROI: 12% · margen u: $68\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $478\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "10CU005|BUSCAR PROVEEDOR|0|1|1|478",
       "evidence": {
-        "days_since_last_sale": 76,
+        "days_since_last_sale": 77,
         "sales_30": 0,
         "sales_90": 1,
         "soh": 0,
@@ -2592,7 +2592,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — NIJN002\nProducto: Juguete Whale Patroller 3+ - Spin Master\nAcción: BUSCAR\nTecho (max_landed / alert_price): $492 MXN\nSi el precio de la captura es ≤ $492: compra 1 pieza(s) de NIJN002.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 1\nUtilidad est. / u: $68 · ROI: 12% · margen u: $68\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $492\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "NIJN002|BUSCAR PROVEEDOR|0|1|1|492",
       "evidence": {
-        "days_since_last_sale": 107,
+        "days_since_last_sale": 108,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -2647,7 +2647,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — JOFU006\nProducto: Figura Coleccionable Star Wars The Armorer 4+ - Hasbro\nAcción: BUSCAR\nTecho (max_landed / alert_price): $518 MXN\nSi el precio de la captura es ≤ $518: compra 1 pieza(s) de JOFU006.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 1\nUtilidad est. / u: $67 · ROI: 11% · margen u: $67\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $518\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "JOFU006|BUSCAR PROVEEDOR|0|1|1|518",
       "evidence": {
-        "days_since_last_sale": 91,
+        "days_since_last_sale": 92,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -2702,7 +2702,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — JOFU015\nProducto: Figura Coleccionable Boba Fett Deluxe 4+ Star Wars - Hasbro\nAcción: BUSCAR\nTecho (max_landed / alert_price): $518 MXN\nSi el precio de la captura es ≤ $518: compra 1 pieza(s) de JOFU015.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 1\nUtilidad est. / u: $67 · ROI: 11% · margen u: $67\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $518\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "JOFU015|BUSCAR PROVEEDOR|0|1|1|518",
       "evidence": {
-        "days_since_last_sale": 161,
+        "days_since_last_sale": 162,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -2757,7 +2757,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 10AU006\nProducto: Audífonos Cloud II Inalámbricos Gaming - HyperX\nAcción: BUSCAR\nTecho (max_landed / alert_price): $1,500 MXN\nSi el precio de la captura es ≤ $1,500: compra 1 pieza(s) de 10AU006.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 1\nUtilidad est. / u: $33 · ROI: 2% · margen u: $33\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $1,500\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "10AU006|BUSCAR PROVEEDOR|0|1|1|1500",
       "evidence": {
-        "days_since_last_sale": 124,
+        "days_since_last_sale": 125,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -2812,7 +2812,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 05NN001\nProducto: Lanzador De Juguete Mario Kart Bullet Bill +5 - Hot Wheels\nAcción: BUSCAR\nTecho (max_landed / alert_price): $331 MXN\nSi el precio de la captura es ≤ $331: compra 1 pieza(s) de 05NN001.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 1\nUtilidad est. / u: $-15 · ROI: -3% · margen u: $-15\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $331\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "05NN001|BUSCAR PROVEEDOR|0|1|1|331",
       "evidence": {
-        "days_since_last_sale": 172,
+        "days_since_last_sale": 173,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
