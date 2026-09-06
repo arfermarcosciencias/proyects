@@ -4,23 +4,25 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 <meta name="theme-color" content="#f3f7fb"/>
-<title>Radar · Hoy</title>
+<title>Radar de rotación · Hoy</title>
 <style>
   :root {
     --bg:#eef2f6; --card:#fff; --text:#0f172a; --muted:#64748b; --muted-2:#94a3b8;
+    --evidence:#334155;
     --line:#e2e8f0; --green:#166534; --green-bg:#dcfce7; --blue:#1d4ed8; --blue-bg:#dbeafe;
     --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Helvetica,Arial,sans-serif;
     --wrap:min(1120px, calc(100% - 32px));
     --radius:18px;
+    --tap:44px;
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);-webkit-font-smoothing:antialiased}
   .wrap{width:var(--wrap);max-width:1120px;margin:0 auto;padding:24px 0 56px}
-  .eyebrow{margin:0 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-2);font-weight:700}
+  .eyebrow{margin:0 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
   h1{margin:0 0 8px;font-size:clamp(26px,3vw,34px);line-height:1.15;letter-spacing:-.03em;font-weight:750}
   .lead{margin:0;font-size:16px;line-height:1.45;color:var(--muted);max-width:52ch}
   .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
-  .tab{appearance:none;border:1px solid var(--line);background:#fff;color:var(--muted);font:inherit;font-size:14px;font-weight:700;padding:11px 16px;border-radius:999px;cursor:pointer}
+  .tab{appearance:none;border:1px solid var(--line);background:#fff;color:var(--muted);font:inherit;font-size:14px;font-weight:700;padding:10px 16px;min-height:var(--tap);border-radius:999px;cursor:pointer}
   .tab.active{background:var(--text);color:#fff;border-color:var(--text)}
   .stack{display:grid;grid-template-columns:1fr;gap:16px;margin-top:18px}
   .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:0 10px 30px rgba(15,23,42,.05)}
@@ -32,45 +34,70 @@
   .badge.CASHFLOW{color:#166534;background:#dcfce7}
   .row{display:flex;gap:16px;align-items:flex-start}
   .photo{width:112px;height:112px;object-fit:cover;border-radius:14px;background:#f1f5f9;flex:0 0 auto}
-  .photo.ph{display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--muted-2);text-align:center;padding:8px}
+  .photo.ph{display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--muted);text-align:center;padding:8px}
   .copy{min-width:0;flex:1}
-  .index{margin:0;font-size:12px;color:var(--muted-2);font-weight:700}
-  .title{margin:4px 0 8px;font-size:clamp(17px,1.6vw,20px);line-height:1.3;font-weight:750;letter-spacing:-.02em}
+  .index{margin:0;font-size:12px;color:var(--muted);font-weight:700}
+  .title{
+    margin:4px 0 8px;font-size:clamp(17px,1.6vw,20px);line-height:1.3;font-weight:750;letter-spacing:-.02em;
+    display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden;
+    overflow-wrap:break-word;word-break:normal;hyphens:none;
+  }
   .qty-advice{margin:0 0 6px;font-size:15px;font-weight:700;color:var(--text)}
   .plata{margin:0 0 6px;font-size:15px;font-weight:700;color:var(--green)}
   .why{margin:0 0 8px;font-size:14px;line-height:1.45;color:var(--muted)}
   .why strong{color:var(--text);font-weight:700}
-  .evidence{margin:0 0 10px;font-size:12px;color:var(--muted-2)}
+  .evidence{margin:0 0 10px;font-size:13px;line-height:1.4;color:var(--evidence);font-weight:600}
   .park-meta{margin:0 0 10px;font-size:13px;line-height:1.4;color:var(--muted);background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
-  .links{display:flex;flex-wrap:wrap;gap:8px;margin:0}
-  .links a,.ghost-btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:11px;font-size:13px;font-weight:700;text-decoration:none;font:inherit}
+  .links{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0}
+  .links a,.ghost-btn{
+    display:inline-flex;align-items:center;justify-content:center;min-height:var(--tap);padding:10px 14px;border-radius:11px;
+    font:inherit;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap;flex:0 0 auto;
+  }
   .links a.primary{background:var(--blue-bg);color:var(--blue)}
   .links a.secondary,.btn-secondary{background:#fff;color:var(--text);border:1px solid var(--line)}
   .links a.ghost,.ghost-btn{background:#fff;color:var(--blue);border:1px solid var(--line);cursor:pointer}
   .actions{margin-top:14px;display:grid;grid-template-columns:1.35fr 1fr;gap:10px;max-width:420px}
-  button{appearance:none;border:0;cursor:pointer;font:inherit;font-weight:700;border-radius:12px;padding:13px 12px;font-size:14px}
+  button{appearance:none;border:0;cursor:pointer;font:inherit;font-weight:700;border-radius:12px;padding:12px;font-size:14px;min-height:var(--tap)}
   button:disabled{opacity:.45;cursor:default}
   .btn-primary{background:var(--green-bg);color:var(--green)}
   .btn-secondary{background:#fff;color:var(--text);border:1px solid var(--line)}
   .outcomes{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);gap:8px;grid-template-columns:1fr 1fr;max-width:420px}
   .outcomes.open{display:grid}
-  .outcomes button{font-size:13px;padding:11px 8px;background:#f8fafc;border:1px solid var(--line);color:var(--text)}
+  .outcomes button{font-size:13px;padding:10px 8px;min-height:var(--tap);background:#f8fafc;border:1px solid var(--line);color:var(--text)}
   .status{margin-top:10px;font-size:13px;color:var(--green);font-weight:700;display:none}
   .status.show{display:block}
   .state{margin-top:14px;background:#fff;border-radius:var(--radius);padding:36px 22px;border:1px solid var(--line);text-align:center}
   .state h2{margin:0 0 8px;font-size:18px}
   .state p{margin:0;color:var(--muted);font-size:14px;line-height:1.45}
   .state .actions{max-width:220px;margin:16px auto 0;grid-template-columns:1fr}
-  .skel{height:160px;border-radius:var(--radius);background:linear-gradient(90deg,#e2e8f0,#f8fafc,#e2e8f0);background-size:200% 100%;animation:sh 1.2s infinite}
+  .skel{border-radius:10px;background:linear-gradient(90deg,#e2e8f0,#f8fafc,#e2e8f0);background-size:200% 100%;animation:sh 1.2s infinite}
+  .skel-card{pointer-events:none;box-shadow:none}
+  .skel-badge{width:72px;height:22px;border-radius:999px;margin-bottom:12px}
+  .skel.photo{flex:0 0 auto}
+  .skel-line{height:12px;margin:8px 0}
+  .skel-w-sm{width:28%}
+  .skel-w-md{width:62%}
+  .skel-w-lg{width:92%;height:16px}
+  .skel-w{width:74%}
+  .skel-tab{display:inline-block;width:132px;height:var(--tap);border-radius:999px}
+  .skel-btn{height:var(--tap);width:min(420px,100%);margin-top:14px;border-radius:12px}
   @keyframes sh{0%{background-position:100% 0}100%{background-position:-100% 0}}
-  footer{margin-top:28px;font-size:12px;color:var(--muted-2);text-align:center}
+  footer{margin-top:28px;font-size:13px;color:var(--muted);text-align:center}
+  .text-link{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 6px;border:0;background:none;color:var(--blue);font:inherit;font-weight:700;cursor:pointer}
+  @media (max-width:479px){
+    .row{flex-direction:column}
+    .photo{width:96px;height:96px}
+    .links{flex-direction:column;align-items:stretch}
+    .links a,.ghost-btn{width:100%}
+    .actions{max-width:none}
+    .outcomes{max-width:none}
+  }
   @media (min-width:820px){
     .wrap{padding:32px 0 72px}
     .stack{grid-template-columns:1fr 1fr;gap:18px}
     .stack.one-col{grid-template-columns:1fr;max-width:720px}
     .card{padding:20px}
     .photo{width:128px;height:128px}
-    .links a,.ghost-btn{padding:11px 14px}
   }
   @media (min-width:1100px){
     .stack{grid-template-columns:1fr 1fr;gap:20px}
@@ -90,6 +117,23 @@ const OUTCOME_TEXT = {
   descartado: "Lo retiro por 30 días",
   done: "Hecho",
   skip: "Saltado por hoy"
+};
+const STATUS_TEXT = {
+  pause: "pausada",
+  paused: "pausada",
+  skip: "saltada",
+  skipped: "saltada",
+  done: "hecha",
+  purchased: "comprada",
+  not_found: "no encontrada",
+  tomorrow: "para mañana",
+  descartado: "descartada",
+  discarded: "descartada",
+  dismiss: "descartada",
+  dismissed: "descartada",
+  hidden: "oculta",
+  queue: "en cola",
+  active: "activa"
 };
 const TAB_HOY = "hoy";
 const TAB_QUEUE = "queue";
@@ -113,13 +157,41 @@ function asText(v) {
   return "";
 }
 
+function localizeToken(s) {
+  const raw = String(s ?? "").trim();
+  if (!raw) return "";
+  const key = raw.toLowerCase().replace(/[\s-]+/g, "_");
+  if (STATUS_TEXT[key]) return STATUS_TEXT[key];
+  if (OUTCOME_TEXT[key]) return OUTCOME_TEXT[key];
+  return raw.replace(/\bpaused\b/gi, "pausada").replace(/\bpause\b/gi, "pausada");
+}
+
+function looksTruncatedTitle(s) {
+  const t = String(s || "").trim();
+  if (!t) return true;
+  if (/[…]$/.test(t) || /\s[A-Za-zÁÉÍÓÚÜáéíóúü]{1,3}$/.test(t)) return true;
+  if (/^Busca proveedor/i.test(t)) return true;
+  return false;
+}
+
+function nameFromContext(card) {
+  const ctx = asText(card.contexto_prompt);
+  const m = ctx.match(/Producto:\s*([^\n]+)/i);
+  return m ? m[1].replace(/\s+/g, " ").trim() : "";
+}
+
+function nameFromPorQue(card) {
+  const src = asText(card.por_que) || asText(card.why_line);
+  const m = src.match(/·\s*([^:]+?)(?::|$)/);
+  if (!m) return "";
+  return m[1].replace(/[.…]+$/g, "").replace(/\s+-\s*$/g, "").trim();
+}
+
 function productName(card) {
   const t = (card.title || "").trim();
   const generic = !t || /^Busca proveedor/i.test(t) || (/^Compra\s+\d+/i.test(t) && t.length < 28);
-  if (!generic) return t;
-  const m = (card.por_que || card.why_line || card.contexto_prompt || "").match(/·\s*([^:]+?)(?::|$)/);
-  if (m) return m[1].replace(/…/g, "").trim();
-  return card.sku || "este producto";
+  if (!generic && !looksTruncatedTitle(t)) return t;
+  return nameFromContext(card) || nameFromPorQue(card) || t.replace(/^Busca proveedor\s*·\s*/i, "").trim() || card.sku || "este producto";
 }
 
 function verbTitle(card) {
@@ -201,7 +273,7 @@ function evidenceLine(ev) {
   const a = [];
   if (ev.sales_30 != null) a.push(`${ev.sales_30} en 30d`);
   if (ev.sales_90 != null) a.push(`${ev.sales_90} en 90d`);
-  if (ev.soh != null) a.push(`stock ${ev.soh}`);
+  if (ev.soh != null) a.push(`existencias ${ev.soh}`);
   if (ev.days_since_last_sale != null) a.push(`última venta hace ${ev.days_since_last_sale}d`);
   if (ev.unit_margin != null) a.push(`margen ~${money0(ev.unit_margin)}`);
   return a.join(" · ");
@@ -300,18 +372,18 @@ function pageLead(tab, cards, data) {
 
 function statusMessage(st) {
   if (!st) return "";
-  const base = OUTCOME_TEXT[st.outcome] || "Guardado";
+  const base = OUTCOME_TEXT[st.outcome] || localizeToken(st.outcome) || "Guardado";
   const days = st.hide_days;
   return days ? `${base} · no vuelve por ${days} días` : base;
 }
 
 function decidedMetaLine(card) {
   const parts = [];
-  if (card.reason && String(card.reason).trim()) parts.push(String(card.reason).trim());
+  if (card.reason && String(card.reason).trim()) parts.push(localizeToken(card.reason));
   if (card.park_note && String(card.park_note).trim()) parts.push(String(card.park_note).trim());
   if (card.outcome && String(card.outcome).trim()) {
     const o = String(card.outcome).trim();
-    parts.push(OUTCOME_TEXT[o] || o);
+    parts.push(OUTCOME_TEXT[o] || localizeToken(o));
   }
   if (card.hide_until && String(card.hide_until).trim()) {
     parts.push("oculto hasta " + formatHideUntil(card.hide_until));
@@ -348,14 +420,44 @@ function cardsForActiveTab(data) {
   return filterVisible(lists.cards);
 }
 
+function eyebrowHtml() {
+  return `<p class="eyebrow">Radar de rotación · Hoy</p>`;
+}
+
+function skelCardHtml() {
+  return `<article class="card skel-card" aria-hidden="true">
+    <div class="skel skel-badge"></div>
+    <div class="row">
+      <div class="skel photo"></div>
+      <div class="copy">
+        <div class="skel skel-line skel-w-sm"></div>
+        <div class="skel skel-line skel-w-lg"></div>
+        <div class="skel skel-line skel-w-md"></div>
+        <div class="skel skel-line skel-w"></div>
+      </div>
+    </div>
+    <div class="skel skel-btn"></div>
+  </article>`;
+}
+
 function renderLoading() {
-  return `<p class="eyebrow">Radar · Hoy</p><h1>Cargando…</h1><div class="stack"><div class="skel"></div><div class="skel"></div></div>`;
+  return `${eyebrowHtml()}
+    <h1>Armando tu radar de hoy</h1>
+    <p class="lead">Estoy trayendo las cosas de hoy, más oportunidades y lo ya decidido.</p>
+    <div class="tabs" aria-hidden="true">
+      <span class="skel skel-tab"></span>
+      <span class="skel skel-tab"></span>
+      <span class="skel skel-tab"></span>
+    </div>
+    <div class="stack">${skelCardHtml()}${skelCardHtml()}</div>`;
 }
 
 function renderError(msg) {
-  return `<p class="eyebrow">Radar · Hoy</p><h1>No pude cargar el día</h1>
-    <div class="state"><h2>Algo falló</h2><p>${esc(msg)}</p>
-    <div class="actions"><button class="btn-primary" id="retry">Reintentar</button></div></div>`;
+  return `${eyebrowHtml()}
+    <h1>No pude cargar el día</h1>
+    <p class="lead">El radar necesita el archivo de hoy para armar las tarjetas.</p>
+    <div class="state"><h2>Algo falló al leer las oportunidades</h2><p>${esc(msg)}</p>
+    <div class="actions"><button type="button" class="btn-primary" id="retry">Reintentar</button></div></div>`;
 }
 
 function renderTabs(counts) {
@@ -394,14 +496,14 @@ function renderCard(card, i, opts) {
   const storeHtml = stores.map(u => `<a class="ghost" href="${esc(u)}" target="_blank" rel="noopener">Abrir tienda</a>`).join("");
   const parkLine = decided ? decidedMetaLine(card) : "";
   const statusFromCard = decided
-    ? (statusMessage(st) || (card.outcome ? (OUTCOME_TEXT[card.outcome] || card.outcome) : "") || "Ya decidida")
+    ? (statusMessage(st) || (card.outcome ? (OUTCOME_TEXT[card.outcome] || localizeToken(card.outcome)) : "") || "Ya decidida")
     : statusMessage(st);
   const showStatus = decided || !!st;
   const actionsHtml = decided
     ? `<p class="status show" data-status>${esc(statusFromCard)}</p>`
     : `<div class="actions">
-      <button class="btn-primary" data-act="done" ${locked ? "disabled" : ""}>Ya lo hice</button>
-      <button class="btn-secondary" data-act="skip" ${locked ? "disabled" : ""}>Saltar</button>
+      <button type="button" class="btn-primary" data-act="done" ${locked ? "disabled" : ""}>Ya lo hice</button>
+      <button type="button" class="btn-secondary" data-act="skip" ${locked ? "disabled" : ""}>Saltar</button>
     </div>
     <div class="outcomes" data-outcomes>
       <button type="button" data-outcome="purchased">Ya lo compré</button>
@@ -417,20 +519,20 @@ function renderCard(card, i, opts) {
       ${img}
       <div class="copy">
         <p class="index">#${i + 1}</p>
-        <h2 class="title">${esc(verbTitle(card))}</h2>
+        <h2 class="title" title="${esc(verbTitle(card))}">${esc(verbTitle(card))}</h2>
         ${goal ? `<p class="plata">${esc(goal)}</p>` : (plata ? `<p class="plata">${esc(plata)}</p>` : "")}
         <p class="qty-advice">${esc(qtyAdviceLine(card))}</p>
         <p class="why"><strong>Por qué:</strong> ${esc(whyText(card))}</p>
         ${ev ? `<p class="evidence">${esc(ev)}</p>` : ""}
         ${decided && parkLine ? `<p class="park-meta">${esc(parkLine)}</p>` : ""}
-        <div class="links">
-          <a class="primary" href="${esc(shoppingHref(card, name))}" target="_blank" rel="noopener">Buscar precio</a>
-          <a class="secondary" href="${esc(mlHref(card, name))}" target="_blank" rel="noopener">Ver en Mercado Libre</a>
-          ${keepaHref(card) ? `<a class="ghost" href="${esc(keepaHref(card))}" target="_blank" rel="noopener">Abrir en Keepa</a>` : ""}
-          ${storeHtml}
-          ${contextText(card) ? `<button type="button" class="ghost-btn" data-act="copy-ctx">Copiar contexto</button>` : ""}
-        </div>
       </div>
+    </div>
+    <div class="links">
+      <a class="primary" href="${esc(shoppingHref(card, name))}" target="_blank" rel="noopener">Buscar precio</a>
+      <a class="secondary" href="${esc(mlHref(card, name))}" target="_blank" rel="noopener">Ver en Mercado Libre</a>
+      ${keepaHref(card) ? `<a class="ghost" href="${esc(keepaHref(card))}" target="_blank" rel="noopener">Abrir en Keepa</a>` : ""}
+      ${storeHtml}
+      ${contextText(card) ? `<button type="button" class="ghost-btn" data-act="copy-ctx">Copiar contexto</button>` : ""}
     </div>
     ${actionsHtml}
   </article>`;
@@ -465,14 +567,14 @@ function renderData(data) {
         : ""
     }</div>`;
   } else {
-    body = `<div class="stack ${activeTab === TAB_HOY && cards.length <= 2 ? "one-col" : ""}">${cards.map((c, i) => renderCard(c, i, { decided: activeTab === TAB_DECIDED })).join("")}</div>`;
+    body = `<div class="stack ${cards.length < 2 ? "one-col" : ""}">${cards.map((c, i) => renderCard(c, i, { decided: activeTab === TAB_DECIDED })).join("")}</div>`;
   }
-  return `<p class="eyebrow">Radar · Hoy</p>
+  return `${eyebrowHtml()}
     <h1>${esc(pageHeadline(activeTab, cards.length))}</h1>
     <p class="lead">${esc(pageLead(activeTab, cards, data))}</p>
     ${tabs}
     ${body}
-    <footer>Actualizado ${esc(data.generated_at || "")} · <button type="button" id="resetHidden" style="all:unset;color:var(--blue);font-weight:700;cursor:pointer">Ver de nuevo</button></footer>`;
+    <footer>Actualizado ${esc(data.generated_at || "")} · <button type="button" class="text-link" id="resetHidden">Ver de nuevo</button></footer>`;
 }
 
 async function mirrorLocal(card, outcome) {
@@ -582,7 +684,7 @@ async function load() {
     cachedData = data;
     paint(data);
   } catch (e) {
-    app.innerHTML = renderError(e.message || "Error");
+    app.innerHTML = renderError(e.message || "No pude leer el archivo del día");
     document.getElementById("retry")?.addEventListener("click", load);
   }
 }
