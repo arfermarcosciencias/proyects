@@ -1,593 +1,79 @@
-<!DOCTYPE html>
-<html lang="es-MX">
+<!doctype html>
+<html lang="es">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-<meta name="theme-color" content="#f3f7fb"/>
-<title>Radar · Hoy</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light only">
+<title>Busca proveedor · Set De Biberones Options + 4 Oz Rosa 0 A · Radar Arfershop</title>
 <style>
-  :root {
-    --bg:#eef2f6; --card:#fff; --text:#0f172a; --muted:#64748b; --muted-2:#94a3b8;
-    --line:#e2e8f0; --green:#166534; --green-bg:#dcfce7; --blue:#1d4ed8; --blue-bg:#dbeafe;
-    --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Helvetica,Arial,sans-serif;
-    --wrap:min(1120px, calc(100% - 32px));
-    --radius:18px;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);-webkit-font-smoothing:antialiased}
-  .wrap{width:var(--wrap);max-width:1120px;margin:0 auto;padding:24px 0 56px}
-  .eyebrow{margin:0 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-2);font-weight:700}
-  h1{margin:0 0 8px;font-size:clamp(26px,3vw,34px);line-height:1.15;letter-spacing:-.03em;font-weight:750}
-  .lead{margin:0;font-size:16px;line-height:1.45;color:var(--muted);max-width:52ch}
-  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
-  .tab{appearance:none;border:1px solid var(--line);background:#fff;color:var(--muted);font:inherit;font-size:14px;font-weight:700;padding:11px 16px;border-radius:999px;cursor:pointer}
-  .tab.active{background:var(--text);color:#fff;border-color:var(--text)}
-  .stack{display:grid;grid-template-columns:1fr;gap:16px;margin-top:18px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:0 10px 30px rgba(15,23,42,.05)}
-  .card.done,.card.skipped{opacity:.5}
-  .badge{display:inline-block;font-size:11px;font-weight:750;letter-spacing:.08em;padding:5px 10px;border-radius:999px;margin-bottom:12px}
-  .badge.BUSCAR{color:#6d28d9;background:#f3e8ff}
-  .badge.REPONER{color:#1d4ed8;background:#dbeafe}
-  .badge.ESTRELLA{color:#a16207;background:#fef9c3}
-  .badge.CASHFLOW{color:#166534;background:#dcfce7}
-  .row{display:flex;gap:16px;align-items:flex-start}
-  .photo{width:112px;height:112px;object-fit:cover;border-radius:14px;background:#f1f5f9;flex:0 0 auto}
-  .photo.ph{display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--muted-2);text-align:center;padding:8px}
-  .copy{min-width:0;flex:1}
-  .index{margin:0;font-size:12px;color:var(--muted-2);font-weight:700}
-  .title{margin:4px 0 8px;font-size:clamp(17px,1.6vw,20px);line-height:1.3;font-weight:750;letter-spacing:-.02em}
-  .qty-advice{margin:0 0 6px;font-size:15px;font-weight:700;color:var(--text)}
-  .plata{margin:0 0 6px;font-size:15px;font-weight:700;color:var(--green)}
-  .why{margin:0 0 8px;font-size:14px;line-height:1.45;color:var(--muted)}
-  .why strong{color:var(--text);font-weight:700}
-  .evidence{margin:0 0 10px;font-size:12px;color:var(--muted-2)}
-  .park-meta{margin:0 0 10px;font-size:13px;line-height:1.4;color:var(--muted);background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
-  .links{display:flex;flex-wrap:wrap;gap:8px;margin:0}
-  .links a,.ghost-btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:11px;font-size:13px;font-weight:700;text-decoration:none;font:inherit}
-  .links a.primary{background:var(--blue-bg);color:var(--blue)}
-  .links a.secondary,.btn-secondary{background:#fff;color:var(--text);border:1px solid var(--line)}
-  .links a.ghost,.ghost-btn{background:#fff;color:var(--blue);border:1px solid var(--line);cursor:pointer}
-  .actions{margin-top:14px;display:grid;grid-template-columns:1.35fr 1fr;gap:10px;max-width:420px}
-  button{appearance:none;border:0;cursor:pointer;font:inherit;font-weight:700;border-radius:12px;padding:13px 12px;font-size:14px}
-  button:disabled{opacity:.45;cursor:default}
-  .btn-primary{background:var(--green-bg);color:var(--green)}
-  .btn-secondary{background:#fff;color:var(--text);border:1px solid var(--line)}
-  .outcomes{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);gap:8px;grid-template-columns:1fr 1fr;max-width:420px}
-  .outcomes.open{display:grid}
-  .outcomes button{font-size:13px;padding:11px 8px;background:#f8fafc;border:1px solid var(--line);color:var(--text)}
-  .status{margin-top:10px;font-size:13px;color:var(--green);font-weight:700;display:none}
-  .status.show{display:block}
-  .state{margin-top:14px;background:#fff;border-radius:var(--radius);padding:36px 22px;border:1px solid var(--line);text-align:center}
-  .state h2{margin:0 0 8px;font-size:18px}
-  .state p{margin:0;color:var(--muted);font-size:14px;line-height:1.45}
-  .state .actions{max-width:220px;margin:16px auto 0;grid-template-columns:1fr}
-  .skel{height:160px;border-radius:var(--radius);background:linear-gradient(90deg,#e2e8f0,#f8fafc,#e2e8f0);background-size:200% 100%;animation:sh 1.2s infinite}
-  @keyframes sh{0%{background-position:100% 0}100%{background-position:-100% 0}}
-  footer{margin-top:28px;font-size:12px;color:var(--muted-2);text-align:center}
-  @media (min-width:820px){
-    .wrap{padding:32px 0 72px}
-    .stack{grid-template-columns:1fr 1fr;gap:18px}
-    .stack.one-col{grid-template-columns:1fr;max-width:720px}
-    .card{padding:20px}
-    .photo{width:128px;height:128px}
-    .links a,.ghost-btn{padding:11px 14px}
-  }
-  @media (min-width:1100px){
-    .stack{grid-template-columns:1fr 1fr;gap:20px}
-  }
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0; background: #f3f7fb; color: #15243b;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+.wrap { max-width: 640px; margin: 0 auto; padding: 18px 14px 40px; }
+.top h1 { margin: 6px 0 8px; font-size: 1.45rem; line-height: 1.25; }
+.eyebrow { margin: 0; font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: #65748a; }
+.lead { margin: 0; font-size: 1.05rem; line-height: 1.45; color: #334155; }
+.cards { display: grid; gap: 14px; margin-top: 18px; }
+.card {
+  background: #fff; border-radius: 16px; padding: 14px;
+  border: 1px solid #e3ebf5; box-shadow: 0 8px 24px rgba(18,33,47,.06);
+}
+.badge {
+  display: inline-block; font-size: .72rem; font-weight: 800;
+  letter-spacing: .08em; padding: 4px 10px; border-radius: 999px; margin-bottom: 10px;
+}
+.row { display: flex; gap: 12px; align-items: flex-start; }
+.photo {
+  width: 92px; height: 92px; object-fit: cover; border-radius: 12px;
+  background: #eef3f9; flex: 0 0 auto;
+}
+.photo.placeholder {
+  display: flex; align-items: center; justify-content: center;
+  font-size: .7rem; font-weight: 700; color: #8a95a5; text-align: center; padding: 6px;
+}
+.copy { min-width: 0; flex: 1; }
+.index { margin: 0; font-size: .72rem; color: #8a95a5; font-weight: 700; }
+.card h2 { margin: 2px 0 4px; font-size: 1.15rem; line-height: 1.25; }
+.sku { margin: 0; font-weight: 800; color: #12212f; }
+.detail, .techo, .money, .evidence { margin: 4px 0 0; font-size: .95rem; line-height: 1.4; color: #334155; }
+.techo, .money { color: #1f6349; font-weight: 700; }
+.evidence { font-size: .82rem; color: #65748a; }
+.actions { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ya-btn {
+  display: inline-block; padding: 10px 14px; border-radius: 10px;
+  background: #eaf7f1; color: #1f6349; font-weight: 800; font-size: .9rem;
+}
+.shop-btn {
+  display: inline-block; padding: 10px 14px; border-radius: 10px;
+  background: #e8f1fb; color: #1a4f8a; font-weight: 800; font-size: .9rem;
+  text-decoration: none;
+}
+.shop-btn.secondary {
+  background: #fff; color: #15243b; border: 1px solid #e3ebf5;
+}
+.ya-note { margin: 8px 0 0; font-size: .78rem; color: #8a95a5; }
+.empty {
+  margin-top: 18px; background: #fff; border-radius: 16px; padding: 28px 18px;
+  border: 1px solid #e3ebf5; text-align: center;
+}
+.empty .check {
+  width: 48px; height: 48px; margin: 0 auto 10px; border-radius: 50%;
+  background: #eaf7f1; color: #1f6349; font-size: 1.6rem;
+  display: flex; align-items: center; justify-content: center; font-weight: 800;
+}
+.empty h2 { margin: 0 0 8px; }
+.datum { list-style: none; padding: 0; margin: 16px 0 0; color: #334155; }
+.datum li { margin: 6px 0; }
+footer { margin-top: 22px; font-size: .78rem; color: #8a95a5; text-align: center; }
 </style>
 </head>
 <body>
-<div class="wrap" id="app"></div>
-<script>
-const JSON_URL = "./hoy_3_tarjetas.json";
-const LOCAL_API = "http://127.0.0.1:8766/api/actions";
-const HIDE_DAYS = { purchased: 7, not_found: 3, tomorrow: 1, descartado: 30, done: 1, skip: 1 };
-const OUTCOME_TEXT = {
-  purchased: "Anotado como comprado",
-  not_found: "Anotado: no lo encontraste",
-  tomorrow: "Lo dejamos para mañana",
-  descartado: "Lo retiro por 30 días",
-  done: "Hecho",
-  skip: "Saltado por hoy"
-};
-const TAB_HOY = "hoy";
-const TAB_QUEUE = "queue";
-const TAB_DECIDED = "decided";
-
-let cachedData = null;
-let activeTab = TAB_HOY;
-
-const money0 = (n) => new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(Number(n));
-const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const storeKey = (id) => `radar-hoy:v1:${id}`;
-
-function asText(v) {
-  if (v == null) return "";
-  if (typeof v === "string") return v.trim();
-  if (typeof v === "object") {
-    for (const k of ["detail", "text", "why_line", "por_que", "summary", "label"]) {
-      if (typeof v[k] === "string" && v[k].trim()) return v[k].trim();
-    }
-  }
-  return "";
-}
-
-function productName(card) {
-  const t = (card.title || "").trim();
-  const generic = !t || /^Busca proveedor/i.test(t) || (/^Compra\s+\d+/i.test(t) && t.length < 28);
-  if (!generic) return t;
-  const m = (card.por_que || card.why_line || card.contexto_prompt || "").match(/·\s*([^:]+?)(?::|$)/);
-  if (m) return m[1].replace(/…/g, "").trim();
-  return card.sku || "este producto";
-}
-
-function verbTitle(card) {
-  const name = productName(card);
-  const n = Number(card.qty) || 1;
-  if (card.action === "BUSCAR" || card.tipo === "BUSCAR") {
-    return n === 1 ? `Busca quién te venda ${name}` : `Busca quién te venda ${name} (${n} piezas)`;
-  }
-  return n === 1 ? `Compra ${name}` : `Compra ${n} de ${name}`;
-}
-
-function plataLine(card) {
-  const g = card.ganancia_estimada_mxn;
-  if (g == null || Number.isNaN(Number(g))) return null;
-  return `~gánele ${money0(g)}`;
-}
-
-/** Precio máximo a buscar + ganancia/ROI en una frase humana */
-function priceGoalLine(card) {
-  const cap = card.max_landed_cost;
-  const g = card.ganancia_estimada_mxn;
-  const r = card.roi_pct;
-  const hasCap = cap != null && !Number.isNaN(Number(cap)) && Number(cap) > 0;
-  if (!hasCap) return null;
-  const price = money0(cap);
-  const hasG = g != null && !Number.isNaN(Number(g));
-  const hasR = r != null && !Number.isNaN(Number(r));
-  if (hasG && hasR) {
-    return `Búscalo en menos de ${price} para ganar ~${money0(g)} (ROI ~${Number(r).toFixed(0)}%)`;
-  }
-  if (hasG) {
-    return `Búscalo en menos de ${price} para ganar ~${money0(g)}`;
-  }
-  if (hasR) {
-    return `Búscalo en menos de ${price} para mantener un ROI de ~${Number(r).toFixed(0)}%`;
-  }
-  return `Búscalo en menos de ${price} para no comerse la ganancia`;
-}
-
-function suggestedQty(card) {
-  const n = Number(card.qty_si_techo != null ? card.qty_si_techo : card.qty);
-  return (!n || Number.isNaN(n) || n < 1) ? 1 : n;
-}
-
-function qtyAdviceLine(card) {
-  const n = suggestedQty(card);
-  const piezas = n === 1 ? "1 pieza" : n + " piezas";
-  return "Si lo consigues a ese precio, compra " + piezas;
-}
-
-function whyText(card) {
-  const candidates = [card.why_line, asText(card.why), card.por_que, card.contexto_prompt];
-  for (const raw of candidates) {
-    let s = asText(raw);
-    if (!s) continue;
-    if (/\bsoh\b|\btecho\b|\d+d\s*\/|buy path|\[object Object\]/i.test(s)) continue;
-    s = s.replace(/\bsin buy path\b/gi, "")
-         .replace(/\bagotado el canal\b/gi, "")
-         .replace(/\bbuen historial\b/gi, "")
-         .replace(/\bVuelve a buscar proveedor de[^:]+:\s*/i, "")
-         .replace(/\s*\/\s*/g, " ")
-         .replace(/\s{2,}/g, " ")
-         .trim();
-    if (s.length >= 12 && s.length < 160) return s.charAt(0).toUpperCase() + s.slice(1);
-  }
-  const ev = card.evidence || {};
-  const bits = [];
-  if (ev.soh === 0 || card.soh === 0) bits.push("se te acabó");
-  const s30 = ev.sales_30 != null ? ev.sales_30 : card.sales_30;
-  const s90 = ev.sales_90 != null ? ev.sales_90 : card.sales_90;
-  if ((s30 || 0) > 0 || (s90 || 0) > 0) bits.push("se vende de vez en cuando");
-  if (card.action === "BUSCAR" || card.tipo === "BUSCAR") bits.push("hay que buscar proveedor");
-  if (bits.length) return bits.slice(0, 2).join(" y ") + ".";
-  return "Vale la pena checarlo si encuentras buen precio.";
-}
-
-function evidenceLine(ev) {
-  if (!ev) return "";
-  const a = [];
-  if (ev.sales_30 != null) a.push(`${ev.sales_30} en 30d`);
-  if (ev.sales_90 != null) a.push(`${ev.sales_90} en 90d`);
-  if (ev.soh != null) a.push(`stock ${ev.soh}`);
-  if (ev.days_since_last_sale != null) a.push(`última venta hace ${ev.days_since_last_sale}d`);
-  if (ev.unit_margin != null) a.push(`margen ~${money0(ev.unit_margin)}`);
-  return a.join(" · ");
-}
-
-function shoppingHref(card, name) {
-  if (card.shopping_url) return card.shopping_url;
-  return "https://www.google.com/search?tbm=shop&q=" + encodeURIComponent(name);
-}
-
-function mlHref(card, name) {
-  if (card.marketplace_url) return card.marketplace_url;
-  if (card.meli_id) return "https://www.mercadolibre.com.mx/p/" + encodeURIComponent(card.meli_id);
-  return "https://listado.mercadolibre.com.mx/" + encodeURIComponent(name).replace(/%20/g, "-");
-}
-
-function contextText(card) {
-  return asText(card.contexto_prompt) || asText(card.why_line) || asText(card.por_que) || asText(card.why) || "";
-}
-function keepaHref(card) {
-  const asin = (card.asin || "").trim();
-  if (!asin) return null;
-  return "https://keepa.com/#!product/11-" + encodeURIComponent(asin);
-}
-
-function storeLinks(card) {
-  const arr = Array.isArray(card.marketplace_urls) ? card.marketplace_urls : [];
-  return arr.filter(u => typeof u === "string" && /^https?:\/\//i.test(u));
-}
-
-function readState(id) {
-  try { return JSON.parse(localStorage.getItem(storeKey(id)) || "null"); } catch { return null; }
-}
-
-function writeState(obj) {
-  localStorage.setItem(storeKey(obj.done_id), JSON.stringify(obj));
-}
-
-function isHidden(st) {
-  if (!st || !st.hide_until) return false;
-  const t = Date.parse(st.hide_until);
-  return !Number.isNaN(t) && t > Date.now();
-}
-
-function hideDaysFor(outcome, card) {
-  if (card && card.hide_days_default != null && outcome === "done") return Number(card.hide_days_default) || 1;
-  return HIDE_DAYS[outcome] != null ? HIDE_DAYS[outcome] : 1;
-}
-
-function hideUntilIso(days) {
-  const d = new Date();
-  d.setDate(d.getDate() + (Number(days) || 0));
-  return d.toISOString();
-}
-
-function formatHideUntil(iso) {
-  const t = Date.parse(iso);
-  if (Number.isNaN(t)) return String(iso);
-  try {
-    return new Intl.DateTimeFormat("es-MX", { day: "numeric", month: "short", year: "numeric" }).format(new Date(t));
-  } catch {
-    return String(iso);
-  }
-}
-
-function pageHeadline(tab, n) {
-  if (tab === TAB_QUEUE) {
-    if (!n) return "Sin más oportunidades";
-    return n === 1 ? "1 oportunidad más" : `${n} oportunidades más`;
-  }
-  if (tab === TAB_DECIDED) {
-    if (!n) return "Nada decidido aún";
-    return n === 1 ? "1 ya decidida" : `${n} ya decididas`;
-  }
-  if (!n) return "Hoy no tienes que comprar nada";
-  return n === 1 ? "Hoy: 1 cosa" : `Hoy: ${n} cosas`;
-}
-
-function pageLead(tab, cards, data) {
-  if (tab === TAB_QUEUE) {
-    if (!cards.length) return "Cuando haya cola, aparece aquí.";
-    return "Otras opciones si te sobra tiempo.";
-  }
-  if (tab === TAB_DECIDED) {
-    if (!cards.length) return "Aquí verás lo pausado o descartado.";
-    return "Pausadas, descartadas o ya resueltas.";
-  }
-  if (!cards.length) return data.lead || "Respira. Nada urgente.";
-  const buscar = cards.filter(c => c.action === "BUSCAR" || c.tipo === "BUSCAR").length;
-  const comprar = cards.length - buscar;
-  const bits = [];
-  if (comprar > 0) bits.push(comprar === 1 ? "1 para comprar" : `${comprar} para comprar`);
-  if (buscar > 0) bits.push(buscar === 1 ? "1 para buscar quién te lo venda" : `${buscar} para buscar proveedor`);
-  return bits.join(". ") + ".";
-}
-
-function statusMessage(st) {
-  if (!st) return "";
-  const base = OUTCOME_TEXT[st.outcome] || "Guardado";
-  const days = st.hide_days;
-  return days ? `${base} · no vuelve por ${days} días` : base;
-}
-
-function decidedMetaLine(card) {
-  const parts = [];
-  if (card.reason && String(card.reason).trim()) parts.push(String(card.reason).trim());
-  if (card.park_note && String(card.park_note).trim()) parts.push(String(card.park_note).trim());
-  if (card.outcome && String(card.outcome).trim()) {
-    const o = String(card.outcome).trim();
-    parts.push(OUTCOME_TEXT[o] || o);
-  }
-  if (card.hide_until && String(card.hide_until).trim()) {
-    parts.push("oculto hasta " + formatHideUntil(card.hide_until));
-  }
-  return parts.join(" · ");
-}
-
-function tabLists(data) {
-  const cards = (data.cards || []).slice(0, 3);
-  const queue = Array.isArray(data.queue) ? data.queue : [];
-  const decided = Array.isArray(data.dismissed_or_paused)
-    ? data.dismissed_or_paused
-    : (Array.isArray(data.parked) ? data.parked : []);
-  return { cards, queue, decided };
-}
-
-function filterVisible(cards) {
-  return cards.filter(c => !isHidden(readState(c.done_id)));
-}
-
-function countsFor(data) {
-  const lists = tabLists(data);
-  return {
-    hoy: filterVisible(lists.cards).length,
-    queue: lists.queue.length,
-    decided: lists.decided.length
-  };
-}
-
-function cardsForActiveTab(data) {
-  const lists = tabLists(data);
-  if (activeTab === TAB_QUEUE) return lists.queue;
-  if (activeTab === TAB_DECIDED) return lists.decided;
-  return filterVisible(lists.cards);
-}
-
-function renderLoading() {
-  return `<p class="eyebrow">Radar · Hoy</p><h1>Cargando…</h1><div class="stack"><div class="skel"></div><div class="skel"></div></div>`;
-}
-
-function renderError(msg) {
-  return `<p class="eyebrow">Radar · Hoy</p><h1>No pude cargar el día</h1>
-    <div class="state"><h2>Algo falló</h2><p>${esc(msg)}</p>
-    <div class="actions"><button class="btn-primary" id="retry">Reintentar</button></div></div>`;
-}
-
-function renderTabs(counts) {
-  const items = [
-    { id: TAB_HOY, label: `Hoy (${counts.hoy})` },
-    { id: TAB_QUEUE, label: `Más oportunidades (${counts.queue})` },
-    { id: TAB_DECIDED, label: `Ya decididas (${counts.decided})` }
-  ];
-  return `<div class="tabs" role="tablist">${items.map(t =>
-    `<button type="button" class="tab${activeTab === t.id ? " active" : ""}" role="tab" aria-selected="${activeTab === t.id ? "true" : "false"}" data-tab="${t.id}">${esc(t.label)}</button>`
-  ).join("")}</div>`;
-}
-
-function photoHtml(card) {
-  const rawImg = card.image_url || "";
-  const isData = /^data:/i.test(rawImg);
-  const heavyData = isData && rawImg.length > 120000;
-  // http(s) images always show; heavy data URIs → «Foto pesada» (never label that as «Sin foto»)
-  if (rawImg && !heavyData) {
-    return `<img class="photo" src="${esc(rawImg)}" alt=""/>`;
-  }
-  return `<div class="photo ph">${rawImg ? "Foto pesada" : "Sin foto"}</div>`;
-}
-
-function renderCard(card, i, opts) {
-  const decided = !!(opts && opts.decided);
-  const name = productName(card);
-  const st = readState(card.done_id);
-  const cls = !st ? "" : (st.outcome === "skip" ? "skipped" : "done");
-  const img = photoHtml(card);
-  const plata = plataLine(card);
-  const goal = priceGoalLine(card);
-  const ev = evidenceLine(card.evidence);
-  const locked = decided || (!!st && isHidden(st));
-  const stores = storeLinks(card);
-  const storeHtml = stores.map(u => `<a class="ghost" href="${esc(u)}" target="_blank" rel="noopener">Abrir tienda</a>`).join("");
-  const parkLine = decided ? decidedMetaLine(card) : "";
-  const statusFromCard = decided
-    ? (statusMessage(st) || (card.outcome ? (OUTCOME_TEXT[card.outcome] || card.outcome) : "") || "Ya decidida")
-    : statusMessage(st);
-  const showStatus = decided || !!st;
-  const actionsHtml = decided
-    ? `<p class="status show" data-status>${esc(statusFromCard)}</p>`
-    : `<div class="actions">
-      <button class="btn-primary" data-act="done" ${locked ? "disabled" : ""}>Ya lo hice</button>
-      <button class="btn-secondary" data-act="skip" ${locked ? "disabled" : ""}>Saltar</button>
-    </div>
-    <div class="outcomes" data-outcomes>
-      <button type="button" data-outcome="purchased">Ya lo compré</button>
-      <button type="button" data-outcome="not_found">No lo encontré</button>
-      <button type="button" data-outcome="tomorrow">Mañana</button>
-      <button type="button" data-outcome="descartado">Descartar 30d</button>
-    </div>
-    <p class="status ${showStatus ? "show" : ""}" data-status>${esc(statusFromCard)}</p>`;
-
-  return `<article class="card ${cls}" data-done-id="${esc(card.done_id)}" data-context="${esc(contextText(card))}" data-sku="${esc(card.sku)}" data-action-key="${esc(card.done_id)}" data-tab-kind="${decided ? "decided" : "active"}">
-    <span class="badge ${esc(card.tipo)}">${esc(card.tipo)}</span>
-    <div class="row">
-      ${img}
-      <div class="copy">
-        <p class="index">#${i + 1}</p>
-        <h2 class="title">${esc(verbTitle(card))}</h2>
-        ${goal ? `<p class="plata">${esc(goal)}</p>` : (plata ? `<p class="plata">${esc(plata)}</p>` : "")}
-        <p class="qty-advice">${esc(qtyAdviceLine(card))}</p>
-        <p class="why"><strong>Por qué:</strong> ${esc(whyText(card))}</p>
-        ${ev ? `<p class="evidence">${esc(ev)}</p>` : ""}
-        ${decided && parkLine ? `<p class="park-meta">${esc(parkLine)}</p>` : ""}
-        <div class="links">
-          <a class="primary" href="${esc(shoppingHref(card, name))}" target="_blank" rel="noopener">Buscar precio</a>
-          <a class="secondary" href="${esc(mlHref(card, name))}" target="_blank" rel="noopener">Ver en Mercado Libre</a>
-          ${keepaHref(card) ? `<a class="ghost" href="${esc(keepaHref(card))}" target="_blank" rel="noopener">Abrir en Keepa</a>` : ""}
-          ${storeHtml}
-          ${contextText(card) ? `<button type="button" class="ghost-btn" data-act="copy-ctx">Copiar contexto</button>` : ""}
-        </div>
-      </div>
-    </div>
-    ${actionsHtml}
-  </article>`;
-}
-
-function emptyCopy(tab, data, reason) {
-  const meta = data.meta || {};
-  if (reason) return reason;
-  if (tab === TAB_HOY && meta.paused_by_operator) {
-    return `Tienes ${meta.paused_by_operator} pausados a propósito.`;
-  }
-  if (tab === TAB_QUEUE) return "La cola está vacía por ahora.";
-  if (tab === TAB_DECIDED) return "Todavía no hay pausadas ni descartadas.";
-  return "Nada pendiente.";
-}
-
-function renderData(data) {
-  const lists = tabLists(data);
-  const counts = countsFor(data);
-  const cards = cardsForActiveTab(data);
-  const tabs = renderTabs(counts);
-  let body;
-  if (!cards.length) {
-    let reason = null;
-    if (activeTab === TAB_HOY) {
-      const hidden = lists.cards.length && filterVisible(lists.cards).length === 0;
-      reason = hidden ? "Ya resolviste las de hoy (siguen ocultas un rato)." : null;
-    }
-    body = `<div class="state"><h2>${esc(pageHeadline(activeTab, 0))}</h2><p>${esc(emptyCopy(activeTab, data, reason))}</p>${
-      activeTab === TAB_HOY
-        ? `<div class="actions"><button class="btn-secondary" id="resetHidden">Ver de nuevo</button></div>`
-        : ""
-    }</div>`;
-  } else {
-    body = `<div class="stack ${activeTab === TAB_HOY && cards.length <= 2 ? "one-col" : ""}">${cards.map((c, i) => renderCard(c, i, { decided: activeTab === TAB_DECIDED })).join("")}</div>`;
-  }
-  return `<p class="eyebrow">Radar · Hoy</p>
-    <h1>${esc(pageHeadline(activeTab, cards.length))}</h1>
-    <p class="lead">${esc(pageLead(activeTab, cards, data))}</p>
-    ${tabs}
-    ${body}
-    <footer>Actualizado ${esc(data.generated_at || "")} · <button type="button" id="resetHidden" style="all:unset;color:var(--blue);font-weight:700;cursor:pointer">Ver de nuevo</button></footer>`;
-}
-
-async function mirrorLocal(card, outcome) {
-  try {
-    await fetch(LOCAL_API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        sku: card.getAttribute("data-sku"),
-        action_key: card.getAttribute("data-action-key"),
-        outcome
-      })
-    });
-  } catch (_) { /* silencioso — Pages no depende de :8766 */ }
-}
-
-function lockCard(card, outcome) {
-  const doneId = card.getAttribute("data-done-id");
-  const sku = card.getAttribute("data-sku");
-  const days = hideDaysFor(outcome, null);
-  const payload = {
-    done_id: doneId,
-    sku,
-    outcome,
-    hide_until: hideUntilIso(days),
-    hide_days: days
-  };
-  writeState(payload);
-  mirrorLocal(card, outcome);
-  if (activeTab === TAB_HOY && isHidden(payload)) {
-    if (cachedData) {
-      paint(cachedData);
-      return;
-    }
-  }
-  card.classList.toggle("done", outcome !== "skip");
-  card.classList.toggle("skipped", outcome === "skip");
-  card.querySelectorAll(".actions button").forEach(b => { b.disabled = true; });
-  card.querySelector("[data-outcomes]")?.classList.remove("open");
-  const status = card.querySelector("[data-status]");
-  if (status) { status.textContent = statusMessage(payload); status.classList.add("show"); }
-}
-
-function wire(root) {
-  root.querySelectorAll("[data-tab]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const next = btn.getAttribute("data-tab");
-      if (!next || next === activeTab) return;
-      activeTab = next;
-      if (cachedData) paint(cachedData);
-    });
-  });
-  root.querySelectorAll(".card").forEach(card => {
-    card.addEventListener("click", async (ev) => {
-      const copyBtn = ev.target.closest("button[data-act='copy-ctx']");
-      if (copyBtn) {
-        const txt = card.getAttribute("data-context") || "";
-        try {
-          await navigator.clipboard.writeText(txt);
-          copyBtn.textContent = "Copiado";
-          setTimeout(() => { copyBtn.textContent = "Copiar contexto"; }, 1200);
-        } catch (_) {
-          copyBtn.textContent = "No se pudo copiar";
-          setTimeout(() => { copyBtn.textContent = "Copiar contexto"; }, 1500);
-        }
-        return;
-      }
-      if (card.getAttribute("data-tab-kind") === "decided") return;
-      const doneBtn = ev.target.closest("button[data-act='done']");
-      const skipBtn = ev.target.closest("button[data-act='skip']");
-      const outBtn = ev.target.closest("button[data-outcome]");
-      if (doneBtn && !doneBtn.disabled) {
-        card.querySelector("[data-outcomes]")?.classList.toggle("open");
-        return;
-      }
-      if (skipBtn && !skipBtn.disabled) { lockCard(card, "skip"); return; }
-      if (outBtn) lockCard(card, outBtn.getAttribute("data-outcome"));
-    });
-  });
-}
-
-function paint(data) {
-  const app = document.getElementById("app");
-  app.innerHTML = renderData(data);
-  wire(app);
-  document.getElementById("resetHidden")?.addEventListener("click", radarResetHidden);
-}
-
-function radarResetHidden() {
-  const keys = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const k = localStorage.key(i);
-    if (k && k.startsWith("radar-hoy:")) keys.push(k);
-  }
-  keys.forEach(k => localStorage.removeItem(k));
-  activeTab = TAB_HOY;
-  load();
-}
-
-async function load() {
-  const app = document.getElementById("app");
-  app.innerHTML = renderLoading();
-  try {
-    const res = await fetch(JSON_URL, { cache: "no-store" });
-    if (!res.ok) throw new Error("No encontré el archivo del día");
-    const data = await res.json();
-    cachedData = data;
-    paint(data);
-  } catch (e) {
-    app.innerHTML = renderError(e.message || "Error");
-    document.getElementById("retry")?.addEventListener("click", load);
-  }
-}
-
-load();
-</script>
+<main class="wrap">
+<header class="top"><p class="eyebrow">Radar de Rotación · 2026-09-05T22:30:19</p><h1>Busca proveedor · Set De Biberones Options + 4 Oz Rosa 0 A</h1><p class="lead">Vuelve a buscar proveedor de 01BX001 · Set De Biberones Options + 4 Oz Rosa 0 A 6M+…: buen historial, sin buy path / agotado el canal.</p></header><section class="cards"><article class="card" data-sku="01BX001" data-tipo="BUSCAR" data-action="BUSCAR" data-done-id="01BX001|BUSCAR PROVEEDOR|0|1|1|440"><div class="badge" style="color:#5b4a8a;background:#f1ecfb">BUSCAR</div><div class="row"><img class="photo" src="https://arfermarcosciencias.github.io/proyects/radar/img/01BX001.jpg" alt="01BX001" loading="lazy"><div class="copy"><p class="index">#1 · BUSCAR</p><h2>Busca proveedor · Set De Biberones Options + 4 Oz Rosa 0 A</h2><p class="sku">01BX001</p><p class="detail">Vuelve a buscar proveedor de 01BX001 · Set De Biberones Options + 4 Oz Rosa 0 A 6M+…: buen historial, sin buy path / agotado el canal.</p><p class="techo">Pedir 1 · techo $440</p><p class="money">Ganancia por cotizar</p><p class="evidence">30d 0 · 90d 0 · SOH 0</p><div class="actions"><a class="shop-btn" href="https://www.google.com/search?tbm=shop&amp;q=Set+De+Biberones+Options+%2B+4+Oz+Rosa+0+A+6M%2B+-+Dr+Browns+72239315347" target="_blank" rel="noopener">Buscar precio</a><a class="shop-btn secondary" href="https://articulo.mercadolibre.com.mx/MLM-2326632373" target="_blank" rel="noopener">Ver en Mercado Libre</a></div><p class="ya-note">Ya lo hice / Saltar: Pages usa localStorage por done_id (hide_days_default dict). :8766 es opcional y nunca ritual.</p></div></div></article><article class="card" data-sku="10EU001" data-tipo="BUSCAR" data-action="BUSCAR" data-done-id="10EU001|BUSCAR PROVEEDOR|0|1|1|335"><div class="badge" style="color:#5b4a8a;background:#f1ecfb">BUSCAR</div><div class="row"><img class="photo" src="https://arfermarcosciencias.github.io/proyects/radar/img/10EU001.jpg" alt="10EU001" loading="lazy"><div class="copy"><p class="index">#2 · BUSCAR</p><h2>Busca proveedor · Soporte Vertical Ventilador Blanco Usb X</h2><p class="sku">10EU001</p><p class="detail">Vuelve a buscar proveedor de 10EU001 · Soporte Vertical Ventilador Blanco Usb Xbox S…: buen historial, sin buy path / agotado el canal.</p><p class="techo">Pedir 1 · techo $335</p><p class="money">Ganancia por cotizar</p><p class="evidence">30d 0 · 90d 0 · SOH 0</p><div class="actions"><a class="shop-btn" href="https://www.google.com/search?tbm=shop&amp;q=Soporte+Vertical+Ventilador+Blanco+Usb+Xbox+Series+S+-+Dobe+6972520253614" target="_blank" rel="noopener">Buscar precio</a><a class="shop-btn secondary" href="https://articulo.mercadolibre.com.mx/MLM-3777173376" target="_blank" rel="noopener">Ver en Mercado Libre</a></div><p class="ya-note">Ya lo hice / Saltar: Pages usa localStorage por done_id (hide_days_default dict). :8766 es opcional y nunca ritual.</p></div></div></article><article class="card" data-sku="10MU006" data-tipo="BUSCAR" data-action="BUSCAR" data-done-id="10MU006|BUSCAR PROVEEDOR|0|1|1|363"><div class="badge" style="color:#5b4a8a;background:#f1ecfb">BUSCAR</div><div class="row"><img class="photo" src="https://images.qvc.com/is/image/e/93/e298793.001?$uslarge$" alt="10MU006" loading="lazy"><div class="copy"><p class="index">#3 · BUSCAR</p><h2>Busca proveedor · Mouse Pulsefire Core RGB Gaming - HyperX</h2><p class="sku">10MU006</p><p class="detail">Vuelve a buscar proveedor de 10MU006 · Mouse Pulsefire Core RGB Gaming - HyperX: buen historial, sin buy path / agotado el canal.</p><p class="techo">Pedir 1 · techo $363</p><p class="money">Ganancia por cotizar</p><p class="evidence">30d 0 · 90d 0 · SOH 0</p><div class="actions"><a class="shop-btn" href="https://www.google.com/search?tbm=shop&amp;q=Mouse+Pulsefire+Core+RGB+Gaming+-+HyperX+740617279078" target="_blank" rel="noopener">Buscar precio</a><a class="shop-btn secondary" href="https://articulo.mercadolibre.com.mx/MLM-2848237391" target="_blank" rel="noopener">Ver en Mercado Libre</a></div><p class="ya-note">Ya lo hice / Saltar: Pages usa localStorage por done_id (hide_days_default dict). :8766 es opcional y nunca ritual.</p></div></div></article></section>
+<footer>Mismo artefacto para página hosted y respaldo HTML. El radar nunca compra solo.</footer>
+</main>
 </body>
 </html>
