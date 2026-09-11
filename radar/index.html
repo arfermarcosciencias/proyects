@@ -1,79 +1,1193 @@
-<!doctype html>
-<html lang="es">
+<!DOCTYPE html>
+<html lang="es-MX">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="color-scheme" content="light only">
-<title>Busca proveedor · Set De Biberones Options + 4 Oz Rosa 0 A · Radar Arfershop</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="theme-color" content="#f3f7fb"/>
+<title>Radar de rotación · Hoy</title>
 <style>
-:root { color-scheme: light; }
-* { box-sizing: border-box; }
-body {
-  margin: 0; padding: 0; background: #f3f7fb; color: #15243b;
-  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
-}
-.wrap { max-width: 640px; margin: 0 auto; padding: 18px 14px 40px; }
-.top h1 { margin: 6px 0 8px; font-size: 1.45rem; line-height: 1.25; }
-.eyebrow { margin: 0; font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: #65748a; }
-.lead { margin: 0; font-size: 1.05rem; line-height: 1.45; color: #334155; }
-.cards { display: grid; gap: 14px; margin-top: 18px; }
-.card {
-  background: #fff; border-radius: 16px; padding: 14px;
-  border: 1px solid #e3ebf5; box-shadow: 0 8px 24px rgba(18,33,47,.06);
-}
-.badge {
-  display: inline-block; font-size: .72rem; font-weight: 800;
-  letter-spacing: .08em; padding: 4px 10px; border-radius: 999px; margin-bottom: 10px;
-}
-.row { display: flex; gap: 12px; align-items: flex-start; }
-.photo {
-  width: 92px; height: 92px; object-fit: cover; border-radius: 12px;
-  background: #eef3f9; flex: 0 0 auto;
-}
-.photo.placeholder {
-  display: flex; align-items: center; justify-content: center;
-  font-size: .7rem; font-weight: 700; color: #8a95a5; text-align: center; padding: 6px;
-}
-.copy { min-width: 0; flex: 1; }
-.index { margin: 0; font-size: .72rem; color: #8a95a5; font-weight: 700; }
-.card h2 { margin: 2px 0 4px; font-size: 1.15rem; line-height: 1.25; }
-.sku { margin: 0; font-weight: 800; color: #12212f; }
-.detail, .techo, .money, .evidence { margin: 4px 0 0; font-size: .95rem; line-height: 1.4; color: #334155; }
-.techo, .money { color: #1f6349; font-weight: 700; }
-.evidence { font-size: .82rem; color: #65748a; }
-.actions { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.ya-btn {
-  display: inline-block; padding: 10px 14px; border-radius: 10px;
-  background: #eaf7f1; color: #1f6349; font-weight: 800; font-size: .9rem;
-}
-.shop-btn {
-  display: inline-block; padding: 10px 14px; border-radius: 10px;
-  background: #e8f1fb; color: #1a4f8a; font-weight: 800; font-size: .9rem;
-  text-decoration: none;
-}
-.shop-btn.secondary {
-  background: #fff; color: #15243b; border: 1px solid #e3ebf5;
-}
-.ya-note { margin: 8px 0 0; font-size: .78rem; color: #8a95a5; }
-.empty {
-  margin-top: 18px; background: #fff; border-radius: 16px; padding: 28px 18px;
-  border: 1px solid #e3ebf5; text-align: center;
-}
-.empty .check {
-  width: 48px; height: 48px; margin: 0 auto 10px; border-radius: 50%;
-  background: #eaf7f1; color: #1f6349; font-size: 1.6rem;
-  display: flex; align-items: center; justify-content: center; font-weight: 800;
-}
-.empty h2 { margin: 0 0 8px; }
-.datum { list-style: none; padding: 0; margin: 16px 0 0; color: #334155; }
-.datum li { margin: 6px 0; }
-footer { margin-top: 22px; font-size: .78rem; color: #8a95a5; text-align: center; }
+  :root {
+    --bg:#eef2f6; --card:#fff; --text:#0f172a; --muted:#64748b; --muted-2:#94a3b8;
+    --evidence:#334155;
+    --line:#e2e8f0; --green:#166534; --green-bg:#dcfce7; --blue:#1d4ed8; --blue-bg:#dbeafe;
+    --amber:#9a3412; --amber-bg:#ffedd5; --pending:#166534; --pending-bg:#dcfce7;
+    --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Helvetica,Arial,sans-serif;
+    --wrap:min(1120px, calc(100% - 32px));
+    --radius:18px;
+    --tap:44px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);-webkit-font-smoothing:antialiased}
+  .wrap{width:var(--wrap);max-width:1120px;margin:0 auto;padding:24px 0 56px}
+  .eyebrow{margin:0 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  h1{margin:0 0 8px;font-size:clamp(26px,3vw,34px);line-height:1.15;letter-spacing:-.03em;font-weight:750}
+  .lead{margin:0;font-size:16px;line-height:1.45;color:var(--muted);max-width:62ch}
+  .ceiling{margin:8px 0 0;font-size:13px;line-height:1.4;color:var(--muted);font-weight:600}
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .tab{appearance:none;border:1px solid var(--line);background:#fff;color:var(--muted);font:inherit;font-size:14px;font-weight:700;padding:10px 16px;min-height:var(--tap);border-radius:999px;cursor:pointer}
+  .tab.active{background:var(--text);color:#fff;border-color:var(--text)}
+  .stack{display:grid;grid-template-columns:1fr;gap:16px;margin-top:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:0 10px 30px rgba(15,23,42,.05)}
+  .card.done,.card.skipped{opacity:.5}
+  .card.pending-buy{opacity:1;box-shadow:0 0 0 2px #bbf7d0, 0 10px 30px rgba(15,23,42,.05)}
+  .badges{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:12px}
+  .badge{display:inline-flex;align-items:center;font-size:11px;font-weight:750;letter-spacing:.08em;padding:5px 10px;border-radius:999px}
+  .badge.BUSCAR{color:#6d28d9;background:#f3e8ff}
+  .badge.COMPRAR{color:#166534;background:#dcfce7}
+  .badge.REPONER{color:#1d4ed8;background:#dbeafe}
+  .badge.ESTRELLA{color:#a16207;background:#fef9c3}
+  .badge.CASHFLOW{color:#166534;background:#dcfce7}
+  .gate-chip,.pending-chip{
+    display:inline-flex;align-items:center;min-height:28px;font-size:12px;font-weight:750;
+    padding:4px 10px;border-radius:999px;letter-spacing:.01em;
+  }
+  .gate-chip{color:var(--amber);background:var(--amber-bg)}
+  .pending-chip{color:var(--pending);background:var(--pending-bg)}
+  .row{display:flex;gap:16px;align-items:flex-start}
+  .photo{width:112px;height:112px;object-fit:cover;border-radius:14px;background:#f1f5f9;flex:0 0 auto}
+  .photo.ph{display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--muted);text-align:center;padding:8px}
+  .copy{min-width:0;flex:1}
+  .index{margin:0;font-size:12px;color:var(--muted);font-weight:700}
+  .title{
+    margin:4px 0 8px;font-size:clamp(17px,1.6vw,20px);line-height:1.3;font-weight:750;letter-spacing:-.02em;
+    display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden;
+    overflow-wrap:break-word;word-break:normal;hyphens:none;
+  }
+  .qty-advice{margin:0 0 6px;font-size:15px;font-weight:700;color:var(--text)}
+  .plata{margin:0 0 6px;font-size:15px;font-weight:700;color:var(--green)}
+  .why{margin:0 0 8px;font-size:14px;line-height:1.45;color:var(--muted)}
+  .why strong{color:var(--text);font-weight:700}
+  .evidence{margin:0 0 10px;font-size:13px;line-height:1.4;color:var(--evidence);font-weight:600}
+  .park-meta,.trail{
+    margin:0 0 10px;font-size:13px;line-height:1.4;color:var(--muted);
+    background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:10px 12px;
+  }
+  .trail{color:var(--green);background:#f0fdf4;border-color:#bbf7d0;font-weight:650}
+  .links{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0}
+  .links a,.ghost-btn{
+    display:inline-flex;align-items:center;justify-content:center;min-height:var(--tap);padding:10px 14px;border-radius:11px;
+    font:inherit;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap;flex:0 0 auto;
+  }
+  .links a.primary{background:var(--blue-bg);color:var(--blue)}
+  .links a.secondary,.btn-secondary{background:#fff;color:var(--text);border:1px solid var(--line)}
+  .links a.ghost,.ghost-btn{background:#fff;color:var(--blue);border:1px solid var(--line);cursor:pointer}
+  .actions{margin-top:14px;display:grid;grid-template-columns:1.35fr 1fr;gap:10px;max-width:420px}
+  .actions.with-comprar{grid-template-columns:1fr;max-width:420px}
+  .actions-sub{display:grid;grid-template-columns:1.35fr 1fr;gap:10px}
+  button{appearance:none;border:0;cursor:pointer;font:inherit;font-weight:700;border-radius:12px;padding:12px;font-size:14px;min-height:var(--tap)}
+  button:disabled{opacity:.45;cursor:default}
+  .btn-primary{background:var(--green-bg);color:var(--green)}
+  .btn-comprar{background:var(--green);color:#fff}
+  .btn-secondary{background:#fff;color:var(--text);border:1px solid var(--line)}
+  .outcomes{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);gap:8px;grid-template-columns:1fr 1fr;max-width:420px}
+  .outcomes.open{display:grid}
+  .outcomes button{font-size:13px;padding:10px 8px;min-height:var(--tap);background:#f8fafc;border:1px solid var(--line);color:var(--text)}
+  .status{margin-top:10px;font-size:13px;color:var(--green);font-weight:700;display:none}
+  .status.show{display:block}
+  .pending-strip{
+    margin-top:18px;background:#fff;border:1px solid #bbf7d0;border-radius:var(--radius);
+    padding:14px 16px;box-shadow:0 8px 20px rgba(15,23,42,.04);
+  }
+  .pending-strip h2{margin:0 0 8px;font-size:15px;letter-spacing:-.02em}
+  .pending-strip ul{margin:0;padding:0;list-style:none}
+  .pending-strip li{font-size:13px;line-height:1.45;color:var(--evidence);padding:6px 0;border-top:1px solid #ecfdf5}
+  .pending-strip li:first-child{border-top:0;padding-top:0}
+  .state{margin-top:14px;background:#fff;border-radius:var(--radius);padding:36px 22px;border:1px solid var(--line);text-align:center}
+  .state h2{margin:0 0 8px;font-size:18px}
+  .state p{margin:0;color:var(--muted);font-size:14px;line-height:1.45}
+  .state .actions{max-width:220px;margin:16px auto 0;grid-template-columns:1fr}
+  .skel{border-radius:10px;background:linear-gradient(90deg,#e2e8f0,#f8fafc,#e2e8f0);background-size:200% 100%;animation:sh 1.2s infinite}
+  .skel-card{pointer-events:none;box-shadow:none}
+  .skel-badge{width:72px;height:22px;border-radius:999px;margin-bottom:12px}
+  .skel.photo{flex:0 0 auto}
+  .skel-line{height:12px;margin:8px 0}
+  .skel-w-sm{width:28%}
+  .skel-w-md{width:62%}
+  .skel-w-lg{width:92%;height:16px}
+  .skel-w{width:74%}
+  .skel-tab{display:inline-block;width:132px;height:var(--tap);border-radius:999px}
+  .skel-btn{height:var(--tap);width:min(420px,100%);margin-top:14px;border-radius:12px}
+  @keyframes sh{0%{background-position:100% 0}100%{background-position:-100% 0}}
+  footer{margin-top:28px;font-size:13px;color:var(--muted);text-align:center}
+  .text-link{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 6px;border:0;background:none;color:var(--blue);font:inherit;font-weight:700;cursor:pointer}
+  .modal-root[hidden]{display:none}
+  .modal-root{position:fixed;inset:0;z-index:40;display:flex;align-items:flex-end;justify-content:center;padding:16px}
+  .modal-backdrop{position:absolute;inset:0;background:rgba(15,23,42,.42)}
+  .modal{
+    position:relative;width:min(520px,100%);max-height:min(92vh,760px);overflow:auto;
+    background:#fff;border-radius:20px;padding:22px 20px 18px;box-shadow:0 24px 60px rgba(15,23,42,.22);
+  }
+  .modal h2{margin:0 0 6px;font-size:20px;letter-spacing:-.03em}
+  .modal .hint{margin:0 0 14px;font-size:13px;line-height:1.45;color:var(--muted)}
+  .field{display:flex;flex-direction:column;gap:6px;margin:0 0 12px}
+  .field label{font-size:13px;font-weight:700;color:var(--text)}
+  .field input,.field select{
+    min-height:var(--tap);border:1px solid var(--line);border-radius:12px;padding:10px 12px;
+    font:inherit;font-size:15px;color:var(--text);background:#fff;
+  }
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .modal-actions{display:grid;grid-template-columns:1fr 1.4fr;gap:10px;margin-top:8px}
+  .modal-error{display:none;margin:0 0 10px;font-size:13px;font-weight:700;color:#b91c1c}
+  .modal-error.show{display:block}
+  @media (max-width:479px){
+    .row{flex-direction:column}
+    .photo{width:96px;height:96px}
+    .links{flex-direction:column;align-items:stretch}
+    .links a,.ghost-btn{width:100%}
+    .actions,.outcomes,.actions-sub{max-width:none}
+    .field-row{grid-template-columns:1fr}
+  }
+  @media (min-width:640px){
+    .modal-root{align-items:center}
+  }
+  @media (min-width:820px){
+    .wrap{padding:32px 0 72px}
+    .stack{grid-template-columns:1fr 1fr;gap:18px}
+    .stack.one-col{grid-template-columns:1fr;max-width:720px}
+    .card{padding:20px}
+    .photo{width:128px;height:128px}
+  }
+  @media (min-width:1100px){
+    .stack{grid-template-columns:1fr 1fr;gap:20px}
+  }
 </style>
 </head>
 <body>
-<main class="wrap">
-<header class="top"><p class="eyebrow">Radar de Rotación · 2026-09-05T22:30:19</p><h1>Busca proveedor · Set De Biberones Options + 4 Oz Rosa 0 A</h1><p class="lead">Vuelve a buscar proveedor de 01BX001 · Set De Biberones Options + 4 Oz Rosa 0 A 6M+…: buen historial, sin buy path / agotado el canal.</p></header><section class="cards"><article class="card" data-sku="01BX001" data-tipo="BUSCAR" data-action="BUSCAR" data-done-id="01BX001|BUSCAR PROVEEDOR|0|1|1|440"><div class="badge" style="color:#5b4a8a;background:#f1ecfb">BUSCAR</div><div class="row"><img class="photo" src="https://arfermarcosciencias.github.io/proyects/radar/img/01BX001.jpg" alt="01BX001" loading="lazy"><div class="copy"><p class="index">#1 · BUSCAR</p><h2>Busca proveedor · Set De Biberones Options + 4 Oz Rosa 0 A</h2><p class="sku">01BX001</p><p class="detail">Vuelve a buscar proveedor de 01BX001 · Set De Biberones Options + 4 Oz Rosa 0 A 6M+…: buen historial, sin buy path / agotado el canal.</p><p class="techo">Pedir 1 · techo $440</p><p class="money">Ganancia por cotizar</p><p class="evidence">30d 0 · 90d 0 · SOH 0</p><div class="actions"><a class="shop-btn" href="https://www.google.com/search?tbm=shop&amp;q=Set+De+Biberones+Options+%2B+4+Oz+Rosa+0+A+6M%2B+-+Dr+Browns+72239315347" target="_blank" rel="noopener">Buscar precio</a><a class="shop-btn secondary" href="https://articulo.mercadolibre.com.mx/MLM-2326632373" target="_blank" rel="noopener">Ver en Mercado Libre</a></div><p class="ya-note">Ya lo hice / Saltar: Pages usa localStorage por done_id (hide_days_default dict). :8766 es opcional y nunca ritual.</p></div></div></article><article class="card" data-sku="10EU001" data-tipo="BUSCAR" data-action="BUSCAR" data-done-id="10EU001|BUSCAR PROVEEDOR|0|1|1|335"><div class="badge" style="color:#5b4a8a;background:#f1ecfb">BUSCAR</div><div class="row"><img class="photo" src="https://arfermarcosciencias.github.io/proyects/radar/img/10EU001.jpg" alt="10EU001" loading="lazy"><div class="copy"><p class="index">#2 · BUSCAR</p><h2>Busca proveedor · Soporte Vertical Ventilador Blanco Usb X</h2><p class="sku">10EU001</p><p class="detail">Vuelve a buscar proveedor de 10EU001 · Soporte Vertical Ventilador Blanco Usb Xbox S…: buen historial, sin buy path / agotado el canal.</p><p class="techo">Pedir 1 · techo $335</p><p class="money">Ganancia por cotizar</p><p class="evidence">30d 0 · 90d 0 · SOH 0</p><div class="actions"><a class="shop-btn" href="https://www.google.com/search?tbm=shop&amp;q=Soporte+Vertical+Ventilador+Blanco+Usb+Xbox+Series+S+-+Dobe+6972520253614" target="_blank" rel="noopener">Buscar precio</a><a class="shop-btn secondary" href="https://articulo.mercadolibre.com.mx/MLM-3777173376" target="_blank" rel="noopener">Ver en Mercado Libre</a></div><p class="ya-note">Ya lo hice / Saltar: Pages usa localStorage por done_id (hide_days_default dict). :8766 es opcional y nunca ritual.</p></div></div></article><article class="card" data-sku="10MU006" data-tipo="BUSCAR" data-action="BUSCAR" data-done-id="10MU006|BUSCAR PROVEEDOR|0|1|1|363"><div class="badge" style="color:#5b4a8a;background:#f1ecfb">BUSCAR</div><div class="row"><img class="photo" src="https://images.qvc.com/is/image/e/93/e298793.001?$uslarge$" alt="10MU006" loading="lazy"><div class="copy"><p class="index">#3 · BUSCAR</p><h2>Busca proveedor · Mouse Pulsefire Core RGB Gaming - HyperX</h2><p class="sku">10MU006</p><p class="detail">Vuelve a buscar proveedor de 10MU006 · Mouse Pulsefire Core RGB Gaming - HyperX: buen historial, sin buy path / agotado el canal.</p><p class="techo">Pedir 1 · techo $363</p><p class="money">Ganancia por cotizar</p><p class="evidence">30d 0 · 90d 0 · SOH 0</p><div class="actions"><a class="shop-btn" href="https://www.google.com/search?tbm=shop&amp;q=Mouse+Pulsefire+Core+RGB+Gaming+-+HyperX+740617279078" target="_blank" rel="noopener">Buscar precio</a><a class="shop-btn secondary" href="https://articulo.mercadolibre.com.mx/MLM-2848237391" target="_blank" rel="noopener">Ver en Mercado Libre</a></div><p class="ya-note">Ya lo hice / Saltar: Pages usa localStorage por done_id (hide_days_default dict). :8766 es opcional y nunca ritual.</p></div></div></article></section>
-<footer>Mismo artefacto para página hosted y respaldo HTML. El radar nunca compra solo.</footer>
-</main>
+<div class="wrap" id="app"></div>
+<div class="modal-root" id="modal-root" hidden></div>
+<script>
+const JSON_URL = "./hoy_3_tarjetas.json";
+const PENDING_FILE_URL = "./purchases_pending.json";
+const LOCAL_API = "http://127.0.0.1:8766/api/actions";
+const WEEKLY_CEILING = 2500;
+const PENDING_KEY = "radar-hoy:purchases_pending:v1";
+const INBOX_KEY = "radar-hoy:pages_action_inbox:v1";
+const HIDE_DAYS = { purchased: 7, not_found: 3, tomorrow: 1, descartado: 30, done: 1, skip: 1 };
+const OUTCOME_TEXT = {
+  purchased: "Anotado como comprado",
+  not_found: "Anotado: no lo encontraste",
+  tomorrow: "Lo dejamos para mañana",
+  descartado: "Lo retiro por 30 días",
+  done: "Hecho",
+  skip: "Saltado por hoy"
+};
+const STATUS_TEXT = {
+  pause: "pausada",
+  paused: "pausada",
+  skip: "saltada",
+  skipped: "saltada",
+  done: "hecha",
+  purchased: "comprada",
+  not_found: "no encontrada",
+  tomorrow: "para mañana",
+  descartado: "descartada",
+  discarded: "descartada",
+  dismiss: "descartada",
+  dismissed: "descartada",
+  hidden: "oculta",
+  queue: "en cola",
+  active: "activa"
+};
+const TAB_HOY = "hoy";
+const TAB_QUEUE = "queue";
+const TAB_DECIDED = "decided";
+
+let cachedData = null;
+let activeTab = TAB_HOY;
+let cardById = new Map();
+let lastFocus = null;
+
+const money0 = (n) => new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(Number(n));
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const storeKey = (id) => `radar-hoy:v1:${id}`;
+
+function asText(v) {
+  if (v == null) return "";
+  if (typeof v === "string") return v.trim();
+  if (typeof v === "object") {
+    for (const k of ["detail", "text", "why_line", "por_que", "summary", "label"]) {
+      if (typeof v[k] === "string" && v[k].trim()) return v[k].trim();
+    }
+  }
+  return "";
+}
+
+function localizeToken(s) {
+  const raw = String(s ?? "").trim();
+  if (!raw) return "";
+  const key = raw.toLowerCase().replace(/[\s-]+/g, "_");
+  if (STATUS_TEXT[key]) return STATUS_TEXT[key];
+  if (OUTCOME_TEXT[key]) return OUTCOME_TEXT[key];
+  return raw.replace(/\bpaused\b/gi, "pausada").replace(/\bpause\b/gi, "pausada");
+}
+
+function looksTruncatedTitle(s) {
+  const t = String(s || "").trim();
+  if (!t) return true;
+  if (/[…]$/.test(t) || /\s[A-Za-zÁÉÍÓÚÜáéíóúü]{1,3}$/.test(t)) return true;
+  if (/^Busca proveedor/i.test(t)) return true;
+  return false;
+}
+
+function nameFromContext(card) {
+  const ctx = asText(card.contexto_prompt);
+  const m = ctx.match(/Producto:\s*([^\n]+)/i);
+  return m ? m[1].replace(/\s+/g, " ").trim() : "";
+}
+
+function nameFromPorQue(card) {
+  const src = asText(card.por_que) || asText(card.why_line);
+  const m = src.match(/·\s*([^:]+?)(?::|$)/);
+  if (!m) return "";
+  return m[1].replace(/[.…]+$/g, "").replace(/\s+-\s*$/g, "").trim();
+}
+
+function productName(card) {
+  const t = (card.title || "").trim();
+  const generic = !t || /^Busca proveedor/i.test(t) || (/^Compra\s+\d+/i.test(t) && t.length < 28);
+  if (!generic && !looksTruncatedTitle(t)) return t;
+  return nameFromContext(card) || nameFromPorQue(card) || t.replace(/^Busca proveedor\s*·\s*/i, "").trim() || card.sku || "este producto";
+}
+
+function cardAction(card) {
+  return String((card && (card.action || card.tipo)) || "").toUpperCase();
+}
+
+function isGateOk(card) {
+  if (!card) return false;
+  if (typeof card.gate_ok === "boolean") return card.gate_ok;
+  return cardAction(card) === "COMPRAR";
+}
+
+function showComprarCta(card) {
+  if (!card) return false;
+  if (card.gate_ok === true) return true;
+  if (card.gate_ok == null && cardAction(card) === "COMPRAR") return true;
+  return false;
+}
+
+function gateReason(card) {
+  const raw = asText(card && card.gate_reason_es);
+  if (raw) return raw;
+  const codes = Array.isArray(card && card.gate_codes) ? card.gate_codes : [];
+  if (codes.includes("sin_margen")) return "Sin margen";
+  if (codes.includes("bajo_120")) return "Gana menos de $120";
+  if (codes.includes("roi_bajo_30")) return "ROI bajo 30%";
+  return "";
+}
+
+function isHoyExecutable(card) {
+  if (!card) return false;
+  if (card.gate_ok === false) return false;
+  return true;
+}
+
+function parseContextMoney(card) {
+  const ctx = asText(card && card.contexto_prompt);
+  const um = ctx.match(/Utilidad est\.\s*\/\s*u:\s*\$?\s*([\d.]+)/i);
+  const roi = ctx.match(/ROI:\s*([\d.]+)\s*%/i);
+  return {
+    gain: um ? Number(um[1]) : null,
+    roi: roi ? Number(roi[1]) : null
+  };
+}
+
+function estimatedGain(card) {
+  if (!card) return null;
+  for (const v of [card.ganancia_estimada_mxn, card.unit_margin, card.evidence && card.evidence.unit_margin]) {
+    if (v != null && !Number.isNaN(Number(v))) return Number(v);
+  }
+  const parsed = parseContextMoney(card).gain;
+  return parsed != null && !Number.isNaN(parsed) ? parsed : null;
+}
+
+function estimatedRoi(card) {
+  if (!card) return null;
+  if (card.roi_pct != null && !Number.isNaN(Number(card.roi_pct))) return Number(card.roi_pct);
+  const parsed = parseContextMoney(card).roi;
+  return parsed != null && !Number.isNaN(parsed) ? parsed : null;
+}
+
+function verbTitle(card) {
+  const name = productName(card);
+  const n = Number(card.qty) || 1;
+  if (cardAction(card) === "BUSCAR") {
+    return n === 1 ? `Busca quién te venda ${name}` : `Busca quién te venda ${name} (${n} piezas)`;
+  }
+  return n === 1 ? `Compra ${name}` : `Compra ${n} de ${name}`;
+}
+
+function plataLine(card) {
+  const g = estimatedGain(card);
+  if (g == null) return null;
+  return `~gánele ${money0(g)}`;
+}
+
+function priceGoalLine(card) {
+  const cap = card.max_landed_cost != null ? card.max_landed_cost : card.alert_price;
+  const g = estimatedGain(card);
+  const r = estimatedRoi(card);
+  const hasCap = cap != null && !Number.isNaN(Number(cap)) && Number(cap) > 0;
+  if (!hasCap) return null;
+  const price = money0(cap);
+  const hasG = g != null;
+  const hasR = r != null;
+  if (hasG && hasR) {
+    return `Búscalo en menos de ${price} para ganar ~${money0(g)} (ROI ~${Number(r).toFixed(0)}%)`;
+  }
+  if (hasG) return `Búscalo en menos de ${price} para ganar ~${money0(g)}`;
+  if (hasR) return `Búscalo en menos de ${price} para mantener un ROI de ~${Number(r).toFixed(0)}%`;
+  return `Búscalo en menos de ${price} para no comerse la ganancia`;
+}
+
+function suggestedQty(card) {
+  const n = Number(card.qty_si_techo != null ? card.qty_si_techo : card.qty);
+  return (!n || Number.isNaN(n) || n < 1) ? 1 : n;
+}
+
+function qtyAdviceLine(card) {
+  const n = suggestedQty(card);
+  const piezas = n === 1 ? "1 pieza" : n + " piezas";
+  return "Si lo consigues a ese precio, compra " + piezas;
+}
+
+function whyText(card) {
+  const candidates = [card.why && card.why.detail, card.why_line, asText(card.why), card.por_que, card.contexto_prompt];
+  for (const raw of candidates) {
+    let s = asText(raw);
+    if (!s) continue;
+    if (/\bsoh\b|\btecho\b|\d+d\s*\/|buy path|\[object Object\]/i.test(s)) continue;
+    s = s.replace(/\bsin buy path\b/gi, "")
+         .replace(/\bagotado el canal\b/gi, "")
+         .replace(/\bbuen historial\b/gi, "")
+         .replace(/\bVuelve a buscar proveedor de[^:]+:\s*/i, "")
+         .replace(/\s*\/\s*/g, " ")
+         .replace(/\s{2,}/g, " ")
+         .trim();
+    if (s.length >= 12 && s.length < 220) return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+  const ev = card.evidence || {};
+  const bits = [];
+  if (ev.soh === 0 || card.soh === 0) bits.push("se te acabó");
+  const s30 = ev.sales_30 != null ? ev.sales_30 : card.sales_30;
+  const s90 = ev.sales_90 != null ? ev.sales_90 : card.sales_90;
+  if ((s30 || 0) > 0 || (s90 || 0) > 0) bits.push("se vende de vez en cuando");
+  if (cardAction(card) === "BUSCAR") bits.push("hay que buscar proveedor");
+  if (bits.length) return bits.slice(0, 2).join(" y ") + ".";
+  return "Vale la pena checarlo si encuentras buen precio.";
+}
+
+function evidenceLine(ev) {
+  if (!ev) return "";
+  const a = [];
+  if (ev.sales_30 != null) a.push(`${ev.sales_30} en 30d`);
+  if (ev.sales_90 != null) a.push(`${ev.sales_90} en 90d`);
+  if (ev.soh != null) a.push(`existencias ${ev.soh}`);
+  if (ev.days_since_last_sale != null) a.push(`última venta hace ${ev.days_since_last_sale}d`);
+  if (ev.unit_margin != null) a.push(`margen ~${money0(ev.unit_margin)}`);
+  return a.join(" · ");
+}
+
+function shoppingHref(card, name) {
+  if (card.shopping_url) return card.shopping_url;
+  return "https://www.google.com/search?tbm=shop&q=" + encodeURIComponent(name);
+}
+
+function mlHref(card, name) {
+  if (card.marketplace_url) return card.marketplace_url;
+  if (card.meli_id) return "https://www.mercadolibre.com.mx/p/" + encodeURIComponent(card.meli_id);
+  return "https://listado.mercadolibre.com.mx/" + encodeURIComponent(name).replace(/%20/g, "-");
+}
+
+function contextText(card) {
+  return asText(card.contexto_prompt) || asText(card.why_line) || asText(card.por_que) || asText(card.why) || "";
+}
+
+function keepaHref(card) {
+  const asin = (card.asin || "").trim();
+  if (!asin) return null;
+  return "https://keepa.com/#!product/11-" + encodeURIComponent(asin);
+}
+
+function storeLinks(card) {
+  const arr = Array.isArray(card.marketplace_urls) ? card.marketplace_urls : [];
+  return arr.map((u) => {
+    if (typeof u === "string" && /^https?:\/\//i.test(u)) return { label: "Abrir tienda", url: u };
+    if (u && typeof u === "object" && /^https?:\/\//i.test(u.url || "")) {
+      return { label: u.label || "Abrir tienda", url: u.url };
+    }
+    return null;
+  }).filter(Boolean);
+}
+
+function cardId(card) {
+  return String((card && (card.done_id || card.sku)) || "");
+}
+
+function readState(id) {
+  if (!id) return null;
+  try { return JSON.parse(localStorage.getItem(storeKey(id)) || "null"); } catch { return null; }
+}
+
+function writeState(obj) {
+  if (!obj || !obj.done_id) return;
+  localStorage.setItem(storeKey(obj.done_id), JSON.stringify(obj));
+}
+
+function emptyPendingDoc() {
+  return { schema: "arfershop.radar.purchases_pending.v1", updated_at: null, items: [] };
+}
+
+function normalizePendingDoc(raw) {
+  if (Array.isArray(raw)) return { schema: "arfershop.radar.purchases_pending.v1", updated_at: null, items: raw };
+  if (raw && Array.isArray(raw.items)) {
+    return {
+      schema: raw.schema || "arfershop.radar.purchases_pending.v1",
+      updated_at: raw.updated_at || null,
+      items: raw.items
+    };
+  }
+  return emptyPendingDoc();
+}
+
+function readPending() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(PENDING_KEY) || "null");
+    if (raw) return normalizePendingDoc(raw);
+  } catch { /* ignore */ }
+  return emptyPendingDoc();
+}
+
+function writePending(doc) {
+  const next = normalizePendingDoc(doc);
+  next.updated_at = new Date().toISOString();
+  next.schema = "arfershop.radar.purchases_pending.v1";
+  localStorage.setItem(PENDING_KEY, JSON.stringify(next));
+  return next;
+}
+
+function pendingKeyOf(item) {
+  return [item.sku || "", item.done_id || item.action_key || "", item.created_at || ""].join("|");
+}
+
+function mergePendingItems(primary, extras) {
+  const out = [];
+  const seen = new Set();
+  for (const item of [...(primary || []), ...(extras || [])]) {
+    if (!item || !item.sku) continue;
+    const k = pendingKeyOf(item);
+    if (seen.has(k)) continue;
+    seen.add(k);
+    out.push(item);
+  }
+  return out;
+}
+
+function hydratePendingFromServer(data, fileItems) {
+  const local = readPending();
+  const fromRoot = Array.isArray(data && data.purchases_pending)
+    ? data.purchases_pending
+    : (data && data.purchases_pending && Array.isArray(data.purchases_pending.items) ? data.purchases_pending.items : []);
+  const merged = mergePendingItems(local.items, mergePendingItems(fromRoot, fileItems || []));
+  if (local.items.length) {
+    if (merged.length !== local.items.length) writePending({ ...local, items: merged });
+    return readPending();
+  }
+  if (merged.length) return writePending({ ...local, items: merged });
+  return local;
+}
+
+function upsertPurchase(item) {
+  const doc = readPending();
+  const idx = doc.items.findIndex((x) =>
+    x.status !== "cancelled" &&
+    x.sku === item.sku &&
+    String(x.done_id || x.action_key || "") === String(item.done_id || item.action_key || "")
+  );
+  if (idx >= 0) doc.items[idx] = { ...doc.items[idx], ...item };
+  else doc.items.unshift(item);
+  return writePending(doc);
+}
+
+function purchaseForCard(card) {
+  const id = cardId(card);
+  const sku = card && card.sku;
+  return readPending().items.find((x) =>
+    x.status !== "cancelled" &&
+    x.sku === sku &&
+    String(x.done_id || x.action_key || "") === id
+  ) || null;
+}
+
+function readInbox() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(INBOX_KEY) || "null");
+    if (raw && Array.isArray(raw.actions)) return raw;
+  } catch { /* ignore */ }
+  return { file: "pages_action_inbox.json", actions: [] };
+}
+
+function appendInboxAction({ sku, done_id, outcome }) {
+  const doc = readInbox();
+  doc.actions.unshift({
+    action_key: done_id,
+    created_at: new Date().toISOString(),
+    done_id,
+    outcome,
+    sku,
+    source: "pages"
+  });
+  localStorage.setItem(INBOX_KEY, JSON.stringify(doc));
+}
+
+function isHidden(st) {
+  if (!st || !st.hide_until) return false;
+  if (st.outcome === "purchased") return false;
+  const t = Date.parse(st.hide_until);
+  return !Number.isNaN(t) && t > Date.now();
+}
+
+function hideDaysFor(outcome, card) {
+  const maps = [];
+  if (card && card.hide_days_default && typeof card.hide_days_default === "object") maps.push(card.hide_days_default);
+  if (cachedData && cachedData.hide_days_default && typeof cachedData.hide_days_default === "object") maps.push(cachedData.hide_days_default);
+  if (cachedData && cachedData.done_contract && cachedData.done_contract.hide_days) maps.push(cachedData.done_contract.hide_days);
+  maps.push(HIDE_DAYS);
+  for (const m of maps) {
+    if (m && m[outcome] != null && !Number.isNaN(Number(m[outcome]))) return Number(m[outcome]);
+  }
+  return 1;
+}
+
+function hideUntilIso(days) {
+  const d = new Date();
+  d.setDate(d.getDate() + (Number(days) || 0));
+  return d.toISOString();
+}
+
+function formatHideUntil(iso) {
+  const t = Date.parse(iso);
+  if (Number.isNaN(t)) return String(iso);
+  try {
+    return new Intl.DateTimeFormat("es-MX", { day: "numeric", month: "short", year: "numeric" }).format(new Date(t));
+  } catch {
+    return String(iso);
+  }
+}
+
+function weekStartMs(d = new Date()) {
+  const x = new Date(d);
+  const day = x.getDay();
+  const diff = (day + 6) % 7;
+  x.setHours(0, 0, 0, 0);
+  x.setDate(x.getDate() - diff);
+  return x.getTime();
+}
+
+function purchaseTotal(item) {
+  if (item.total != null && !Number.isNaN(Number(item.total))) return Number(item.total);
+  const qty = Number(item.qty) || 1;
+  const unit = Number(item.unit_price);
+  if (!Number.isNaN(unit)) return unit * qty;
+  return 0;
+}
+
+function weeklyPendingSpend(items) {
+  const start = weekStartMs();
+  return (items || []).filter((it) => it.status !== "cancelled" && it.status !== "imported")
+    .filter((it) => !it.created_at || Date.parse(it.created_at) >= start)
+    .reduce((sum, it) => sum + purchaseTotal(it), 0);
+}
+
+function pageHeadline(tab, n) {
+  if (tab === TAB_QUEUE) {
+    if (!n) return "Sin más oportunidades";
+    return n === 1 ? "1 oportunidad más" : `${n} oportunidades más`;
+  }
+  if (tab === TAB_DECIDED) {
+    if (!n) return "Nada decidido aún";
+    return n === 1 ? "1 ya decidida" : `${n} ya decididas`;
+  }
+  if (!n) return "Hoy no tienes que comprar nada";
+  return n === 1 ? "Hoy: 1 cosa ejecutable" : `Hoy: ${n} cosas ejecutables`;
+}
+
+function pageLead(tab, cards, data) {
+  if (tab === TAB_QUEUE) {
+    if (!cards.length) return "Cuando haya cola, aparece aquí.";
+    return "Otras opciones si te sobra tiempo. Solo las que ya pasaron el piso.";
+  }
+  if (tab === TAB_DECIDED) {
+    if (!cards.length) return "Aquí verás lo pausado o descartado.";
+    return "Pausadas, descartadas o ya resueltas.";
+  }
+  if (!cards.length) return "Respira. Nada ejecutable hoy.";
+  const buscar = cards.filter((c) => cardAction(c) === "BUSCAR").length;
+  const comprar = cards.length - buscar;
+  const bits = [];
+  if (comprar > 0) bits.push(comprar === 1 ? "1 para comprar" : `${comprar} para comprar`);
+  if (buscar > 0) bits.push(buscar === 1 ? "1 para buscar quién te lo venda" : `${buscar} para buscar proveedor`);
+  return bits.join(". ") + ".";
+}
+
+function ceilingLine(items) {
+  const spend = weeklyPendingSpend(items);
+  if (spend > 0) {
+    return `Llevas ${money0(spend)} de ${money0(WEEKLY_CEILING)} esta semana · tope prudente.`;
+  }
+  return `Tope semanal prudente: ${money0(WEEKLY_CEILING)}.`;
+}
+
+function statusMessage(st) {
+  if (!st) return "";
+  const base = OUTCOME_TEXT[st.outcome] || localizeToken(st.outcome) || "Guardado";
+  if (st.outcome === "purchased") return "Compra anotada · queda en pendientes";
+  const days = st.hide_days;
+  return days ? `${base} · no vuelve por ${days} días` : base;
+}
+
+function decidedMetaLine(card) {
+  const parts = [];
+  const reason = gateReason(card);
+  if (card.reason && String(card.reason).trim()) parts.push(localizeToken(card.reason));
+  if (card.park_note && String(card.park_note).trim()) parts.push(String(card.park_note).trim());
+  if (card.outcome && String(card.outcome).trim()) {
+    const o = String(card.outcome).trim();
+    parts.push(OUTCOME_TEXT[o] || localizeToken(o));
+  }
+  if (card.hide_until && String(card.hide_until).trim()) {
+    parts.push("oculto hasta " + formatHideUntil(card.hide_until));
+  }
+  if (reason && !parts.includes(reason)) parts.push(reason);
+  return parts.join(" · ");
+}
+
+function tabLists(data) {
+  const cards = (data.cards || []).filter(isHoyExecutable).slice(0, 3);
+  const queue = (Array.isArray(data.queue) ? data.queue : []).filter(isHoyExecutable);
+  const decided = Array.isArray(data.dismissed_or_paused)
+    ? data.dismissed_or_paused
+    : (Array.isArray(data.parked) ? data.parked : []);
+  return { cards, queue, decided };
+}
+
+function filterVisible(cards) {
+  return cards.filter((c) => !isHidden(readState(cardId(c))));
+}
+
+function countsFor(data) {
+  const lists = tabLists(data);
+  return {
+    hoy: filterVisible(lists.cards).length,
+    queue: lists.queue.length,
+    decided: lists.decided.length
+  };
+}
+
+function cardsForActiveTab(data) {
+  const lists = tabLists(data);
+  if (activeTab === TAB_QUEUE) return lists.queue;
+  if (activeTab === TAB_DECIDED) return lists.decided;
+  return filterVisible(lists.cards);
+}
+
+function rememberCards(data) {
+  cardById = new Map();
+  const lists = tabLists(data);
+  for (const c of [...lists.cards, ...lists.queue, ...lists.decided, ...(data.cards || []), ...(data.parked || [])]) {
+    const id = cardId(c);
+    if (id && !cardById.has(id)) cardById.set(id, c);
+  }
+}
+
+function eyebrowHtml() {
+  return `<p class="eyebrow">Radar de rotación · Hoy</p>`;
+}
+
+function skelCardHtml() {
+  return `<article class="card skel-card" aria-hidden="true">
+    <div class="skel skel-badge"></div>
+    <div class="row">
+      <div class="skel photo"></div>
+      <div class="copy">
+        <div class="skel skel-line skel-w-sm"></div>
+        <div class="skel skel-line skel-w-lg"></div>
+        <div class="skel skel-line skel-w-md"></div>
+        <div class="skel skel-line skel-w"></div>
+      </div>
+    </div>
+    <div class="skel skel-btn"></div>
+  </article>`;
+}
+
+function renderLoading() {
+  return `${eyebrowHtml()}
+    <h1>Armando tu radar de hoy</h1>
+    <p class="lead">Estoy trayendo las cosas ejecutables de hoy, más oportunidades y lo ya decidido.</p>
+    <div class="tabs" aria-hidden="true">
+      <span class="skel skel-tab"></span>
+      <span class="skel skel-tab"></span>
+      <span class="skel skel-tab"></span>
+    </div>
+    <div class="stack">${skelCardHtml()}${skelCardHtml()}</div>`;
+}
+
+function renderError(msg) {
+  return `${eyebrowHtml()}
+    <h1>No pude cargar el día</h1>
+    <p class="lead">El radar necesita el archivo de hoy para armar las tarjetas.</p>
+    <div class="state"><h2>Algo falló al leer las oportunidades</h2><p>${esc(msg)}</p>
+    <div class="actions"><button type="button" class="btn-primary" id="retry">Reintentar</button></div></div>`;
+}
+
+function renderTabs(counts) {
+  const items = [
+    { id: TAB_HOY, label: `Hoy (${counts.hoy})` },
+    { id: TAB_QUEUE, label: `Más oportunidades (${counts.queue})` },
+    { id: TAB_DECIDED, label: `Ya decididas (${counts.decided})` }
+  ];
+  return `<div class="tabs" role="tablist">${items.map((t) =>
+    `<button type="button" class="tab${activeTab === t.id ? " active" : ""}" role="tab" aria-selected="${activeTab === t.id ? "true" : "false"}" data-tab="${t.id}">${esc(t.label)}</button>`
+  ).join("")}</div>`;
+}
+
+function photoHtml(card) {
+  const rawImg = card.image_url || "";
+  const isData = /^data:/i.test(rawImg);
+  const heavyData = isData && rawImg.length > 120000;
+  if (rawImg && !heavyData) {
+    return `<img class="photo" src="${esc(rawImg)}" alt=""/>`;
+  }
+  return `<div class="photo ph">${rawImg ? "Foto pesada" : "Sin foto"}</div>`;
+}
+
+function defaultStore(card) {
+  const supplier = String(card.supplier_name || "").toLowerCase();
+  if (/amazon/.test(supplier)) return "Amazon";
+  if (/mercado\s*libre|^ml\b/.test(supplier)) return "ML";
+  if (/mercadolibre/.test(String(card.marketplace_url || "").toLowerCase())) return "ML";
+  return "otro";
+}
+
+function trailLine(purchase) {
+  if (!purchase) return "";
+  const qty = Number(purchase.qty) || 1;
+  const piezas = qty === 1 ? "1 pieza" : qty + " piezas";
+  const paid = purchaseTotal(purchase);
+  const store = purchase.store ? ` · ${purchase.store}` : "";
+  const paidTxt = paid ? ` · ${money0(paid)}` : "";
+  return `Compra anotada · ${piezas}${paidTxt}${store} · pendiente de importar`;
+}
+
+function renderCard(card, i, opts) {
+  const decided = !!(opts && opts.decided);
+  const name = productName(card);
+  const id = cardId(card);
+  const st = readState(id);
+  const purchase = purchaseForCard(card);
+  const pending = !!purchase;
+  const cls = pending ? "pending-buy" : (!st ? "" : (st.outcome === "skip" ? "skipped" : "done"));
+  const img = photoHtml(card);
+  const plata = plataLine(card);
+  const goal = priceGoalLine(card);
+  const ev = evidenceLine(card.evidence);
+  const locked = decided || (!!st && isHidden(st));
+  const stores = storeLinks(card);
+  const storeHtml = stores.map((u) => `<a class="ghost" href="${esc(u.url)}" target="_blank" rel="noopener">${esc(u.label)}</a>`).join("");
+  const parkLine = decided ? decidedMetaLine(card) : "";
+  const reason = gateReason(card);
+  const canComprar = !decided && showComprarCta(card);
+  const tipo = cardAction(card) || "BUSCAR";
+  const statusFromCard = decided
+    ? (statusMessage(st) || (card.outcome ? (OUTCOME_TEXT[card.outcome] || localizeToken(card.outcome)) : "") || "Ya decidida")
+    : (pending ? trailLine(purchase) : statusMessage(st));
+  const showStatus = decided || pending || !!st;
+  const actionsHtml = decided
+    ? `<p class="status show" data-status>${esc(statusFromCard)}</p>`
+    : `${canComprar ? `<div class="actions with-comprar">
+        <button type="button" class="btn-comprar" data-act="comprar" ${locked && !pending ? "disabled" : ""}>COMPRAR</button>
+        <div class="actions-sub">
+          <button type="button" class="btn-primary" data-act="done" ${locked && !pending ? "disabled" : ""}>Ya lo hice</button>
+          <button type="button" class="btn-secondary" data-act="skip" ${locked ? "disabled" : ""}>Saltar</button>
+        </div>
+      </div>` : `<div class="actions">
+        <button type="button" class="btn-primary" data-act="done" ${locked ? "disabled" : ""}>Ya lo hice</button>
+        <button type="button" class="btn-secondary" data-act="skip" ${locked ? "disabled" : ""}>Saltar</button>
+      </div>`}
+    <div class="outcomes" data-outcomes>
+      ${canComprar ? `<button type="button" data-act="comprar">Anota la compra</button>` : ""}
+      <button type="button" data-outcome="not_found">No lo encontré</button>
+      <button type="button" data-outcome="tomorrow">Mañana</button>
+      <button type="button" data-outcome="descartado">Descartar 30d</button>
+    </div>
+    <p class="status ${showStatus ? "show" : ""}" data-status>${esc(statusFromCard)}</p>`;
+
+  return `<article class="card ${cls}" data-done-id="${esc(id)}" data-context="${esc(contextText(card))}" data-sku="${esc(card.sku || "")}" data-action-key="${esc(id)}" data-tab-kind="${decided ? "decided" : "active"}" data-gate-ok="${card.gate_ok === true ? "true" : card.gate_ok === false ? "false" : ""}" data-can-comprar="${canComprar ? "true" : "false"}">
+    <div class="badges">
+      <span class="badge ${esc(tipo)}">${esc(tipo)}</span>
+      ${!canComprar && reason ? `<span class="gate-chip">${esc(reason)}</span>` : ""}
+      ${pending ? `<span class="pending-chip">Compra pendiente</span>` : ""}
+    </div>
+    <div class="row">
+      ${img}
+      <div class="copy">
+        <p class="index">#${i + 1} · ${esc(card.sku || "")}</p>
+        <h2 class="title" title="${esc(verbTitle(card))}">${esc(verbTitle(card))}</h2>
+        ${goal ? `<p class="plata">${esc(goal)}</p>` : (plata ? `<p class="plata">${esc(plata)}</p>` : "")}
+        <p class="qty-advice">${esc(qtyAdviceLine(card))}</p>
+        <p class="why"><strong>Por qué:</strong> ${esc(whyText(card))}</p>
+        ${ev ? `<p class="evidence">${esc(ev)}</p>` : ""}
+        ${decided && parkLine ? `<p class="park-meta">${esc(parkLine)}</p>` : ""}
+        ${pending && !decided ? `<p class="trail">${esc(trailLine(purchase))}</p>` : ""}
+      </div>
+    </div>
+    <div class="links">
+      <a class="primary" href="${esc(shoppingHref(card, name))}" target="_blank" rel="noopener">${esc(card.shopping_label || "Buscar precio")}</a>
+      <a class="secondary" href="${esc(mlHref(card, name))}" target="_blank" rel="noopener">Ver en Mercado Libre</a>
+      ${keepaHref(card) ? `<a class="ghost" href="${esc(keepaHref(card))}" target="_blank" rel="noopener">Abrir en Keepa</a>` : ""}
+      ${storeHtml}
+      ${contextText(card) ? `<button type="button" class="ghost-btn" data-act="copy-ctx">Copiar contexto</button>` : ""}
+    </div>
+    ${actionsHtml}
+  </article>`;
+}
+
+function renderPendingStrip(items) {
+  const live = (items || []).filter((x) => x.status !== "cancelled");
+  if (!live.length) return "";
+  const lis = live.slice(0, 8).map((it) => {
+    const qty = Number(it.qty) || 1;
+    const paid = purchaseTotal(it);
+    return `<li>${esc(it.sku || "")} · ${qty} pza${qty === 1 ? "" : "s"}${paid ? " · " + money0(paid) : ""}${it.store ? " · " + esc(it.store) : ""} · ${esc(it.status || "pending")}</li>`;
+  }).join("");
+  return `<section class="pending-strip" aria-label="Compras pendientes">
+    <h2>Compras pendientes (${live.length})</h2>
+    <ul>${lis}</ul>
+  </section>`;
+}
+
+function emptyCopy(tab, data, reason) {
+  const meta = data.meta || {};
+  if (reason) return reason;
+  if (tab === TAB_HOY && meta.paused_by_operator) {
+    return `Tienes ${meta.paused_by_operator} pausados a propósito.`;
+  }
+  if (tab === TAB_QUEUE) return "La cola está vacía por ahora.";
+  if (tab === TAB_DECIDED) return "Todavía no hay pausadas ni descartadas.";
+  return "Nada pendiente.";
+}
+
+function renderData(data) {
+  const lists = tabLists(data);
+  const counts = countsFor(data);
+  const cards = cardsForActiveTab(data);
+  const pendingDoc = readPending();
+  const tabs = renderTabs(counts);
+  let body;
+  if (!cards.length) {
+    let reason = null;
+    if (activeTab === TAB_HOY) {
+      const hidden = lists.cards.length && filterVisible(lists.cards).length === 0;
+      reason = hidden ? "Ya resolviste las de hoy (siguen ocultas un rato)." : null;
+    }
+    body = `<div class="state"><h2>${esc(pageHeadline(activeTab, 0))}</h2><p>${esc(emptyCopy(activeTab, data, reason))}</p>${
+      activeTab === TAB_HOY
+        ? `<div class="actions"><button type="button" class="btn-secondary" id="resetHidden">Ver de nuevo</button></div>`
+        : ""
+    }</div>`;
+  } else {
+    body = `<div class="stack ${cards.length < 2 ? "one-col" : ""}">${cards.map((c, i) => renderCard(c, i, { decided: activeTab === TAB_DECIDED })).join("")}</div>`;
+  }
+  const ceiling = activeTab === TAB_HOY ? `<p class="ceiling">${esc(ceilingLine(pendingDoc.items))}</p>` : "";
+  const strip = activeTab === TAB_HOY ? renderPendingStrip(pendingDoc.items) : "";
+  return `${eyebrowHtml()}
+    <h1>${esc(pageHeadline(activeTab, cards.length))}</h1>
+    <p class="lead">${esc(pageLead(activeTab, cards, data))}</p>
+    ${ceiling}
+    ${tabs}
+    ${body}
+    ${strip}
+    <footer>Actualizado ${esc(data.generated_at || data.date || "")} · el radar nunca compra solo · <button type="button" class="text-link" id="resetHidden">Ver de nuevo</button></footer>`;
+}
+
+async function mirrorLocal(payload) {
+  try {
+    await fetch(LOCAL_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  } catch (_) { /* silencioso — Pages no depende de :8766 */ }
+}
+
+function lockCard(cardEl, outcome, extra) {
+  const doneId = cardEl.getAttribute("data-done-id");
+  const sku = cardEl.getAttribute("data-sku");
+  const card = cardById.get(doneId);
+  const keepVisible = outcome === "purchased";
+  const days = hideDaysFor(outcome, card);
+  const payload = {
+    done_id: doneId,
+    sku,
+    outcome,
+    hide_until: keepVisible ? null : hideUntilIso(days),
+    hide_days: keepVisible ? 0 : days
+  };
+  writeState(payload);
+  appendInboxAction({ sku, done_id: doneId, outcome });
+  mirrorLocal({
+    sku,
+    action_key: cardEl.getAttribute("data-action-key"),
+    outcome,
+    ...(extra && extra.purchase ? { purchase: extra.purchase } : {})
+  });
+  if (!keepVisible && activeTab === TAB_HOY && isHidden(payload) && cachedData) {
+    paint(cachedData);
+    return;
+  }
+  if (keepVisible && cachedData) {
+    paint(cachedData);
+    return;
+  }
+  cardEl.classList.toggle("done", outcome !== "skip");
+  cardEl.classList.toggle("skipped", outcome === "skip");
+  cardEl.querySelectorAll(".actions button").forEach((b) => { b.disabled = true; });
+  cardEl.querySelector("[data-outcomes]")?.classList.remove("open");
+  const status = cardEl.querySelector("[data-status]");
+  if (status) { status.textContent = statusMessage(payload); status.classList.add("show"); }
+}
+
+function closeModal() {
+  const root = document.getElementById("modal-root");
+  root.hidden = true;
+  root.innerHTML = "";
+  document.removeEventListener("keydown", onModalKey);
+  if (lastFocus && typeof lastFocus.focus === "function") lastFocus.focus();
+}
+
+function onModalKey(ev) {
+  if (ev.key === "Escape") {
+    ev.preventDefault();
+    closeModal();
+  }
+}
+
+function inferStoreValue(card) {
+  const v = defaultStore(card);
+  return v === "Amazon" || v === "ML" ? v : "otro";
+}
+
+function openPurchaseModal(cardEl) {
+  const id = cardEl.getAttribute("data-done-id");
+  const card = cardById.get(id);
+  if (!card || !showComprarCta(card)) return;
+  lastFocus = document.activeElement;
+  const existing = purchaseForCard(card) || {};
+  const qty = existing.qty || suggestedQty(card);
+  const cap = card.max_landed_cost != null ? card.max_landed_cost : card.alert_price;
+  const storeVal = existing.store && (existing.store === "Amazon" || existing.store === "ML")
+    ? existing.store
+    : inferStoreValue(card);
+  const otherStore = existing.store && storeVal === "otro" ? existing.store : (storeVal === "otro" ? (card.supplier_name || "") : "");
+  const root = document.getElementById("modal-root");
+  root.hidden = false;
+  root.innerHTML = `
+    <div class="modal-backdrop" data-close="1"></div>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="buy-title">
+      <h2 id="buy-title">Anota la compra</h2>
+      <p class="hint">${esc(card.sku || "")} · ${esc(productName(card))}${cap ? " · techo " + money0(cap) : ""}. Escribe lo que pagaste. La tarjeta se queda a la vista.</p>
+      <p class="modal-error" id="buy-error">Falta cantidad o un precio (unitario o total).</p>
+      <form id="buy-form">
+        <div class="field-row">
+          <div class="field">
+            <label for="buy-qty">Piezas</label>
+            <input id="buy-qty" name="qty" type="number" min="1" step="1" value="${esc(qty)}" required>
+          </div>
+          <div class="field">
+            <label for="buy-store">Tienda</label>
+            <select id="buy-store" name="store">
+              <option value="Amazon"${storeVal === "Amazon" ? " selected" : ""}>Amazon</option>
+              <option value="ML"${storeVal === "ML" ? " selected" : ""}>Mercado Libre</option>
+              <option value="otro"${storeVal === "otro" ? " selected" : ""}>Otra</option>
+            </select>
+          </div>
+        </div>
+        <div class="field" id="store-other-wrap" ${storeVal === "otro" ? "" : "hidden"}>
+          <label for="buy-store-other">Nombre de la tienda</label>
+          <input id="buy-store-other" name="store_other" type="text" value="${esc(otherStore)}" placeholder="Amazon México, Sanborns…">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="buy-unit">Precio por pieza (MXN)</label>
+            <input id="buy-unit" name="unit_price" type="number" min="0" step="0.01" inputmode="decimal" value="${existing.unit_price != null ? esc(existing.unit_price) : ""}" placeholder="${cap ? money0(cap) : ""}">
+          </div>
+          <div class="field">
+            <label for="buy-total">Total (MXN)</label>
+            <input id="buy-total" name="total" type="number" min="0" step="0.01" inputmode="decimal" value="${existing.total != null ? esc(existing.total) : ""}">
+          </div>
+        </div>
+        <div class="field">
+          <label for="buy-url">Liga de la compra (opcional)</label>
+          <input id="buy-url" name="url" type="url" value="${esc(existing.url || "")}" placeholder="https://">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-close="1">Cierra</button>
+          <button type="submit" class="btn-comprar">Anota la compra</button>
+        </div>
+      </form>
+    </div>`;
+  document.addEventListener("keydown", onModalKey);
+  const qtyEl = root.querySelector("#buy-qty");
+  const unitEl = root.querySelector("#buy-unit");
+  const totalEl = root.querySelector("#buy-total");
+  const storeEl = root.querySelector("#buy-store");
+  const otherWrap = root.querySelector("#store-other-wrap");
+  storeEl.addEventListener("change", () => {
+    otherWrap.hidden = storeEl.value !== "otro";
+  });
+  const syncTotal = (from) => {
+    const q = Number(qtyEl.value);
+    const u = Number(unitEl.value);
+    const t = Number(totalEl.value);
+    if (from === "unit" && q > 0 && u >= 0 && unitEl.value !== "") {
+      totalEl.value = String(Math.round(q * u * 100) / 100);
+    } else if (from === "total" && q > 0 && t >= 0 && totalEl.value !== "") {
+      unitEl.value = String(Math.round((t / q) * 100) / 100);
+    } else if (from === "qty" && q > 0 && unitEl.value !== "" && u >= 0) {
+      totalEl.value = String(Math.round(q * u * 100) / 100);
+    }
+  };
+  unitEl.addEventListener("input", () => syncTotal("unit"));
+  totalEl.addEventListener("input", () => syncTotal("total"));
+  qtyEl.addEventListener("input", () => syncTotal("qty"));
+  root.querySelectorAll("[data-close]").forEach((el) => el.addEventListener("click", closeModal));
+  root.querySelector("#buy-form").addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    const qty = Number(qtyEl.value);
+    const unit = unitEl.value === "" ? null : Number(unitEl.value);
+    const total = totalEl.value === "" ? null : Number(totalEl.value);
+    const err = root.querySelector("#buy-error");
+    if (!qty || qty < 1 || ((unit == null || Number.isNaN(unit)) && (total == null || Number.isNaN(total)))) {
+      err.classList.add("show");
+      return;
+    }
+    let store = storeEl.value;
+    if (store === "otro") store = (root.querySelector("#buy-store-other").value || "").trim() || "otro";
+    const url = (root.querySelector("#buy-url").value || "").trim();
+    const item = {
+      sku: card.sku,
+      qty,
+      unit_price: unit,
+      total: total != null ? total : (unit != null ? Math.round(unit * qty * 100) / 100 : null),
+      store,
+      url: url || undefined,
+      suggested_qty: suggestedQty(card),
+      max_landed: cap != null ? Number(cap) : undefined,
+      created_at: existing.created_at || new Date().toISOString(),
+      status: "pending",
+      source: "pages",
+      done_id: id,
+      action_key: id
+    };
+    upsertPurchase(item);
+    closeModal();
+    lockCard(cardEl, "purchased", { purchase: item });
+  });
+  qtyEl.focus();
+}
+
+function wire(root) {
+  root.querySelectorAll("[data-tab]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const next = btn.getAttribute("data-tab");
+      if (!next || next === activeTab) return;
+      activeTab = next;
+      if (cachedData) paint(cachedData);
+    });
+  });
+  root.querySelectorAll(".card").forEach((card) => {
+    card.addEventListener("click", async (ev) => {
+      const copyBtn = ev.target.closest("button[data-act='copy-ctx']");
+      if (copyBtn) {
+        const txt = card.getAttribute("data-context") || "";
+        try {
+          await navigator.clipboard.writeText(txt);
+          copyBtn.textContent = "Copiado";
+          setTimeout(() => { copyBtn.textContent = "Copiar contexto"; }, 1200);
+        } catch (_) {
+          copyBtn.textContent = "No se pudo copiar";
+          setTimeout(() => { copyBtn.textContent = "Copiar contexto"; }, 1500);
+        }
+        return;
+      }
+      if (card.getAttribute("data-tab-kind") === "decided") return;
+      const buyBtn = ev.target.closest("button[data-act='comprar']");
+      const doneBtn = ev.target.closest("button[data-act='done']");
+      const skipBtn = ev.target.closest("button[data-act='skip']");
+      const outBtn = ev.target.closest("button[data-outcome]");
+      if (buyBtn && !buyBtn.disabled) {
+        openPurchaseModal(card);
+        return;
+      }
+      if (doneBtn && !doneBtn.disabled) {
+        card.querySelector("[data-outcomes]")?.classList.toggle("open");
+        return;
+      }
+      if (skipBtn && !skipBtn.disabled) { lockCard(card, "skip"); return; }
+      if (outBtn) lockCard(card, outBtn.getAttribute("data-outcome"));
+    });
+  });
+}
+
+function paint(data) {
+  rememberCards(data);
+  const app = document.getElementById("app");
+  app.innerHTML = renderData(data);
+  wire(app);
+  document.getElementById("resetHidden")?.addEventListener("click", radarResetHidden);
+}
+
+function radarResetHidden() {
+  const keys = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith("radar-hoy:v1:")) keys.push(k);
+  }
+  keys.forEach((k) => localStorage.removeItem(k));
+  activeTab = TAB_HOY;
+  if (cachedData) paint(cachedData);
+  else load();
+}
+
+async function loadCompanionPending() {
+  try {
+    const res = await fetch(PENDING_FILE_URL, { cache: "no-store" });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return normalizePendingDoc(data).items;
+  } catch (_) {
+    return [];
+  }
+}
+
+async function load() {
+  const app = document.getElementById("app");
+  app.innerHTML = renderLoading();
+  try {
+    const res = await fetch(JSON_URL, { cache: "no-store" });
+    if (!res.ok) throw new Error("No encontré el archivo del día");
+    const data = await res.json();
+    const fileItems = await loadCompanionPending();
+    hydratePendingFromServer(data, fileItems);
+    cachedData = data;
+    paint(data);
+  } catch (e) {
+    app.innerHTML = renderError(e.message || "No pude leer el archivo del día");
+    document.getElementById("retry")?.addEventListener("click", load);
+  }
+}
+
+load();
+</script>
 </body>
 </html>
