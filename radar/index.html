@@ -186,10 +186,30 @@ const REGISTERED_SHORT = "Registrada";
 const REGISTERED_MAC = "Registrada en Mac";
 const PHONE_SYNC = "Anotada en el teléfono/Pages · abre el Radar en la Mac para sincronizar";
 const CSV_COLS = [
-  "sku", "upc", "title", "tipo", "action", "qty", "gate_ok", "gate_reason_es",
-  "ganancia_estimada_mxn", "roi_pct", "max_landed_cost", "alert_price", "unit_margin",
-  "soh", "sales_30", "sales_90", "sales_total", "supplier_name", "shopping_url",
-  "marketplace_url", "done_id", "priority_top3"
+  { key: "sku", header: "sku" },
+  { key: "title", header: "title" },
+  { key: "upc", header: "upc" },
+  { key: "compra_si_no_pasa", header: "compra-si-no-pasa" },
+  { key: "ganancia", header: "ganancia" },
+  { key: "roi_pct", header: "roi_pct" },
+  { key: "shopping_url", header: "shopping_url" },
+  { key: "marketplace_url", header: "marketplace_url" },
+  { key: "tipo", header: "tipo" },
+  { key: "action", header: "action" },
+  { key: "done_id", header: "done_id" },
+  { key: "qty", header: "qty" },
+  { key: "gate_ok", header: "gate_ok" },
+  { key: "gate_reason_es", header: "gate_reason_es" },
+  { key: "ganancia_estimada_mxn", header: "ganancia_estimada_mxn" },
+  { key: "max_landed_cost", header: "max_landed_cost" },
+  { key: "alert_price", header: "alert_price" },
+  { key: "unit_margin", header: "unit_margin" },
+  { key: "soh", header: "soh" },
+  { key: "sales_30", header: "sales_30" },
+  { key: "sales_90", header: "sales_90" },
+  { key: "sales_total", header: "sales_total" },
+  { key: "supplier_name", header: "supplier_name" },
+  { key: "priority_top3", header: "priority_top3" }
 ];
 const HIDE_DAYS = { purchased: 7, not_found: 3, tomorrow: 1, descartado: 30, done: 1, skip: 1 };
 const OUTCOME_TEXT = {
@@ -1244,18 +1264,30 @@ function csvCell(v) {
   return s;
 }
 
+function csvValue(card, key) {
+  if (key === "upc") return cardUpc(card);
+  if (key === "title") return productName(card);
+  if (key === "tipo" || key === "action") return cardAction(card) || asText(card[key]);
+  if (key === "compra_si_no_pasa") {
+    const cap = capAmount(card);
+    return cap == null ? "" : money0(cap);
+  }
+  if (key === "ganancia") {
+    const g = estimatedGain(card);
+    return g == null ? "" : Math.round(g * 100) / 100;
+  }
+  if (key === "roi_pct") return estimatedRoi(card);
+  if (key === "unit_margin") return card.unit_margin != null ? card.unit_margin : (card.evidence && card.evidence.unit_margin);
+  if (key === "soh") return card.soh != null ? card.soh : (card.evidence && card.evidence.soh);
+  if (key === "sales_30") return card.sales_30 != null ? card.sales_30 : (card.evidence && card.evidence.sales_30);
+  if (key === "sales_90") return card.sales_90 != null ? card.sales_90 : (card.evidence && card.evidence.sales_90);
+  return card[key];
+}
+
 function queueCsv(data) {
-  const rows = (data && Array.isArray(data.queue) ? data.queue : []).map((c) => CSV_COLS.map((k) => {
-    if (k === "upc") return cardUpc(c);
-    if (k === "title") return productName(c);
-    if (k === "tipo" || k === "action") return cardAction(c) || asText(c[k]);
-    if (k === "unit_margin") return c.unit_margin != null ? c.unit_margin : (c.evidence && c.evidence.unit_margin);
-    if (k === "soh") return c.soh != null ? c.soh : (c.evidence && c.evidence.soh);
-    if (k === "sales_30") return c.sales_30 != null ? c.sales_30 : (c.evidence && c.evidence.sales_30);
-    if (k === "sales_90") return c.sales_90 != null ? c.sales_90 : (c.evidence && c.evidence.sales_90);
-    return c[k];
-  }));
-  return "\uFEFF" + [CSV_COLS.join(","), ...rows.map((r) => r.map(csvCell).join(","))].join("\n");
+  const rows = (data && Array.isArray(data.queue) ? data.queue : []).map((c) => CSV_COLS.map((col) => csvValue(c, col.key)));
+  const header = CSV_COLS.map((col) => col.header).join(",");
+  return "\uFEFF" + [header, ...rows.map((r) => r.map(csvCell).join(","))].join("\n");
 }
 
 function downloadText(filename, text, mime) {
