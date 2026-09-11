@@ -187,20 +187,15 @@ const REGISTERED_MAC = "Registrada en Mac";
 const PHONE_SYNC = "Anotada en el teléfono/Pages · abre el Radar en la Mac para sincronizar";
 const CSV_COLS = [
   { key: "sku", header: "sku" },
-  { key: "title", header: "title" },
   { key: "upc", header: "upc" },
-  { key: "compra_si_no_pasa", header: "compra-si-no-pasa" },
-  { key: "ganancia", header: "ganancia" },
-  { key: "roi_pct", header: "roi_pct" },
-  { key: "shopping_url", header: "shopping_url" },
-  { key: "marketplace_url", header: "marketplace_url" },
+  { key: "title", header: "title" },
   { key: "tipo", header: "tipo" },
   { key: "action", header: "action" },
-  { key: "done_id", header: "done_id" },
   { key: "qty", header: "qty" },
   { key: "gate_ok", header: "gate_ok" },
   { key: "gate_reason_es", header: "gate_reason_es" },
   { key: "ganancia_estimada_mxn", header: "ganancia_estimada_mxn" },
+  { key: "roi_pct", header: "roi_pct" },
   { key: "max_landed_cost", header: "max_landed_cost" },
   { key: "alert_price", header: "alert_price" },
   { key: "unit_margin", header: "unit_margin" },
@@ -209,7 +204,12 @@ const CSV_COLS = [
   { key: "sales_90", header: "sales_90" },
   { key: "sales_total", header: "sales_total" },
   { key: "supplier_name", header: "supplier_name" },
-  { key: "priority_top3", header: "priority_top3" }
+  { key: "shopping_url", header: "shopping_url" },
+  { key: "marketplace_url", header: "marketplace_url" },
+  { key: "done_id", header: "done_id" },
+  { key: "priority_top3", header: "priority_top3" },
+  { key: "compra_si_no_pasa", header: "compra-si-no-pasa" },
+  { key: "ganancia", header: "ganancia" }
 ];
 const HIDE_DAYS = { purchased: 7, not_found: 3, tomorrow: 1, descartado: 30, done: 1, skip: 1 };
 const OUTCOME_TEXT = {
@@ -1039,10 +1039,7 @@ function renderCard(card, i, opts) {
   if (decided) {
     actionsHtml = `<p class="status show" data-status>${esc(statusFromCard)}</p>`;
   } else if (imported) {
-    actionsHtml = `<p class="status show" data-status>${esc(statusFromCard)}</p>
-      <div class="sync-actions">
-        <button type="button" class="btn-secondary" data-act="dismiss-pending">Quitar aviso</button>
-      </div>`;
+    actionsHtml = `<p class="status show" data-status>${esc(statusFromCard)}</p>`;
   } else if (pending) {
     actionsHtml = `<p class="status show" data-status>${esc(ANOTADA_SHORT)}${bits ? " · " + esc(bits) : ""}</p>
       <p class="trail">${esc(PHONE_SYNC)}</p>
@@ -1182,11 +1179,11 @@ async function macHealth() {
   try {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 1600);
-    const res = await fetch(HEALTH_URL, { method: "GET", mode: "cors", cache: "no-store", signal: ctrl.signal });
+    const res = await fetch(HEALTH_URL, { method: "GET", mode: "cors", credentials: "omit", cache: "no-store", signal: ctrl.signal });
     clearTimeout(t);
-    if (!res.ok) return { ok: false };
+    if (res.status !== 200) return { ok: false };
     const data = await res.json().catch(() => ({}));
-    return { ok: data.ok !== false, data };
+    return { ok: data.ok === true, data };
   } catch (_) {
     return { ok: false };
   }
@@ -1198,10 +1195,9 @@ function responseImported(res, data) {
   if (data && Array.isArray(data.items)) items.push(...data.items);
   if (data && data.item) items.push(data.item);
   if (items.some((x) => isImportedPurchase(x))) return true;
-  if (data && data.imported != null && Number(data.imported) > 0) return true;
+  if (data && Number(data.imported) > 0) return true;
   if (items.length && items.every((x) => isWaitingPurchase(x))) return false;
-  if (data && data.ok === false) return false;
-  return res.status === 201 || res.status === 200;
+  return !!(data && data.ok === true);
 }
 
 function purchasePayload(item) {
@@ -1230,13 +1226,15 @@ async function postPurchasePending(item) {
     credentials: "omit",
     cache: "no-store",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
+    body: JSON.stringify({ item: payload })
   });
   const data = await res.json().catch(() => ({}));
   return { ok: res.ok, status: res.status, imported: responseImported(res, data), data };
 }
 
 async function syncPurchaseToMac(item) {
+  const health = await macHealth();
+  if (!health.ok) return { ok: false, reason: "mac_off" };
   try {
     const posted = await postPurchasePending(item);
     if (posted.imported) return { ok: true, imported: true, data: posted.data };
