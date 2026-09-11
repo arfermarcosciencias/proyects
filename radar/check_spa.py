@@ -24,6 +24,11 @@ MARKERS = [
     ("POST purchases_pending", r"/api/purchases_pending"),
     ("Exportar CSV", r"Exportar CSV"),
     ("Copiar CSV", r"Copiar CSV"),
+    ("CSV filename", r"radar-mas-oportunidades\.csv"),
+    ("CSV mime", r"text/csv;charset=utf-8"),
+    ("CSV named File", r"new File\(\[body\], name"),
+    ("CSV data URI fallback", r'data:" \+ type \+ ","'),
+    ("CSV revoke 4s", r", 4000\)"),
     ("Importar CSV", r"Importar CSV"),
     ("external_offer overlay", r"external_offer"),
     ("external_offers_active", r"external_offers_active"),
@@ -52,6 +57,7 @@ BANNED = [
     ("Compra pendiente chip", r">Compra pendiente<"),
     ("esperando Mac", r"esperando Mac"),
     ("v1 GO favicon", r"icono_radar_rotacion_GO\.png"),
+    ("CSV revoke 400ms", r"revokeObjectURL\([^)]*\),\s*400\)"),
 ]
 
 

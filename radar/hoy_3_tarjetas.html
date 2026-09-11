@@ -2014,25 +2014,38 @@ function showToast(message) {
 
 function downloadText(filename, text, mime) {
   const type = mime || "text/csv;charset=utf-8";
-  const blob = new Blob([text], { type: type });
+  const name = filename || "radar-mas-oportunidades.csv";
+  const body = typeof text === "string" ? text : String(text ?? "");
   const a = document.createElement("a");
-  a.download = filename;
-  a.setAttribute("download", filename);
+  a.setAttribute("download", name);
+  a.download = name;
   a.rel = "noopener";
   a.style.display = "none";
   document.body.appendChild(a);
 
+  // Chrome ignores <a download> on data: URIs and saves a UUID with no .csv.
+  // Prefer a same-origin named File + blob: URL; keep data: only as fallback.
   let objectUrl = "";
-  const small = typeof text === "string" && text.length < 800000;
-  if (small) {
+  try {
+    const file = new File([body], name, { type: type });
+    objectUrl = URL.createObjectURL(file);
+    a.href = objectUrl;
+  } catch (_) {
+    objectUrl = "";
+  }
+  const small = body.length < 800000;
+  if (!a.getAttribute("href") && small) {
     try {
-      a.href = "data:" + type + "," + encodeURIComponent(text);
-    } catch (_) { /* blob below */ }
+      a.href = "data:" + type + "," + encodeURIComponent(body);
+    } catch (_) { /* last resort below */ }
   }
   if (!a.getAttribute("href")) {
+    const blob = new Blob([body], { type: type });
     objectUrl = URL.createObjectURL(blob);
     a.href = objectUrl;
   }
+  a.setAttribute("download", name);
+  a.download = name;
   a.click();
   setTimeout(() => {
     a.remove();
