@@ -412,8 +412,7 @@ function suggestedQty(card) {
 
 function qtyAdviceLine(card) {
   const n = suggestedQty(card);
-  const piezas = n === 1 ? "1 pieza" : n + " piezas";
-  return "Compra " + piezas + " solo si no se pasa de ese precio";
+  return n === 1 ? "Compra 1 pieza" : "Compra " + n + " piezas";
 }
 
 function whyText(card) {
