@@ -23,6 +23,8 @@ MARKERS = [
     ("POST purchases_pending", r"/api/purchases_pending"),
     ("Exportar CSV", r"Exportar CSV"),
     ("big techo amount", r"techo-amount"),
+    ("favicon.png", r"favicon\.png"),
+    ("favicon.ico", r"favicon\.ico"),
     ("favicon GO_v2", r"icono_radar_rotacion_GO_v2\.png"),
 ]
 
@@ -66,9 +68,13 @@ def main() -> int:
     check(TWIN, twin, errors)
     if index != twin:
         errors.append("radar/index.html and radar/hoy_3_tarjetas.html must stay identical")
-    icon = ROOT / "radar" / "icono_radar_rotacion_GO_v2.png"
-    if not icon.is_file():
-        print("note: radar/icono_radar_rotacion_GO_v2.png not in tree yet (link is required)")
+    for asset in (
+        ROOT / "radar" / "icono_radar_rotacion_GO_v2.png",
+        ROOT / "radar" / "favicon.png",
+        ROOT / "radar" / "favicon.ico",
+    ):
+        if not asset.is_file():
+            errors.append(f"{asset.relative_to(ROOT)} missing")
     if errors:
         print("radar SPA guard FAILED:")
         for e in errors:
