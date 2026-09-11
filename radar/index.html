@@ -323,21 +323,28 @@ function plataLine(card) {
   return `~gánele ${money0(g)}`;
 }
 
+function capAmount(card) {
+  const cap = card && (card.max_landed_cost != null ? card.max_landed_cost : card.alert_price);
+  if (cap == null || Number.isNaN(Number(cap)) || Number(cap) <= 0) return null;
+  return Number(cap);
+}
+
+function compraSiNoPasa(card) {
+  const cap = capAmount(card);
+  return cap == null ? "" : `Compra solo si no pasa de ${money0(cap)}`;
+}
+
 function priceGoalLine(card) {
-  const cap = card.max_landed_cost != null ? card.max_landed_cost : card.alert_price;
+  const base = compraSiNoPasa(card);
+  if (!base) return null;
   const g = estimatedGain(card);
   const r = estimatedRoi(card);
-  const hasCap = cap != null && !Number.isNaN(Number(cap)) && Number(cap) > 0;
-  if (!hasCap) return null;
-  const price = money0(cap);
-  const hasG = g != null;
-  const hasR = r != null;
-  if (hasG && hasR) {
-    return `Búscalo en menos de ${price} para ganar ~${money0(g)} (ROI ~${Number(r).toFixed(0)}%)`;
+  if (g != null && r != null) {
+    return `${base} — ganas ~${money0(g)} (ROI ~${Number(r).toFixed(0)}%)`;
   }
-  if (hasG) return `Búscalo en menos de ${price} para ganar ~${money0(g)}`;
-  if (hasR) return `Búscalo en menos de ${price} para mantener un ROI de ~${Number(r).toFixed(0)}%`;
-  return `Búscalo en menos de ${price} para no comerse la ganancia`;
+  if (g != null) return `${base} — ganas ~${money0(g)}`;
+  if (r != null) return `${base} — mantén un ROI de ~${Number(r).toFixed(0)}%`;
+  return base;
 }
 
 function suggestedQty(card) {
@@ -348,7 +355,7 @@ function suggestedQty(card) {
 function qtyAdviceLine(card) {
   const n = suggestedQty(card);
   const piezas = n === 1 ? "1 pieza" : n + " piezas";
-  return "Si lo consigues a ese precio, compra " + piezas;
+  return "Compra " + piezas + " solo si no se pasa de ese precio";
 }
 
 function whyText(card) {
@@ -361,6 +368,7 @@ function whyText(card) {
          .replace(/\bagotado el canal\b/gi, "")
          .replace(/\bbuen historial\b/gi, "")
          .replace(/\bVuelve a buscar proveedor de[^:]+:\s*/i, "")
+         .replace(/\btecho\b/gi, "")
          .replace(/\s*\/\s*/g, " ")
          .replace(/\s{2,}/g, " ")
          .trim();
@@ -388,9 +396,42 @@ function evidenceLine(ev) {
   return a.join(" · ");
 }
 
+function looksLikeUpc(s) {
+  const t = String(s || "").trim();
+  if (!t || t.length < 6 || t.length > 14) return false;
+  return /^[0-9]{8,14}$/.test(t) || /^ARF[A-Z0-9]{4,11}$/i.test(t);
+}
+
+function cardUpc(card) {
+  if (!card) return "";
+  for (const key of ["upc", "ean", "gtin", "barcode", "upc_ean"]) {
+    const v = asText(card[key]);
+    if (looksLikeUpc(v)) return v;
+  }
+  const blob = [card.prompt_alerta, card.contexto_prompt, card.shopping_url].map(asText).join("\n");
+  const labeled = blob.match(/UPC disponible[^:\n]*:\s*([A-Z0-9]{6,14})/i)
+    || blob.match(/\bUPC[:\s]+([A-Z0-9]{6,14})/i);
+  if (labeled && looksLikeUpc(labeled[1])) return labeled[1];
+  const fromShop = String(card.shopping_url || "").match(/[?&]q=([^&]+)/i);
+  if (fromShop) {
+    const q = decodeURIComponent(fromShop[1].replace(/\+/g, " ")).trim();
+    const last = q.split(/\s+/).pop();
+    if (looksLikeUpc(q)) return q;
+    if (looksLikeUpc(last)) return last;
+  }
+  return "";
+}
+
 function shoppingHref(card, name) {
+  const upc = cardUpc(card);
+  if (upc) return "https://www.google.com/search?tbm=shop&q=" + encodeURIComponent(upc);
   if (card.shopping_url) return card.shopping_url;
   return "https://www.google.com/search?tbm=shop&q=" + encodeURIComponent(name);
+}
+
+function shoppingLabel(card) {
+  if (cardUpc(card)) return "Busca por UPC";
+  return card.shopping_label || "Busca precio";
 }
 
 function mlHref(card, name) {
@@ -842,7 +883,7 @@ function renderCard(card, i, opts) {
       </div>
     </div>
     <div class="links">
-      <a class="primary" href="${esc(shoppingHref(card, name))}" target="_blank" rel="noopener">${esc(card.shopping_label || "Buscar precio")}</a>
+      <a class="primary" href="${esc(shoppingHref(card, name))}" target="_blank" rel="noopener" title="${esc(cardUpc(card) ? "Google Shopping · " + cardUpc(card) : "Busca precio")}">${esc(shoppingLabel(card))}</a>
       <a class="secondary" href="${esc(mlHref(card, name))}" target="_blank" rel="noopener">Ver en Mercado Libre</a>
       ${keepaHref(card) ? `<a class="ghost" href="${esc(keepaHref(card))}" target="_blank" rel="noopener">Abrir en Keepa</a>` : ""}
       ${storeHtml}
@@ -995,7 +1036,7 @@ function openPurchaseModal(cardEl) {
     <div class="modal-backdrop" data-close="1"></div>
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="buy-title">
       <h2 id="buy-title">Anota la compra</h2>
-      <p class="hint">${esc(card.sku || "")} · ${esc(productName(card))}${cap ? " · techo " + money0(cap) : ""}. Escribe lo que pagaste. La tarjeta se queda a la vista.</p>
+      <p class="hint">${esc(card.sku || "")} · ${esc(productName(card))}${cap ? ". " + compraSiNoPasa(card) : ""}. Escribe lo que pagaste. La tarjeta se queda a la vista.</p>
       <p class="modal-error" id="buy-error">Falta cantidad o un precio (unitario o total).</p>
       <form id="buy-form">
         <div class="field-row">
