@@ -423,14 +423,14 @@ function cardUpc(card) {
 }
 
 function shoppingHref(card, name) {
+  if (card.shopping_url) return card.shopping_url;
   const upc = cardUpc(card);
   if (upc) return "https://www.google.com/search?tbm=shop&q=" + encodeURIComponent(upc);
-  if (card.shopping_url) return card.shopping_url;
   return "https://www.google.com/search?tbm=shop&q=" + encodeURIComponent(name);
 }
 
 function shoppingLabel(card) {
-  if (cardUpc(card)) return "Busca por UPC";
+  if (asText(card && card.upc) || cardUpc(card)) return "Busca por UPC";
   return card.shopping_label || "Busca precio";
 }
 
