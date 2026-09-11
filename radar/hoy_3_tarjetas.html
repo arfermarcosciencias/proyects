@@ -42,13 +42,14 @@
   .badge.REPONER{color:#1d4ed8;background:#dbeafe}
   .badge.ESTRELLA{color:#a16207;background:#fef9c3}
   .badge.CASHFLOW{color:#166534;background:#dcfce7}
-  .gate-chip,.pending-chip,.registered-chip,.phone-chip{
+  .gate-chip,.pending-chip,.registered-chip,.phone-chip,.offer-chip{
     display:inline-flex;align-items:center;min-height:28px;font-size:12px;font-weight:750;
     padding:4px 10px;border-radius:999px;letter-spacing:.01em;
   }
   .gate-chip{color:var(--amber);background:var(--amber-bg)}
   .pending-chip,.registered-chip{color:var(--pending);background:var(--pending-bg)}
   .phone-chip{color:var(--phone);background:var(--phone-bg)}
+  .offer-chip{color:#065f46;background:#d1fae5}
   .techo-block{margin:2px 0 12px}
   .techo-verb{display:block;font-size:12px;font-weight:650;color:var(--muted);margin-bottom:2px;letter-spacing:.01em}
   .techo-amount{
@@ -56,7 +57,10 @@
     letter-spacing:-.045em;color:var(--green);font-variant-numeric:tabular-nums;
   }
   .techo-extra{display:block;margin-top:6px;font-size:13px;font-weight:650;color:var(--muted)}
-  .csv-bar{display:flex;justify-content:flex-end;margin:12px 0 0}
+  .offer-landed{margin:0 0 8px;font-size:14px;line-height:1.4;font-weight:650;color:var(--text)}
+  .offer-landed .muted{color:var(--muted);font-weight:600}
+  .csv-bar{display:flex;justify-content:flex-end;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0 0}
+  .csv-status{margin:0;font-size:13px;font-weight:650;color:var(--muted)}
   .sync-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;max-width:420px}
   .row{display:flex;gap:16px;align-items:flex-start}
   .photo{width:112px;height:112px;object-fit:cover;border-radius:14px;background:#f1f5f9;flex:0 0 auto}
@@ -86,6 +90,7 @@
   .links a.primary{background:var(--blue-bg);color:var(--blue)}
   .links a.secondary,.btn-secondary{background:#fff;color:var(--text);border:1px solid var(--line)}
   .links a.ghost,.ghost-btn{background:#fff;color:var(--blue);border:1px solid var(--line);cursor:pointer}
+  .links a.offer-open{background:#ecfdf5;color:#065f46}
   .actions{margin-top:14px;display:grid;grid-template-columns:1.35fr 1fr;gap:10px;max-width:420px}
   .actions.with-comprar{grid-template-columns:1fr;max-width:420px}
   .actions-sub{display:grid;grid-template-columns:1.35fr 1fr;gap:10px}
@@ -182,6 +187,8 @@ const WEEKLY_CEILING = 2500;
 const PENDING_KEY = "radar-hoy:purchases_pending:v1";
 const INBOX_KEY = "radar-hoy:pages_action_inbox:v1";
 const PREFS_KEY = "radar-hoy:prefs:v1";
+const OFFER_KEY = "radar-hoy:external_offer:v1";
+const OFFER_FOUND = "OFERTA_ENCONTRADA";
 const DEFAULT_STORES = [
   { value: "Amazon", label: "Amazon" },
   { value: "ML", label: "Mercado Libre" }
@@ -191,30 +198,22 @@ const REGISTERED_SHORT = "Registrada";
 const REGISTERED_MAC = "Registrada en Mac";
 const PHONE_SYNC = "Anotada en el teléfono/Pages · abre el Radar en la Mac para sincronizar";
 const CSV_COLS = [
+  { key: "export_id", header: "export_id" },
+  { key: "exported_at", header: "exported_at" },
   { key: "sku", header: "sku" },
   { key: "upc", header: "upc" },
-  { key: "title", header: "title" },
-  { key: "tipo", header: "tipo" },
-  { key: "action", header: "action" },
+  { key: "name", header: "name" },
   { key: "qty", header: "qty" },
-  { key: "gate_ok", header: "gate_ok" },
-  { key: "gate_reason_es", header: "gate_reason_es" },
-  { key: "ganancia_estimada_mxn", header: "ganancia_estimada_mxn" },
-  { key: "roi_pct", header: "roi_pct" },
   { key: "max_landed_cost", header: "max_landed_cost" },
   { key: "alert_price", header: "alert_price" },
-  { key: "unit_margin", header: "unit_margin" },
-  { key: "soh", header: "soh" },
-  { key: "sales_30", header: "sales_30" },
-  { key: "sales_90", header: "sales_90" },
-  { key: "sales_total", header: "sales_total" },
-  { key: "supplier_name", header: "supplier_name" },
+  { key: "done_id", header: "done_id" },
+  { key: "action", header: "action" },
+  { key: "gate_ok", header: "gate_ok" },
   { key: "shopping_url", header: "shopping_url" },
   { key: "marketplace_url", header: "marketplace_url" },
-  { key: "done_id", header: "done_id" },
-  { key: "priority_top3", header: "priority_top3" },
-  { key: "compra_si_no_pasa", header: "compra-si-no-pasa" },
-  { key: "ganancia", header: "ganancia" }
+  { key: "soh", header: "soh" },
+  { key: "sales_30", header: "sales_30" },
+  { key: "sales_90", header: "sales_90" }
 ];
 const HIDE_DAYS = { purchased: 7, not_found: 3, tomorrow: 1, descartado: 30, done: 1, skip: 1 };
 const OUTCOME_TEXT = {
@@ -249,6 +248,7 @@ const TAB_DECIDED = "decided";
 let cachedData = null;
 let activeTab = TAB_HOY;
 let cardById = new Map();
+let offerBySku = new Map();
 let lastFocus = null;
 
 const money0 = (n) => new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(Number(n));
@@ -386,6 +386,134 @@ function capAmount(card) {
 function compraSiNoPasa(card) {
   const cap = capAmount(card);
   return cap == null ? "" : `Compra solo si no pasa de ${money0(cap)}`;
+}
+
+function parseMoney(v) {
+  if (v == null || v === "") return null;
+  if (typeof v === "number") return Number.isFinite(v) ? v : null;
+  const cleaned = String(v).trim().replace(/[$MXN\s]/gi, "").replace(/,/g, "");
+  if (!cleaned) return null;
+  const n = Number(cleaned);
+  return Number.isFinite(n) ? n : null;
+}
+
+function firstDefined(...vals) {
+  for (const v of vals) {
+    if (v != null && v !== "") return v;
+  }
+  return undefined;
+}
+
+function offerStatus(raw) {
+  return String(raw || "").trim().toUpperCase().replace(/[\s-]+/g, "_");
+}
+
+function pickOfferObject(card) {
+  if (!card || typeof card !== "object") return null;
+  const bags = [card.external_offer, card.external_offers, card.externalOffer, card.externalOffers];
+  for (const bag of bags) {
+    if (Array.isArray(bag)) {
+      const found = bag.find((o) => o && typeof o === "object" && offerStatus(o.status) === OFFER_FOUND);
+      if (found) return found;
+      if (bag[0] && typeof bag[0] === "object") return bag[0];
+    } else if (bag && typeof bag === "object") {
+      return bag;
+    }
+  }
+  return null;
+}
+
+function computeFoundLanded(offer) {
+  if (!offer) return null;
+  const direct = parseMoney(firstDefined(offer.found_landed, offer.found_landed_cost_mxn));
+  if (direct != null) return direct;
+  const item = parseMoney(firstDefined(offer.item_price, offer.found_product_price_mxn));
+  const ship = parseMoney(firstDefined(offer.shipping, offer.found_shipping_mxn));
+  const fees = parseMoney(firstDefined(offer.fees, offer.found_import_fees_mxn, offer.found_other_mandatory_costs_mxn));
+  if (item == null && ship == null && fees == null) return null;
+  return (item || 0) + (ship || 0) + (fees || 0);
+}
+
+function normalizeExternalOffer(raw, card) {
+  if (!raw || typeof raw !== "object") return null;
+  const status = offerStatus(raw.status);
+  const found_url = asText(firstDefined(raw.found_url, raw.url, raw.offer_url));
+  const store = asText(firstDefined(raw.store, raw.found_supplier, raw.tienda));
+  const found_landed = computeFoundLanded(raw);
+  if (!status && !found_url && found_landed == null && !store) return null;
+  const qty = Number(firstDefined(raw.suggested_qty, raw.qty));
+  return {
+    offer_id: asText(raw.offer_id) || undefined,
+    export_id: asText(raw.export_id) || undefined,
+    sku: asText(raw.sku) || (card && asText(card.sku)) || undefined,
+    status: status || undefined,
+    found_url: found_url || undefined,
+    store: store || undefined,
+    item_price: parseMoney(firstDefined(raw.item_price, raw.found_product_price_mxn)),
+    shipping: parseMoney(firstDefined(raw.shipping, raw.found_shipping_mxn)),
+    fees: parseMoney(firstDefined(raw.fees, raw.found_import_fees_mxn)),
+    found_landed,
+    currency: asText(raw.currency) || "MXN",
+    max_landed_at_import: parseMoney(firstDefined(raw.max_landed_at_import, raw.max_landed)),
+    below_limit_mxn: parseMoney(raw.below_limit_mxn),
+    suggested_qty: Number.isFinite(qty) && qty >= 1 ? qty : undefined,
+    imported_at: asText(firstDefined(raw.imported_at, raw.found_checked_at)) || undefined
+  };
+}
+
+function readOfferOverlays() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(OFFER_KEY) || "null");
+    if (raw && raw.by_sku && typeof raw.by_sku === "object") return raw.by_sku;
+    if (raw && typeof raw === "object" && !Array.isArray(raw)) return raw;
+  } catch { /* ignore */ }
+  return {};
+}
+
+function writeOfferOverlays(bySku) {
+  localStorage.setItem(OFFER_KEY, JSON.stringify({
+    schema: "arfershop.radar.external_offer.v1",
+    updated_at: new Date().toISOString(),
+    by_sku: bySku || {}
+  }));
+}
+
+function rootActiveOffers(data) {
+  const raw = data && data.external_offers_active;
+  return Array.isArray(raw) ? raw : [];
+}
+
+function cardExternalOffer(card) {
+  const embedded = normalizeExternalOffer(pickOfferObject(card), card);
+  if (embedded) return embedded;
+  const sku = card && asText(card.sku);
+  if (!sku) return null;
+  const fromRoot = offerBySku.get(sku);
+  if (fromRoot) return normalizeExternalOffer(fromRoot, card);
+  return normalizeExternalOffer(readOfferOverlays()[sku], card);
+}
+
+function isOfertaEncontrada(offer) {
+  return !!offer && offerStatus(offer.status) === OFFER_FOUND;
+}
+
+function offerCap(card, offer) {
+  const cap = capAmount(card);
+  if (cap != null) return cap;
+  if (offer && offer.max_landed_at_import != null) return offer.max_landed_at_import;
+  return null;
+}
+
+function offerLandedHtml(card, offer) {
+  if (!isOfertaEncontrada(offer)) return "";
+  const landed = offer.found_landed;
+  const cap = offerCap(card, offer);
+  if (landed == null && !offer.store) return "";
+  const bits = [];
+  if (landed != null) bits.push(`Precio encontrado / landed: ${money0(landed)}`);
+  if (cap != null) bits.push(`techo ${money0(cap)}`);
+  if (offer.store) bits.push(offer.store);
+  return `<p class="offer-landed">${esc(bits[0] || "")}${bits.length > 1 ? ` <span class="muted">· ${esc(bits.slice(1).join(" · "))}</span>` : ""}</p>`;
 }
 
 function techoExtra(card) {
@@ -922,8 +1050,17 @@ function cardsForActiveTab(data) {
   return filterVisible(lists.cards);
 }
 
+function rememberRootOffers(data) {
+  offerBySku = new Map();
+  for (const o of rootActiveOffers(data)) {
+    const sku = o && asText(o.sku);
+    if (sku && !offerBySku.has(sku)) offerBySku.set(sku, o);
+  }
+}
+
 function rememberCards(data) {
   cardById = new Map();
+  rememberRootOffers(data);
   const lists = tabLists(data);
   for (const c of [...lists.cards, ...lists.queue, ...lists.decided, ...(data.cards || []), ...(data.parked || [])]) {
     const id = cardId(c);
@@ -1074,11 +1211,15 @@ function renderCard(card, i, opts) {
     <p class="status ${showStatus ? "show" : ""}" data-status>${esc(statusFromCard)}</p>`;
   }
   const stateChip = pending ? `<span class="phone-chip">${esc(ANOTADA_SHORT)}</span>` : "";
+  const offer = cardExternalOffer(card);
+  const offerFound = isOfertaEncontrada(offer);
+  const offerUrl = offerFound && offer.found_url && /^https?:\/\//i.test(offer.found_url) ? offer.found_url : "";
 
   return `<article class="card ${cls}" data-done-id="${esc(id)}" data-context="${esc(contextText(card))}" data-sku="${esc(card.sku || "")}" data-action-key="${esc(id)}" data-tab-kind="${decided ? "decided" : "active"}" data-gate-ok="${card.gate_ok === true ? "true" : card.gate_ok === false ? "false" : ""}" data-can-comprar="${canComprar ? "true" : "false"}">
     <div class="badges">
       <span class="badge ${esc(tipo)}">${esc(tipo)}</span>
       ${!hideBuy && !canComprar && reason ? `<span class="gate-chip">${esc(reason)}</span>` : ""}
+      ${offerFound ? `<span class="offer-chip">Oferta encontrada</span>` : ""}
       ${stateChip}
     </div>
     <div class="row">
@@ -1087,6 +1228,7 @@ function renderCard(card, i, opts) {
         <p class="index">#${i + 1} · ${esc(card.sku || "")}</p>
         <h2 class="title" title="${esc(verbTitle(card))}">${esc(verbTitle(card))}</h2>
         ${techoHtml(card)}
+        ${offerLandedHtml(card, offer)}
         <p class="qty-advice">${esc(qtyAdviceLine(card))}</p>
         <p class="why"><strong>Por qué:</strong> ${esc(whyText(card))}</p>
         ${ev ? `<p class="evidence">${esc(ev)}</p>` : ""}
@@ -1097,6 +1239,7 @@ function renderCard(card, i, opts) {
       <a class="primary" href="${esc(shoppingHref(card, name))}" target="_blank" rel="noopener" title="${esc(cardUpc(card) ? "Google Shopping · " + cardUpc(card) : "Busca precio")}">${esc(shoppingLabel(card))}</a>
       <a class="secondary" href="${esc(mlHref(card, name))}" target="_blank" rel="noopener">Ver en Mercado Libre</a>
       ${keepaHref(card) ? `<a class="ghost" href="${esc(keepaHref(card))}" target="_blank" rel="noopener">Abrir en Keepa</a>` : ""}
+      ${offerUrl ? `<a class="offer-open" href="${esc(offerUrl)}" target="_blank" rel="noopener">ABRIR</a>` : ""}
       ${storeHtml}
       ${contextText(card) ? `<button type="button" class="ghost-btn" data-act="copy-ctx">Copiar contexto</button>` : ""}
     </div>
@@ -1163,7 +1306,12 @@ function renderData(data) {
     <p class="lead">${esc(pageLead(activeTab, cards, data))}</p>
     ${ceiling}
     ${tabs}
-    ${activeTab === TAB_QUEUE ? `<div class="csv-bar"><button type="button" class="ghost-btn" id="exportCsv">Exportar CSV</button></div>` : ""}
+    ${activeTab === TAB_QUEUE ? `<div class="csv-bar">
+      <p class="csv-status" id="csvStatus" hidden></p>
+      <button type="button" class="ghost-btn" id="exportCsv">Exportar CSV</button>
+      <button type="button" class="ghost-btn" id="importCsv">Importar CSV</button>
+      <input id="importCsvFile" type="file" accept=".csv,text/csv,text/plain" hidden>
+    </div>` : ""}
     ${body}
     ${strip}
     <footer>Actualizado ${esc(data.generated_at || data.date || "")} · el radar nunca compra solo · <button type="button" class="text-link" id="resetHidden">Ver de nuevo</button></footer>`;
@@ -1267,20 +1415,27 @@ function csvCell(v) {
   return s;
 }
 
-function csvValue(card, key) {
+function pad2(n) {
+  return String(n).padStart(2, "0");
+}
+
+function makeExportId(d = new Date()) {
+  return `EXP-${d.getFullYear()}${pad2(d.getMonth() + 1)}${pad2(d.getDate())}-${pad2(d.getHours())}${pad2(d.getMinutes())}${pad2(d.getSeconds())}`;
+}
+
+function csvValue(card, key, ctx) {
+  if (key === "export_id") return ctx && ctx.export_id;
+  if (key === "exported_at") return ctx && ctx.exported_at;
   if (key === "upc") return cardUpc(card);
-  if (key === "title") return productName(card);
+  if (key === "name" || key === "title") return productName(card);
   if (key === "tipo" || key === "action") return cardAction(card) || asText(card[key]);
-  if (key === "compra_si_no_pasa") {
-    const cap = capAmount(card);
-    return cap == null ? "" : money0(cap);
+  if (key === "done_id") return cardId(card);
+  if (key === "gate_ok") {
+    if (card.gate_ok === true) return "true";
+    if (card.gate_ok === false) return "false";
+    return "";
   }
-  if (key === "ganancia") {
-    const g = estimatedGain(card);
-    return g == null ? "" : Math.round(g * 100) / 100;
-  }
-  if (key === "roi_pct") return estimatedRoi(card);
-  if (key === "unit_margin") return card.unit_margin != null ? card.unit_margin : (card.evidence && card.evidence.unit_margin);
+  if (key === "shopping_url") return card.shopping_url || shoppingHref(card, productName(card));
   if (key === "soh") return card.soh != null ? card.soh : (card.evidence && card.evidence.soh);
   if (key === "sales_30") return card.sales_30 != null ? card.sales_30 : (card.evidence && card.evidence.sales_30);
   if (key === "sales_90") return card.sales_90 != null ? card.sales_90 : (card.evidence && card.evidence.sales_90);
@@ -1288,9 +1443,146 @@ function csvValue(card, key) {
 }
 
 function queueCsv(data) {
-  const rows = (data && Array.isArray(data.queue) ? data.queue : []).map((c) => CSV_COLS.map((col) => csvValue(c, col.key)));
+  const now = new Date();
+  const ctx = { export_id: makeExportId(now), exported_at: now.toISOString() };
+  const rows = (data && Array.isArray(data.queue) ? data.queue : []).map((c) => CSV_COLS.map((col) => csvValue(c, col.key, ctx)));
   const header = CSV_COLS.map((col) => col.header).join(",");
   return "\uFEFF" + [header, ...rows.map((r) => r.map(csvCell).join(","))].join("\n");
+}
+
+function parseCsv(text) {
+  const src = String(text || "").replace(/^\uFEFF/, "");
+  const rows = [];
+  let row = [];
+  let cell = "";
+  let i = 0;
+  let inQ = false;
+  while (i < src.length) {
+    const ch = src[i];
+    if (inQ) {
+      if (ch === "\"") {
+        if (src[i + 1] === "\"") { cell += "\""; i += 2; continue; }
+        inQ = false;
+        i++;
+        continue;
+      }
+      cell += ch;
+      i++;
+      continue;
+    }
+    if (ch === "\"") { inQ = true; i++; continue; }
+    if (ch === ",") { row.push(cell); cell = ""; i++; continue; }
+    if (ch === "\n" || ch === "\r") {
+      if (ch === "\r" && src[i + 1] === "\n") i++;
+      row.push(cell);
+      cell = "";
+      if (row.some((c) => String(c).trim())) rows.push(row);
+      row = [];
+      i++;
+      continue;
+    }
+    cell += ch;
+    i++;
+  }
+  if (cell || row.length) {
+    row.push(cell);
+    if (row.some((c) => String(c).trim())) rows.push(row);
+  }
+  return rows;
+}
+
+function normCsvHeader(h) {
+  return String(h || "").trim().toLowerCase().replace(/^\uFEFF/, "").replace(/[\s-]+/g, "_");
+}
+
+function importOfferRows(text) {
+  const rows = parseCsv(text);
+  if (rows.length < 2) return { applied: 0, skipped: 0, error: "El CSV no tiene filas" };
+  const headers = rows[0].map(normCsvHeader);
+  const idx = (...names) => {
+    for (const n of names) {
+      const i = headers.indexOf(n);
+      if (i >= 0) return i;
+    }
+    return -1;
+  };
+  const col = {
+    export_id: idx("export_id"),
+    sku: idx("sku"),
+    found_url: idx("found_url", "url", "offer_url"),
+    store: idx("store", "found_supplier", "tienda"),
+    item_price: idx("item_price", "found_product_price_mxn", "precio", "precio_visto"),
+    shipping: idx("shipping", "found_shipping_mxn", "envio", "envío"),
+    fees: idx("fees", "found_import_fees_mxn", "comision", "comisión"),
+    found_landed: idx("found_landed", "found_landed_cost_mxn", "landed", "precio_encontrado"),
+    status: idx("status", "estado")
+  };
+  if (col.sku < 0) return { applied: 0, skipped: 0, error: "Falta la columna sku" };
+  const bySku = { ...readOfferOverlays() };
+  let applied = 0;
+  let skipped = 0;
+  for (const r of rows.slice(1)) {
+    const get = (k) => (col[k] >= 0 ? r[col[k]] : "");
+    const sku = asText(get("sku"));
+    if (!sku) { skipped++; continue; }
+    const raw = {
+      export_id: get("export_id"),
+      sku,
+      found_url: get("found_url"),
+      store: get("store"),
+      item_price: get("item_price"),
+      shipping: get("shipping"),
+      fees: get("fees"),
+      found_landed: get("found_landed"),
+      status: get("status"),
+      imported_at: new Date().toISOString()
+    };
+    const offer = normalizeExternalOffer(raw);
+    if (!offer || (!offer.found_url && offer.found_landed == null && !offer.store)) {
+      skipped++;
+      continue;
+    }
+    if (!offer.status) offer.status = OFFER_FOUND;
+    bySku[sku] = offer;
+    applied++;
+  }
+  writeOfferOverlays(bySku);
+  return { applied, skipped };
+}
+
+function setCsvStatus(msg) {
+  const el = document.getElementById("csvStatus");
+  if (!el) return;
+  if (!msg) {
+    el.hidden = true;
+    el.textContent = "";
+    return;
+  }
+  el.hidden = false;
+  el.textContent = msg;
+}
+
+async function onImportCsvFile(ev) {
+  const file = ev.target && ev.target.files && ev.target.files[0];
+  ev.target.value = "";
+  if (!file) return;
+  let text = "";
+  try {
+    text = await file.text();
+  } catch (_) {
+    setCsvStatus("No pude leer el CSV");
+    return;
+  }
+  const result = importOfferRows(text);
+  if (result.error) {
+    setCsvStatus(result.error);
+    return;
+  }
+  const bits = [`Aplicamos ${result.applied} oferta${result.applied === 1 ? "" : "s"}`];
+  if (result.skipped) bits.push(`${result.skipped} sin datos`);
+  bits.push("sin tocar ganancia ni techo");
+  if (cachedData) paint(cachedData);
+  setCsvStatus(bits.join(" · "));
 }
 
 function downloadText(filename, text, mime) {
@@ -1414,12 +1706,19 @@ function openPurchaseModal(cardEl) {
   if (!card || !showComprarCta(card) || livePurchaseForCard(card)) return;
   lastFocus = document.activeElement;
   const existing = purchaseForCard(card) || {};
-  const qty = existing.qty || suggestedQty(card);
-  const cap = card.max_landed_cost != null ? card.max_landed_cost : card.alert_price;
-  const storeVal = inferStoreValue(card, existing.store);
+  const offer = cardExternalOffer(card);
+  const offerFound = isOfertaEncontrada(offer);
+  const qty = existing.qty || (offerFound && offer.suggested_qty) || suggestedQty(card);
+  const cap = offerCap(card, offerFound ? offer : null);
+  if (offerFound && offer.store) rememberCustomStore(offer.store);
+  const landedPrefill = offerFound && offer.found_landed != null ? offer.found_landed : null;
+  const storeVal = inferStoreValue(card, existing.store || (offerFound ? offer.store : ""));
   const otherStore = storeVal === "otro"
-    ? (existing.store && !isDefaultStoreName(existing.store) ? existing.store : (card.supplier_name || ""))
+    ? (existing.store && !isDefaultStoreName(existing.store) ? existing.store : ((offerFound && offer.store) || card.supplier_name || ""))
     : "";
+  const unitPrefill = existing.unit_price != null ? existing.unit_price : landedPrefill;
+  const totalPrefill = existing.total != null ? existing.total : (landedPrefill != null ? Math.round(landedPrefill * qty * 100) / 100 : "");
+  const urlPrefill = existing.url || (offerFound && offer.found_url) || "";
   const root = document.getElementById("modal-root");
   root.hidden = false;
   root.innerHTML = `
@@ -1445,19 +1744,24 @@ function openPurchaseModal(cardEl) {
           <label for="buy-store-other">Nombre de la tienda</label>
           <input id="buy-store-other" name="store_other" type="text" value="${esc(otherStore)}" placeholder="Amazon México, Sanborns…">
         </div>
+        ${offerFound ? `<div class="field">
+          <label for="buy-landed">Precio encontrado / landed (MXN)</label>
+          <input id="buy-landed" name="found_landed" type="number" min="0" step="0.01" inputmode="decimal" value="${landedPrefill != null ? esc(landedPrefill) : ""}">
+          ${cap != null ? `<span class="techo-extra">Techo ${esc(money0(cap))} · ${esc(compraSiNoPasa(card))}</span>` : ""}
+        </div>` : ""}
         <div class="field-row">
           <div class="field">
             <label for="buy-unit">Precio por pieza (MXN)</label>
-            <input id="buy-unit" name="unit_price" type="number" min="0" step="0.01" inputmode="decimal" value="${existing.unit_price != null ? esc(existing.unit_price) : ""}" placeholder="${cap ? money0(cap) : ""}">
+            <input id="buy-unit" name="unit_price" type="number" min="0" step="0.01" inputmode="decimal" value="${unitPrefill != null && unitPrefill !== "" ? esc(unitPrefill) : ""}" placeholder="${cap ? money0(cap) : ""}">
           </div>
           <div class="field">
             <label for="buy-total">Total (MXN)</label>
-            <input id="buy-total" name="total" type="number" min="0" step="0.01" inputmode="decimal" value="${existing.total != null ? esc(existing.total) : ""}">
+            <input id="buy-total" name="total" type="number" min="0" step="0.01" inputmode="decimal" value="${totalPrefill !== "" && totalPrefill != null ? esc(totalPrefill) : ""}">
           </div>
         </div>
         <div class="field">
           <label for="buy-url">Liga de la compra (opcional)</label>
-          <input id="buy-url" name="url" type="url" value="${esc(existing.url || "")}" placeholder="https://">
+          <input id="buy-url" name="url" type="url" value="${esc(urlPrefill)}" placeholder="https://">
         </div>
         <div class="modal-actions">
           <button type="button" class="btn-secondary" data-close="1">Cierra</button>
@@ -1469,6 +1773,7 @@ function openPurchaseModal(cardEl) {
   const qtyEl = root.querySelector("#buy-qty");
   const unitEl = root.querySelector("#buy-unit");
   const totalEl = root.querySelector("#buy-total");
+  const landedEl = root.querySelector("#buy-landed");
   const storeEl = root.querySelector("#buy-store");
   const otherWrap = root.querySelector("#store-other-wrap");
   storeEl.addEventListener("change", () => {
@@ -1478,14 +1783,24 @@ function openPurchaseModal(cardEl) {
     const q = Number(qtyEl.value);
     const u = Number(unitEl.value);
     const t = Number(totalEl.value);
+    const landed = landedEl && landedEl.value !== "" ? Number(landedEl.value) : null;
+    if (from === "landed" && landedEl && landed != null && !Number.isNaN(landed)) {
+      unitEl.value = String(landed);
+      if (q > 0) totalEl.value = String(Math.round(q * landed * 100) / 100);
+      return;
+    }
     if (from === "unit" && q > 0 && u >= 0 && unitEl.value !== "") {
       totalEl.value = String(Math.round(q * u * 100) / 100);
+      if (landedEl) landedEl.value = String(u);
     } else if (from === "total" && q > 0 && t >= 0 && totalEl.value !== "") {
-      unitEl.value = String(Math.round((t / q) * 100) / 100);
+      const nextUnit = Math.round((t / q) * 100) / 100;
+      unitEl.value = String(nextUnit);
+      if (landedEl) landedEl.value = String(nextUnit);
     } else if (from === "qty" && q > 0 && unitEl.value !== "" && u >= 0) {
       totalEl.value = String(Math.round(q * u * 100) / 100);
     }
   };
+  if (landedEl) landedEl.addEventListener("input", () => syncTotal("landed"));
   unitEl.addEventListener("input", () => syncTotal("unit"));
   totalEl.addEventListener("input", () => syncTotal("total"));
   qtyEl.addEventListener("input", () => syncTotal("qty"));
@@ -1604,6 +1919,8 @@ function paint(data) {
   wire(app);
   document.getElementById("resetHidden")?.addEventListener("click", radarResetHidden);
   document.getElementById("exportCsv")?.addEventListener("click", exportQueueCsv);
+  document.getElementById("importCsv")?.addEventListener("click", () => document.getElementById("importCsvFile")?.click());
+  document.getElementById("importCsvFile")?.addEventListener("change", onImportCsvFile);
   document.getElementById("retryAllSync")?.addEventListener("click", retryAllPending);
   document.getElementById("copyPendingJson")?.addEventListener("click", copyPendingJson);
   document.getElementById("dlPendingJson")?.addEventListener("click", () => {
