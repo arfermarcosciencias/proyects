@@ -194,6 +194,7 @@
     },
     "purchases_pending": {
       "artifact_key": "purchases_pending",
+      "bridge_role": "write-bridge only — :8766 no es la UI del ritual diario (Pages/correo sí).",
       "file_shape": {
         "items": [
           "…purchase objects…"
@@ -216,6 +217,9 @@
         "unit_price": "float optional MXN (unitario)",
         "url": "str optional URL de la compra"
       },
+      "offline_fallback": "Si Mac/bridge no responde: FE descarga/copia purchases_pending.json; Mac hace ingest en generate diario o al reiniciar el bridge.",
+      "optional_local_api_health": "http://127.0.0.1:8766/api/health",
+      "optional_local_api_purchases": "http://127.0.0.1:8766/api/purchases_pending",
       "pages_inbox_compat": {
         "actions_item": {
           "action_key": "str",
@@ -305,7 +309,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — NIJU004\nProducto: Peluche de Juguete The Child Talking Plush - Hasbro\nAcción: BUSCAR\nTecho (max_landed / alert_price): $329 MXN\nSi el precio de la captura es ≤ $329: compra 1 pieza(s) de NIJU004.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 3 · históricas: 5\nUtilidad est. / u: $177 · ROI: 65% · margen u: $177\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $329\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "NIJU004|PAUSAR COMPRA|0|3|0|329",
       "evidence": {
-        "days_since_last_sale": 65,
+        "days_since_last_sale": 66,
         "sales_30": 0,
         "sales_90": 3,
         "soh": 0,
@@ -459,7 +463,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — NICX002\nProducto: Casa De Muñecas Gabby Purrfect Dollhouse 15 Pzs - SpinMaster\nAcción: BUSCAR\nTecho (max_landed / alert_price): $1,000 MXN\nSi el precio de la captura es ≤ $1,000: compra 1 pieza(s) de NICX002.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 1 · históricas: 1\nUtilidad est. / u: $501 · ROI: 63% · margen u: $501\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $1,000\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "NICX002|PAUSAR COMPRA|0|1|0|1000",
       "evidence": {
-        "days_since_last_sale": 79,
+        "days_since_last_sale": 80,
         "sales_30": 0,
         "sales_90": 1,
         "soh": 0,
@@ -585,7 +589,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 05NU006\nProducto: Peluche De Pomni The Amazing Digital Circus +3 - Genérico\nAcción: BUSCAR\nTecho (max_landed / alert_price): $60 MXN\nSi el precio de la captura es ≤ $60: compra 1 pieza(s) de 05NU006.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 3\nUtilidad est. / u: $103 · ROI: 134% · margen u: $103\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $60\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "05NU006|PAUSAR COMPRA|0|1|0|60",
       "evidence": {
-        "days_since_last_sale": 117,
+        "days_since_last_sale": 118,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -650,7 +654,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — NIPU010\nProducto: Peluche Jax The Amazing Digital Circus Genérico\nAcción: BUSCAR\nTecho (max_landed / alert_price): $0 MXN\nSi el precio de la captura es ≤ $0: compra 1 pieza(s) de NIPU010.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 2\nUtilidad est. / u: $47 · ROI: 78% · margen u: $47\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $0\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "NIPU010|PAUSAR COMPRA|0|1|0|0",
       "evidence": {
-        "days_since_last_sale": 116,
+        "days_since_last_sale": 117,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -710,6 +714,7 @@
     }
   ],
   "done_contract": {
+    "bridge_role": "write-bridge only; ritual view = Pages/correo, not :8766",
     "hide_days": {
       "descartado": 30,
       "done": 1,
@@ -721,22 +726,24 @@
     "key": "done_id",
     "local_api_required": false,
     "optional_local_api": "http://127.0.0.1:8766/api/actions",
+    "optional_local_api_health": "http://127.0.0.1:8766/api/health",
+    "optional_local_api_purchases": "http://127.0.0.1:8766/api/purchases_pending",
     "primary": "localStorage"
   },
   "freshness": {
     "inventory": {
-      "age_hours": 16.1,
-      "modified_at": "2026-09-10T18:39:14"
+      "age_hours": 0.0,
+      "modified_at": "2026-09-11T16:56:43"
     },
-    "message": "Tus ventas no se actualizan desde hace 7 días. El radar copia tus datos solo cada vez que guardas algo en tu programa, así que esto significa que no has registrado nada en ese tiempo. Si vendiste o compraste y no lo capturaste, estas cuentas van con stock que ya no tienes.",
+    "message": "",
     "sales": {
-      "age_hours": 165.49,
-      "modified_at": "2026-09-04T13:15:34"
+      "age_hours": 0.0,
+      "modified_at": "2026-09-11T16:56:43"
     },
-    "stale": true,
-    "worst_age_hours": 165.49
+    "stale": false,
+    "worst_age_hours": 0.0
   },
-  "generated_at": "2026-09-11T10:45:06",
+  "generated_at": "2026-09-11T16:56:43",
   "headline": "Busca proveedor · Set De Biberones Options + 4 Oz Rosa 0 A",
   "hide_days_default": {
     "descartado": 30,
@@ -752,12 +759,12 @@
     "actionable_pool": 36,
     "buy_now": 0,
     "dismissed_or_paused_count": 7,
-    "last_sale_at": "2026-09-02T19:30:21",
+    "last_sale_at": "2026-09-11T01:51:20",
     "max_data_uri_chars": 120000,
     "parked_count": 7,
     "paused_by_operator": 7,
     "priority_top3_count": 3,
-    "purchases_pending_count": 0,
+    "purchases_pending_count": 4,
     "queue_count": 13,
     "supplier_search": 36
   },
@@ -834,7 +841,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — NIJU004\nProducto: Peluche de Juguete The Child Talking Plush - Hasbro\nAcción: BUSCAR\nTecho (max_landed / alert_price): $329 MXN\nSi el precio de la captura es ≤ $329: compra 1 pieza(s) de NIJU004.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 3 · históricas: 5\nUtilidad est. / u: $177 · ROI: 65% · margen u: $177\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $329\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "NIJU004|PAUSAR COMPRA|0|3|0|329",
       "evidence": {
-        "days_since_last_sale": 65,
+        "days_since_last_sale": 66,
         "sales_30": 0,
         "sales_90": 3,
         "soh": 0,
@@ -988,7 +995,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — NICX002\nProducto: Casa De Muñecas Gabby Purrfect Dollhouse 15 Pzs - SpinMaster\nAcción: BUSCAR\nTecho (max_landed / alert_price): $1,000 MXN\nSi el precio de la captura es ≤ $1,000: compra 1 pieza(s) de NICX002.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 1 · históricas: 1\nUtilidad est. / u: $501 · ROI: 63% · margen u: $501\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $1,000\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "NICX002|PAUSAR COMPRA|0|1|0|1000",
       "evidence": {
-        "days_since_last_sale": 79,
+        "days_since_last_sale": 80,
         "sales_30": 0,
         "sales_90": 1,
         "soh": 0,
@@ -1114,7 +1121,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 05NU006\nProducto: Peluche De Pomni The Amazing Digital Circus +3 - Genérico\nAcción: BUSCAR\nTecho (max_landed / alert_price): $60 MXN\nSi el precio de la captura es ≤ $60: compra 1 pieza(s) de 05NU006.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 3\nUtilidad est. / u: $103 · ROI: 134% · margen u: $103\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $60\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "05NU006|PAUSAR COMPRA|0|1|0|60",
       "evidence": {
-        "days_since_last_sale": 117,
+        "days_since_last_sale": 118,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -1179,7 +1186,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — NIPU010\nProducto: Peluche Jax The Amazing Digital Circus Genérico\nAcción: BUSCAR\nTecho (max_landed / alert_price): $0 MXN\nSi el precio de la captura es ≤ $0: compra 1 pieza(s) de NIPU010.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 2\nUtilidad est. / u: $47 · ROI: 78% · margen u: $47\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $0\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "NIPU010|PAUSAR COMPRA|0|1|0|0",
       "evidence": {
-        "days_since_last_sale": 116,
+        "days_since_last_sale": 117,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -1238,7 +1245,54 @@
       "why_line": "0·30d / soh 0 / techo $0"
     }
   ],
-  "purchases_pending": [],
+  "purchases_pending": [
+    {
+      "created_at": "2026-09-11T16:08:42",
+      "done_id": "smoke-done-1",
+      "import_ref": "RADAR-smoke-done-1",
+      "imported_at": "2026-09-11T16:08:42",
+      "qty": 2,
+      "sku": "SMOKE-BRIDGE-1",
+      "source": "pages",
+      "status": "imported",
+      "store": "Amazon",
+      "unit_price": 99.5
+    },
+    {
+      "created_at": "2026-09-11T16:08:42",
+      "done_id": "helper-2",
+      "import_ref": "RADAR-helper-2",
+      "imported_at": "2026-09-11T16:08:42",
+      "qty": 1,
+      "sku": "SMOKE-HELPER-2",
+      "source": "pages",
+      "status": "imported",
+      "total": 150
+    },
+    {
+      "created_at": "2026-09-11T16:09:49",
+      "done_id": "smoke-done-3",
+      "import_ref": "RADAR-smoke-done-3",
+      "imported_at": "2026-09-11T16:09:49",
+      "qty": 1,
+      "sku": "SMOKE-BRIDGE-3",
+      "source": "pages",
+      "status": "imported",
+      "store": "ML",
+      "unit_price": 120
+    },
+    {
+      "created_at": "2026-09-11T16:10:02",
+      "done_id": "smoke-done-4",
+      "import_ref": "RADAR-smoke-done-4",
+      "imported_at": "2026-09-11T16:10:02",
+      "qty": 1,
+      "sku": "SMOKE-BRIDGE-4",
+      "source": "pages",
+      "status": "imported",
+      "total": 200
+    }
+  ],
   "queue": [
     {
       "action": "BUSCAR",
@@ -1247,7 +1301,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 02BU001\nProducto: Panda Juguete De Peluche Aprendizaje Musical - Fisher Price\nAcción: BUSCAR\nTecho (max_landed / alert_price): $621 MXN\nSi el precio de la captura es ≤ $621: compra 1 pieza(s) de 02BU001.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 1 · históricas: 2\nUtilidad est. / u: $229 · ROI: 39% · margen u: $229\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $621\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "02BU001|BUSCAR PROVEEDOR|0|1|1|621",
       "evidence": {
-        "days_since_last_sale": 70,
+        "days_since_last_sale": 71,
         "sales_30": 0,
         "sales_90": 1,
         "soh": 0,
@@ -1365,7 +1419,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 00BU002\nProducto: Baby Cojín de Actividades 0m+ Oso Perezoso - Fisher Price\nAcción: BUSCAR\nTecho (max_landed / alert_price): $579 MXN\nSi el precio de la captura es ≤ $579: compra 1 pieza(s) de 00BU002.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 2\nUtilidad est. / u: $279 · ROI: 59% · margen u: $279\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $579\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "00BU002|BUSCAR PROVEEDOR|0|1|1|579",
       "evidence": {
-        "days_since_last_sale": 178,
+        "days_since_last_sale": 179,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -1778,7 +1832,7 @@
       "contexto_prompt": "CONTEXTO Radar Rotación — 10VU004\nProducto: Comfort Grip Pikachu Nintendo - Power A\nAcción: BUSCAR\nTecho (max_landed / alert_price): $334 MXN\nSi el precio de la captura es ≤ $334: compra 1 pieza(s) de 10VU004.\nSi está por arriba del techo: NO comprar; di el gap y sigue buscando.\nStock actual: 0 · Ventas 30d: 0 · 90d: 0 · históricas: 1\nUtilidad est. / u: $215 · ROI: 90% · margen u: $215\nASIN: (no verificado — no inventar)\nPor qué: 0·30d / soh 0 / techo $334\nResponde en una línea: COMPRAR N · SKU · precio visto · o NO COMPRAR + razón.",
       "done_id": "10VU004|BUSCAR PROVEEDOR|0|1|1|334",
       "evidence": {
-        "days_since_last_sale": 178,
+        "days_since_last_sale": 179,
         "sales_30": 0,
         "sales_90": 0,
         "soh": 0,
@@ -2014,5 +2068,5 @@
     "10EU001",
     "10MU006"
   ],
-  "stale": true
+  "stale": false
 }
