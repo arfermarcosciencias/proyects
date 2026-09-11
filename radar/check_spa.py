@@ -23,6 +23,7 @@ MARKERS = [
     ("Mac health", r"/api/health"),
     ("POST purchases_pending", r"/api/purchases_pending"),
     ("Exportar CSV", r"Exportar CSV"),
+    ("Copiar CSV", r"Copiar CSV"),
     ("Importar CSV", r"Importar CSV"),
     ("external_offer overlay", r"external_offer"),
     ("external_offers_active", r"external_offers_active"),
