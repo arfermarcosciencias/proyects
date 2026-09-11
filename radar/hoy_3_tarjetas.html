@@ -107,8 +107,20 @@
   .hallazgo-card .h-signal,.hallazgo-card .h-money,.hallazgo-card .h-motor{
     margin:0 0 6px;font-size:13px;font-weight:650;color:var(--evidence)
   }
-  .csv-bar{display:flex;justify-content:flex-end;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0 0}
-  .csv-status{margin:0;font-size:13px;font-weight:650;color:var(--muted)}
+  .csv-bar{
+    display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-start;
+    gap:8px;margin:12px 0 0;overflow:visible;
+  }
+  .csv-bar .ghost-btn,.csv-bar .csv-copy{
+    flex:0 0 auto;min-width:44px;width:auto;white-space:nowrap;
+  }
+  .csv-copy{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-height:var(--tap);padding:10px 16px;border-radius:11px;
+    font:inherit;font-size:13px;font-weight:750;letter-spacing:.01em;
+    background:var(--blue);color:#fff;border:1px solid var(--blue);cursor:pointer;
+  }
+  .csv-status{margin:0;flex:1 1 100%;font-size:13px;font-weight:650;color:var(--muted)}
   .radar-toast{
     position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(8px);
     z-index:60;background:var(--text);color:#fff;font-size:14px;font-weight:700;
@@ -211,6 +223,7 @@
     .photo{width:96px;height:96px}
     .links{flex-direction:column;align-items:stretch}
     .links a,.ghost-btn{width:100%}
+    .csv-bar .ghost-btn,.csv-bar .csv-copy{width:auto;min-width:44px}
     .actions,.outcomes,.actions-sub{max-width:none}
     .field-row{grid-template-columns:1fr}
   }
@@ -1717,12 +1730,12 @@ function renderData(data) {
     <p class="lead">${esc(pageLead(activeTab, cards, data))}</p>
     ${ceiling}
     ${tabs}
-    ${activeTab === TAB_QUEUE ? `<div class="csv-bar">
-      <p class="csv-status" id="csvStatus" hidden></p>
+    ${activeTab === TAB_QUEUE ? `<div class="csv-bar" role="group" aria-label="CSV Más oportunidades">
       <button type="button" class="ghost-btn" id="exportCsv">Exportar CSV</button>
-      <button type="button" class="ghost-btn" id="copyCsv">Copiar CSV</button>
+      <button type="button" class="csv-copy" id="copyCsv">Copiar CSV</button>
       <button type="button" class="ghost-btn" id="importCsv">Importar CSV</button>
       <input id="importCsvFile" type="file" accept=".csv,text/csv,text/plain" hidden>
+      <p class="csv-status" id="csvStatus" hidden></p>
     </div>` : ""}
     ${body}
     ${strip}
@@ -2013,8 +2026,7 @@ function showToast(message) {
 }
 
 function downloadText(filename, text, mime) {
-  const type = mime || "text/csv;charset=utf-8";
-  const blob = new Blob([text], { type: type });
+  const type = mime || "text/plain;charset=utf-8";
   const a = document.createElement("a");
   a.download = filename;
   a.setAttribute("download", filename);
@@ -2023,15 +2035,13 @@ function downloadText(filename, text, mime) {
   document.body.appendChild(a);
 
   let objectUrl = "";
-  const small = typeof text === "string" && text.length < 800000;
-  if (small) {
-    try {
-      a.href = "data:" + type + "," + encodeURIComponent(text);
-    } catch (_) { /* blob below */ }
-  }
-  if (!a.getAttribute("href")) {
+  try {
+    const blob = new Blob([text], { type: type });
     objectUrl = URL.createObjectURL(blob);
     a.href = objectUrl;
+  } catch (_) {
+    // Last resort only. Chrome ignores download= on data: URLs → UUID filename.
+    a.href = "data:" + type + "," + encodeURIComponent(text);
   }
   a.click();
   setTimeout(() => {

@@ -24,6 +24,9 @@ MARKERS = [
     ("POST purchases_pending", r"/api/purchases_pending"),
     ("Exportar CSV", r"Exportar CSV"),
     ("Copiar CSV", r"Copiar CSV"),
+    ("copyCsv button", r"id=[\"']copyCsv[\"']"),
+    ("copyQueueCsv", r"function copyQueueCsv\("),
+    ("blob object URL download", r"URL\.createObjectURL"),
     ("Importar CSV", r"Importar CSV"),
     ("external_offer overlay", r"external_offer"),
     ("external_offers_active", r"external_offers_active"),
@@ -52,6 +55,7 @@ BANNED = [
     ("Compra pendiente chip", r">Compra pendiente<"),
     ("esperando Mac", r"esperando Mac"),
     ("v1 GO favicon", r"icono_radar_rotacion_GO\.png"),
+    ("small-file data URI CSV", r"text\.length\s*<\s*800000"),
 ]
 
 
@@ -67,6 +71,25 @@ def static_snapshot(html: str) -> bool:
     return articles >= 3 and not has_renderer
 
 
+def check_download_text(path: Path, html: str, errors: list[str]) -> None:
+    fn = re.search(r"function downloadText\([^)]*\)\s*\{", html)
+    if not fn:
+        errors.append(f"{path.name}: missing downloadText()")
+        return
+    start = fn.start()
+    # Rough function body: next top-level function or end of script-ish block
+    nxt = re.search(r"\nfunction ", html[fn.end():])
+    body = html[start: fn.end() + (nxt.start() if nxt else 800)]
+    blob_at = body.find("createObjectURL")
+    data_at = body.find('a.href = "data:"')
+    if blob_at < 0:
+        errors.append(f"{path.name}: downloadText must use URL.createObjectURL (Blob primary)")
+    if blob_at >= 0 and data_at >= 0 and data_at < blob_at:
+        errors.append(f"{path.name}: downloadText prefers data: URI before Blob (Chrome UUID filename)")
+    if "copyCsv" in html and "copyQueueCsv" not in html:
+        errors.append(f"{path.name}: #copyCsv present but copyQueueCsv missing")
+
+
 def check(path: Path, html: str, errors: list[str]) -> None:
     if static_snapshot(html):
         errors.append(f"{path.name}: static 3-card snapshot (no SPA renderer)")
@@ -78,6 +101,7 @@ def check(path: Path, html: str, errors: list[str]) -> None:
             errors.append(f"{path.name}: banned copy still present: {label}")
     if "<script>" not in html:
         errors.append(f"{path.name}: missing <script> (not the ritual SPA)")
+    check_download_text(path, html, errors)
 
 
 def main() -> int:
