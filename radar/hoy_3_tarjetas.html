@@ -181,6 +181,7 @@ const DEFAULT_STORES = [
   { value: "Amazon", label: "Amazon" },
   { value: "ML", label: "Mercado Libre" }
 ];
+const ANOTADA_SHORT = "Anotada";
 const REGISTERED_SHORT = "Registrada";
 const REGISTERED_MAC = "Quedó anotada en Mac";
 const PHONE_SYNC = "Anotada en el teléfono/Pages · abre el Radar en la Mac para sincronizar";
@@ -687,6 +688,21 @@ function livePurchaseForCard(card) {
   return purchaseForCard(card);
 }
 
+function dismissLocalPurchase(card) {
+  if (!card) return;
+  const id = cardId(card);
+  const sku = card.sku;
+  const doc = readPending();
+  doc.items = (doc.items || []).map((x) => {
+    if (!x) return x;
+    const same = x.sku === sku && String(x.done_id || x.action_key || "") === id;
+    if (!same) return x;
+    return { ...x, status: "cancelled", dismissed_at: new Date().toISOString() };
+  });
+  writePending(doc);
+  try { localStorage.removeItem(storeKey(id)); } catch { /* ignore */ }
+}
+
 function purchaseBits(purchase) {
   if (!purchase) return "";
   const qty = Number(purchase.qty) || 1;
@@ -989,13 +1005,17 @@ function renderCard(card, i, opts) {
   if (decided) {
     actionsHtml = `<p class="status show" data-status>${esc(statusFromCard)}</p>`;
   } else if (imported) {
-    actionsHtml = `<p class="status show" data-status>${esc(statusFromCard)}</p>`;
+    actionsHtml = `<p class="status show" data-status>${esc(statusFromCard)}</p>
+      <div class="sync-actions">
+        <button type="button" class="btn-secondary" data-act="dismiss-pending">Quitar aviso</button>
+      </div>`;
   } else if (pending) {
-    actionsHtml = `<p class="trail">${esc(PHONE_SYNC)}</p>
-      <p class="status show" data-status>${esc(bits)}</p>
+    actionsHtml = `<p class="status show" data-status>${esc(ANOTADA_SHORT)}${bits ? " · " + esc(bits) : ""}</p>
+      <p class="trail">${esc(PHONE_SYNC)}</p>
       <div class="sync-actions">
         <button type="button" class="btn-comprar" data-act="retry-sync">Reintentar</button>
-        <button type="button" class="btn-secondary" data-act="copy-pending">Copiar JSON</button>
+        <button type="button" class="btn-secondary" data-act="dismiss-pending">Quitar aviso</button>
+        <button type="button" class="ghost-btn" data-act="copy-pending">Copiar JSON</button>
         <button type="button" class="ghost-btn" data-act="dl-pending">Bajar JSON</button>
       </div>`;
   } else {
@@ -1019,7 +1039,7 @@ function renderCard(card, i, opts) {
   }
   const stateChip = imported
     ? `<span class="registered-chip">${esc(REGISTERED_SHORT)}</span>`
-    : (pending ? `<span class="phone-chip">Anotada en Pages</span>` : "");
+    : (pending ? `<span class="phone-chip">${esc(ANOTADA_SHORT)}</span>` : "");
 
   return `<article class="card ${cls}" data-done-id="${esc(id)}" data-context="${esc(contextText(card))}" data-sku="${esc(card.sku || "")}" data-action-key="${esc(id)}" data-tab-kind="${decided ? "decided" : "active"}" data-gate-ok="${card.gate_ok === true ? "true" : card.gate_ok === false ? "false" : ""}" data-can-comprar="${canComprar ? "true" : "false"}">
     <div class="badges">
@@ -1464,6 +1484,12 @@ function wire(root) {
           copyBtn.textContent = "No se pudo copiar";
           setTimeout(() => { copyBtn.textContent = "Copiar contexto"; }, 1500);
         }
+        return;
+      }
+      const dismissBtn = ev.target.closest("button[data-act='dismiss-pending']");
+      if (dismissBtn) {
+        dismissLocalPurchase(cardById.get(card.getAttribute("data-done-id")));
+        if (cachedData) paint(cachedData);
         return;
       }
       const retryBtn = ev.target.closest("button[data-act='retry-sync']");
