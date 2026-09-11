@@ -27,6 +27,11 @@ MARKERS = [
     ("copyCsv button", r"id=[\"']copyCsv[\"']"),
     ("copyQueueCsv", r"function copyQueueCsv\("),
     ("blob object URL download", r"URL\.createObjectURL"),
+    ("named File download", r"new File\(\[text\],"),
+    ("showSaveFilePicker", r"showSaveFilePicker"),
+    ("offscreen download anchor", r"left:-9999px"),
+    ("blue toast", r"\.radar-toast\{[^}]*background:var\(--blue\)"),
+    ("toast copy", r"CSV copiado — pégalo en ChatGPT"),
     ("Importar CSV", r"Importar CSV"),
     ("external_offer overlay", r"external_offer"),
     ("external_offers_active", r"external_offers_active"),
@@ -56,6 +61,8 @@ BANNED = [
     ("esperando Mac", r"esperando Mac"),
     ("v1 GO favicon", r"icono_radar_rotacion_GO\.png"),
     ("small-file data URI CSV", r"text\.length\s*<\s*800000"),
+    ("hidden download anchor display:none", r"a\.style\.display\s*=\s*['\"]none['\"]"),
+    ("data URI href download", r"a\.href\s*=\s*['\"]data:"),
 ]
 
 
@@ -78,14 +85,28 @@ def check_download_text(path: Path, html: str, errors: list[str]) -> None:
         return
     start = fn.start()
     # Rough function body: next top-level function or end of script-ish block
-    nxt = re.search(r"\nfunction ", html[fn.end():])
-    body = html[start: fn.end() + (nxt.start() if nxt else 800)]
+    nxt = re.search(r"\n(?:async )?function ", html[fn.end():])
+    body = html[start: fn.end() + (nxt.start() if nxt else 1600)]
     blob_at = body.find("createObjectURL")
     data_at = body.find('a.href = "data:"')
+    if "new File([text]" not in body and "new File([text]," not in body:
+        errors.append(f"{path.name}: downloadText must use named File([text], filename)")
+    if "showSaveFilePicker" not in body:
+        errors.append(f"{path.name}: downloadText must prefer window.showSaveFilePicker")
+    if "suggestedName" not in body:
+        errors.append(f"{path.name}: showSaveFilePicker must pass suggestedName")
+    if "setAttribute(\"download\"" not in body and "setAttribute('download'" not in body:
+        errors.append(f"{path.name}: downloadText must setAttribute('download', filename) before click")
+    if "left:-9999px" not in body:
+        errors.append(f"{path.name}: download anchor must be offscreen (left:-9999px), not display:none")
+    if re.search(r"style\.display\s*=\s*['\"]none['\"]", body):
+        errors.append(f"{path.name}: downloadText must not hide the anchor with display:none (Chrome drops filename)")
     if blob_at < 0:
-        errors.append(f"{path.name}: downloadText must use URL.createObjectURL (Blob primary)")
-    if blob_at >= 0 and data_at >= 0 and data_at < blob_at:
-        errors.append(f"{path.name}: downloadText prefers data: URI before Blob (Chrome UUID filename)")
+        errors.append(f"{path.name}: downloadText must use URL.createObjectURL (named File fallback)")
+    if data_at >= 0 or re.search(r"a\.href\s*=\s*['\"]data:", body):
+        errors.append(f"{path.name}: downloadText must never use data: URI for CSV (Chrome UUID filename)")
+    if "4000" not in body:
+        errors.append(f"{path.name}: downloadText must revoke object URL after ≥4s")
     if "copyCsv" in html and "copyQueueCsv" not in html:
         errors.append(f"{path.name}: #copyCsv present but copyQueueCsv missing")
 
