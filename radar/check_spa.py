@@ -25,7 +25,6 @@ MARKERS = [
     ("big techo amount", r"techo-amount"),
     ("favicon.png", r"favicon\.png"),
     ("favicon.ico", r"favicon\.ico"),
-    ("favicon GO", r"icono_radar_rotacion_GO\.png"),
     ("favicon GO_v2", r"icono_radar_rotacion_GO_v2\.png"),
 ]
 
@@ -33,6 +32,7 @@ BANNED = [
     ("pendiente de importar", r"pendiente de importar"),
     ("Compra pendiente chip", r">Compra pendiente<"),
     ("esperando Mac", r"esperando Mac"),
+    ("v1 GO favicon", r"icono_radar_rotacion_GO\.png"),
 ]
 
 
@@ -70,7 +70,6 @@ def main() -> int:
     if index != twin:
         errors.append("radar/index.html and radar/hoy_3_tarjetas.html must stay identical")
     for asset in (
-        ROOT / "radar" / "icono_radar_rotacion_GO.png",
         ROOT / "radar" / "icono_radar_rotacion_GO_v2.png",
         ROOT / "radar" / "favicon.png",
         ROOT / "radar" / "favicon.ico",
