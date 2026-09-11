@@ -162,6 +162,12 @@ const LOCAL_API = "http://127.0.0.1:8766/api/actions";
 const WEEKLY_CEILING = 2500;
 const PENDING_KEY = "radar-hoy:purchases_pending:v1";
 const INBOX_KEY = "radar-hoy:pages_action_inbox:v1";
+const PREFS_KEY = "radar-hoy:prefs:v1";
+const DEFAULT_STORES = [
+  { value: "Amazon", label: "Amazon" },
+  { value: "ML", label: "Mercado Libre" }
+];
+const WAITING_MAC = "Anotada · esperando Mac";
 const HIDE_DAYS = { purchased: 7, not_found: 3, tomorrow: 1, descartado: 30, done: 1, skip: 1 };
 const OUTCOME_TEXT = {
   purchased: "Anotado como comprado",
@@ -504,7 +510,80 @@ function writePending(doc) {
   next.updated_at = new Date().toISOString();
   next.schema = "arfershop.radar.purchases_pending.v1";
   localStorage.setItem(PENDING_KEY, JSON.stringify(next));
+  rememberStoresFromItems(next.items);
   return next;
+}
+
+function emptyPrefs() {
+  return { custom_stores: [] };
+}
+
+function readPrefs() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(PREFS_KEY) || "null");
+    if (Array.isArray(raw)) return { custom_stores: raw };
+    if (raw && typeof raw === "object") {
+      const list = Array.isArray(raw.custom_stores) ? raw.custom_stores : [];
+      return { ...raw, custom_stores: list };
+    }
+  } catch { /* ignore */ }
+  return emptyPrefs();
+}
+
+function writePrefs(prefs) {
+  const next = prefs && typeof prefs === "object" ? prefs : emptyPrefs();
+  if (!Array.isArray(next.custom_stores)) next.custom_stores = [];
+  localStorage.setItem(PREFS_KEY, JSON.stringify(next));
+  return next;
+}
+
+function isDefaultStoreName(name) {
+  const key = String(name || "").trim().toLowerCase();
+  return !key || key === "otro" || key === "otra" || key === "amazon" || key === "ml" || key === "mercado libre";
+}
+
+function readCustomStores() {
+  return readPrefs().custom_stores
+    .map((s) => String(s || "").trim())
+    .filter((s) => s && !isDefaultStoreName(s));
+}
+
+function rememberCustomStore(name) {
+  const trimmed = String(name || "").trim();
+  if (!trimmed || isDefaultStoreName(trimmed)) return readCustomStores();
+  const prefs = readPrefs();
+  const key = trimmed.toLowerCase();
+  const already = (prefs.custom_stores || []).some((s) => String(s || "").trim().toLowerCase() === key);
+  if (already) return prefs.custom_stores;
+  prefs.custom_stores = [...(prefs.custom_stores || []), trimmed];
+  return writePrefs(prefs).custom_stores;
+}
+
+function rememberStoresFromItems(items) {
+  for (const it of items || []) {
+    if (it && it.store) rememberCustomStore(it.store);
+  }
+}
+
+function knownStores() {
+  const seen = new Set(DEFAULT_STORES.map((s) => s.value.toLowerCase()));
+  const extras = [];
+  for (const name of readCustomStores()) {
+    const key = name.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    extras.push({ value: name, label: name });
+  }
+  return [...DEFAULT_STORES, ...extras];
+}
+
+function normalizeStoreName(name) {
+  const trimmed = String(name || "").trim();
+  if (!trimmed) return "";
+  if (/^amazon$/i.test(trimmed)) return "Amazon";
+  if (/^(ml|mercado\s*libre)$/i.test(trimmed)) return "ML";
+  const hit = knownStores().find((s) => s.value.toLowerCase() === trimmed.toLowerCase());
+  return hit ? hit.value : trimmed;
 }
 
 function pendingKeyOf(item) {
@@ -530,6 +609,7 @@ function hydratePendingFromServer(data, fileItems) {
     ? data.purchases_pending
     : (data && data.purchases_pending && Array.isArray(data.purchases_pending.items) ? data.purchases_pending.items : []);
   const merged = mergePendingItems(local.items, mergePendingItems(fromRoot, fileItems || []));
+  rememberStoresFromItems(merged);
   if (local.items.length) {
     if (merged.length !== local.items.length) writePending({ ...local, items: merged });
     return readPending();
@@ -558,6 +638,17 @@ function purchaseForCard(card) {
     x.sku === sku &&
     String(x.done_id || x.action_key || "") === id
   ) || null;
+}
+
+function isWaitingPurchase(item) {
+  if (!item) return false;
+  const s = String(item.status || "pending").toLowerCase();
+  return s === "pending" || s === "";
+}
+
+function waitingPurchaseForCard(card) {
+  const item = purchaseForCard(card);
+  return isWaitingPurchase(item) ? item : null;
 }
 
 function readInbox() {
@@ -682,7 +773,7 @@ function ceilingLine(items) {
 function statusMessage(st) {
   if (!st) return "";
   const base = OUTCOME_TEXT[st.outcome] || localizeToken(st.outcome) || "Guardado";
-  if (st.outcome === "purchased") return "Compra anotada · queda en pendientes";
+  if (st.outcome === "purchased") return WAITING_MAC;
   const days = st.hide_days;
   return days ? `${base} · no vuelve por ${days} días` : base;
 }
@@ -817,7 +908,14 @@ function trailLine(purchase) {
   const paid = purchaseTotal(purchase);
   const store = purchase.store ? ` · ${purchase.store}` : "";
   const paidTxt = paid ? ` · ${money0(paid)}` : "";
-  return `Compra anotada · ${piezas}${paidTxt}${store} · pendiente de importar`;
+  return `${WAITING_MAC} · ${piezas}${paidTxt}${store}`;
+}
+
+function pendingStatusLabel(status) {
+  const s = String(status || "pending").toLowerCase();
+  if (s === "pending" || s === "") return "esperando Mac";
+  if (s === "imported") return "ya en Mac";
+  return status;
 }
 
 function renderCard(card, i, opts) {
@@ -825,7 +923,7 @@ function renderCard(card, i, opts) {
   const name = productName(card);
   const id = cardId(card);
   const st = readState(id);
-  const purchase = purchaseForCard(card);
+  const purchase = waitingPurchaseForCard(card);
   const pending = !!purchase;
   const cls = pending ? "pending-buy" : (!st ? "" : (st.outcome === "skip" ? "skipped" : "done"));
   const img = photoHtml(card);
@@ -837,18 +935,22 @@ function renderCard(card, i, opts) {
   const storeHtml = stores.map((u) => `<a class="ghost" href="${esc(u.url)}" target="_blank" rel="noopener">${esc(u.label)}</a>`).join("");
   const parkLine = decided ? decidedMetaLine(card) : "";
   const reason = gateReason(card);
-  const canComprar = !decided && showComprarCta(card);
+  const canComprar = !decided && !pending && showComprarCta(card);
   const tipo = cardAction(card) || "BUSCAR";
   const statusFromCard = decided
     ? (statusMessage(st) || (card.outcome ? (OUTCOME_TEXT[card.outcome] || localizeToken(card.outcome)) : "") || "Ya decidida")
     : (pending ? trailLine(purchase) : statusMessage(st));
   const showStatus = decided || pending || !!st;
-  const actionsHtml = decided
-    ? `<p class="status show" data-status>${esc(statusFromCard)}</p>`
-    : `${canComprar ? `<div class="actions with-comprar">
-        <button type="button" class="btn-comprar" data-act="comprar" ${locked && !pending ? "disabled" : ""}>COMPRAR</button>
+  let actionsHtml;
+  if (decided) {
+    actionsHtml = `<p class="status show" data-status>${esc(statusFromCard)}</p>`;
+  } else if (pending) {
+    actionsHtml = `<p class="status show" data-status>${esc(statusFromCard)}</p>`;
+  } else {
+    actionsHtml = `${canComprar ? `<div class="actions with-comprar">
+        <button type="button" class="btn-comprar" data-act="comprar" ${locked ? "disabled" : ""}>COMPRAR</button>
         <div class="actions-sub">
-          <button type="button" class="btn-primary" data-act="done" ${locked && !pending ? "disabled" : ""}>Ya lo hice</button>
+          <button type="button" class="btn-primary" data-act="done" ${locked ? "disabled" : ""}>Ya lo hice</button>
           <button type="button" class="btn-secondary" data-act="skip" ${locked ? "disabled" : ""}>Saltar</button>
         </div>
       </div>` : `<div class="actions">
@@ -862,12 +964,13 @@ function renderCard(card, i, opts) {
       <button type="button" data-outcome="descartado">Descartar 30d</button>
     </div>
     <p class="status ${showStatus ? "show" : ""}" data-status>${esc(statusFromCard)}</p>`;
+  }
 
   return `<article class="card ${cls}" data-done-id="${esc(id)}" data-context="${esc(contextText(card))}" data-sku="${esc(card.sku || "")}" data-action-key="${esc(id)}" data-tab-kind="${decided ? "decided" : "active"}" data-gate-ok="${card.gate_ok === true ? "true" : card.gate_ok === false ? "false" : ""}" data-can-comprar="${canComprar ? "true" : "false"}">
     <div class="badges">
       <span class="badge ${esc(tipo)}">${esc(tipo)}</span>
-      ${!canComprar && reason ? `<span class="gate-chip">${esc(reason)}</span>` : ""}
-      ${pending ? `<span class="pending-chip">Compra pendiente</span>` : ""}
+      ${!pending && !canComprar && reason ? `<span class="gate-chip">${esc(reason)}</span>` : ""}
+      ${pending ? `<span class="pending-chip">${esc(WAITING_MAC)}</span>` : ""}
     </div>
     <div class="row">
       ${img}
@@ -899,10 +1002,10 @@ function renderPendingStrip(items) {
   const lis = live.slice(0, 8).map((it) => {
     const qty = Number(it.qty) || 1;
     const paid = purchaseTotal(it);
-    return `<li>${esc(it.sku || "")} · ${qty} pza${qty === 1 ? "" : "s"}${paid ? " · " + money0(paid) : ""}${it.store ? " · " + esc(it.store) : ""} · ${esc(it.status || "pending")}</li>`;
+    return `<li>${esc(it.sku || "")} · ${qty} pza${qty === 1 ? "" : "s"}${paid ? " · " + money0(paid) : ""}${it.store ? " · " + esc(it.store) : ""} · ${esc(pendingStatusLabel(it.status))}</li>`;
   }).join("");
-  return `<section class="pending-strip" aria-label="Compras pendientes">
-    <h2>Compras pendientes (${live.length})</h2>
+  return `<section class="pending-strip" aria-label="Anotadas · esperando Mac">
+    <h2>Anotadas · esperando Mac (${live.length})</h2>
     <ul>${lis}</ul>
   </section>`;
 }
@@ -1013,23 +1116,41 @@ function onModalKey(ev) {
   }
 }
 
-function inferStoreValue(card) {
-  const v = defaultStore(card);
-  return v === "Amazon" || v === "ML" ? v : "otro";
+function inferStoreValue(card, existingStore) {
+  const known = knownStores();
+  const candidates = [existingStore, card && card.supplier_name, defaultStore(card)];
+  for (const raw of candidates) {
+    const name = normalizeStoreName(raw);
+    if (!name || (isDefaultStoreName(name) && name !== "Amazon" && name !== "ML")) continue;
+    const hit = known.find((s) => s.value.toLowerCase() === name.toLowerCase());
+    if (hit) return hit.value;
+    if (name === "Amazon" || name === "ML") return name;
+  }
+  return "otro";
+}
+
+function storeSelectHtml(selected) {
+  const opts = [
+    ...knownStores(),
+    { value: "otro", label: "Otra" }
+  ];
+  return opts.map((o) =>
+    `<option value="${esc(o.value)}"${o.value === selected ? " selected" : ""}>${esc(o.label)}</option>`
+  ).join("");
 }
 
 function openPurchaseModal(cardEl) {
   const id = cardEl.getAttribute("data-done-id");
   const card = cardById.get(id);
-  if (!card || !showComprarCta(card)) return;
+  if (!card || !showComprarCta(card) || waitingPurchaseForCard(card)) return;
   lastFocus = document.activeElement;
   const existing = purchaseForCard(card) || {};
   const qty = existing.qty || suggestedQty(card);
   const cap = card.max_landed_cost != null ? card.max_landed_cost : card.alert_price;
-  const storeVal = existing.store && (existing.store === "Amazon" || existing.store === "ML")
-    ? existing.store
-    : inferStoreValue(card);
-  const otherStore = existing.store && storeVal === "otro" ? existing.store : (storeVal === "otro" ? (card.supplier_name || "") : "");
+  const storeVal = inferStoreValue(card, existing.store);
+  const otherStore = storeVal === "otro"
+    ? (existing.store && !isDefaultStoreName(existing.store) ? existing.store : (card.supplier_name || ""))
+    : "";
   const root = document.getElementById("modal-root");
   root.hidden = false;
   root.innerHTML = `
@@ -1047,9 +1168,7 @@ function openPurchaseModal(cardEl) {
           <div class="field">
             <label for="buy-store">Tienda</label>
             <select id="buy-store" name="store">
-              <option value="Amazon"${storeVal === "Amazon" ? " selected" : ""}>Amazon</option>
-              <option value="ML"${storeVal === "ML" ? " selected" : ""}>Mercado Libre</option>
-              <option value="otro"${storeVal === "otro" ? " selected" : ""}>Otra</option>
+              ${storeSelectHtml(storeVal)}
             </select>
           </div>
         </div>
@@ -1113,7 +1232,9 @@ function openPurchaseModal(cardEl) {
       return;
     }
     let store = storeEl.value;
-    if (store === "otro") store = (root.querySelector("#buy-store-other").value || "").trim() || "otro";
+    if (store === "otro") store = normalizeStoreName(root.querySelector("#buy-store-other").value) || "otro";
+    else store = normalizeStoreName(store) || store;
+    rememberCustomStore(store);
     const url = (root.querySelector("#buy-url").value || "").trim();
     const item = {
       sku: card.sku,
