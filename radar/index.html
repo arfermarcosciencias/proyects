@@ -109,6 +109,14 @@
   }
   .csv-bar{display:flex;justify-content:flex-end;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0 0}
   .csv-status{margin:0;font-size:13px;font-weight:650;color:var(--muted)}
+  .radar-toast{
+    position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(8px);
+    z-index:60;background:var(--text);color:#fff;font-size:14px;font-weight:700;
+    padding:12px 16px;border-radius:12px;box-shadow:0 12px 32px rgba(15,23,42,.2);
+    max-width:min(92vw,440px);text-align:center;opacity:0;pointer-events:none;
+    transition:opacity .18s ease,transform .18s ease;
+  }
+  .radar-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .sync-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;max-width:420px}
   .row{display:flex;gap:16px;align-items:flex-start}
   .photo{width:112px;height:112px;object-fit:cover;border-radius:14px;background:#f1f5f9;flex:0 0 auto}
@@ -1712,6 +1720,7 @@ function renderData(data) {
     ${activeTab === TAB_QUEUE ? `<div class="csv-bar">
       <p class="csv-status" id="csvStatus" hidden></p>
       <button type="button" class="ghost-btn" id="exportCsv">Exportar CSV</button>
+      <button type="button" class="ghost-btn" id="copyCsv">Copiar CSV</button>
       <button type="button" class="ghost-btn" id="importCsv">Importar CSV</button>
       <input id="importCsvFile" type="file" accept=".csv,text/csv,text/plain" hidden>
     </div>` : ""}
@@ -1988,20 +1997,77 @@ async function onImportCsvFile(ev) {
   setCsvStatus(bits.join(" · "));
 }
 
+function showToast(message) {
+  let el = document.getElementById("radar-toast");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "radar-toast";
+    el.className = "radar-toast";
+    el.setAttribute("role", "status");
+    document.body.appendChild(el);
+  }
+  el.textContent = message;
+  el.classList.add("show");
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => el.classList.remove("show"), 3200);
+}
+
 function downloadText(filename, text, mime) {
-  const blob = new Blob([text], { type: mime || "text/plain;charset=utf-8" });
+  const type = mime || "text/csv;charset=utf-8";
+  const blob = new Blob([text], { type: type });
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
   a.download = filename;
+  a.setAttribute("download", filename);
+  a.rel = "noopener";
+  a.style.display = "none";
   document.body.appendChild(a);
+
+  let objectUrl = "";
+  const small = typeof text === "string" && text.length < 800000;
+  if (small) {
+    try {
+      a.href = "data:" + type + "," + encodeURIComponent(text);
+    } catch (_) { /* blob below */ }
+  }
+  if (!a.getAttribute("href")) {
+    objectUrl = URL.createObjectURL(blob);
+    a.href = objectUrl;
+  }
   a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(a.href), 400);
+  setTimeout(() => {
+    a.remove();
+    if (objectUrl) URL.revokeObjectURL(objectUrl);
+  }, 4000);
 }
 
 function exportQueueCsv() {
   if (!cachedData) return;
   downloadText("radar-mas-oportunidades.csv", queueCsv(cachedData), "text/csv;charset=utf-8");
+}
+
+async function copyQueueCsv() {
+  if (!cachedData) return;
+  const text = queueCsv(cachedData);
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast("CSV copiado — pégalo en ChatGPT");
+    return;
+  } catch (_) { /* execCommand below */ }
+  try {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.cssText = "position:fixed;left:-9999px;top:0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    const ok = document.execCommand("copy");
+    ta.remove();
+    if (!ok) throw new Error("copy");
+    showToast("CSV copiado — pégalo en ChatGPT");
+  } catch (_) {
+    showToast("No se pudo copiar — usa Exportar CSV");
+  }
 }
 
 function pendingJsonText() {
@@ -2365,6 +2431,7 @@ function paint(data) {
   wire(app);
   document.getElementById("resetHidden")?.addEventListener("click", radarResetHidden);
   document.getElementById("exportCsv")?.addEventListener("click", exportQueueCsv);
+  document.getElementById("copyCsv")?.addEventListener("click", copyQueueCsv);
   document.getElementById("importCsv")?.addEventListener("click", () => document.getElementById("importCsvFile")?.click());
   document.getElementById("importCsvFile")?.addEventListener("change", onImportCsvFile);
   document.getElementById("retryAllSync")?.addEventListener("click", retryAllPending);
