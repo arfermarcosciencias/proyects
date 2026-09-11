@@ -1174,33 +1174,53 @@ async function macHealth() {
 
 function responseImported(res, data) {
   if (!res || (res.status !== 200 && res.status !== 201)) return false;
+  const items = [];
+  if (data && Array.isArray(data.items)) items.push(...data.items);
+  if (data && data.item) items.push(data.item);
+  if (items.some((x) => isImportedPurchase(x))) return true;
   if (data && data.imported != null && Number(data.imported) > 0) return true;
-  if (data && Array.isArray(data.items) && data.items.some((x) => String(x && x.status).toLowerCase() === "imported")) return true;
-  if (data && data.item && String(data.item.status).toLowerCase() === "imported") return true;
-  if (res.status === 201) return true;
-  if (res.status === 200 && data && data.ok === true) return true;
-  return false;
+  if (items.length && items.every((x) => isWaitingPurchase(x))) return false;
+  if (data && data.ok === false) return false;
+  return res.status === 201 || res.status === 200;
+}
+
+function purchasePayload(item) {
+  return {
+    sku: item.sku,
+    qty: item.qty,
+    unit_price: item.unit_price,
+    total: item.total,
+    store: item.store,
+    url: item.url,
+    suggested_qty: item.suggested_qty,
+    max_landed: item.max_landed,
+    created_at: item.created_at,
+    status: item.status || "pending",
+    done_id: item.done_id,
+    action_key: item.action_key || item.done_id,
+    source: item.source || "pages"
+  };
 }
 
 async function postPurchasePending(item) {
+  const payload = purchasePayload(item);
   const res = await fetch(PENDING_POST_URL, {
     method: "POST",
     mode: "cors",
+    credentials: "omit",
     cache: "no-store",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ item })
+    body: JSON.stringify(payload)
   });
   const data = await res.json().catch(() => ({}));
   return { ok: res.ok, status: res.status, imported: responseImported(res, data), data };
 }
 
 async function syncPurchaseToMac(item) {
-  const health = await macHealth();
-  if (!health.ok) return { ok: false, reason: "mac_off" };
   try {
     const posted = await postPurchasePending(item);
     if (posted.imported) return { ok: true, imported: true, data: posted.data };
-    return { ok: false, reason: "post_fail", data: posted.data };
+    return { ok: false, reason: posted.ok ? "still_pending" : "post_fail", data: posted.data };
   } catch (_) {
     return { ok: false, reason: "network" };
   }
