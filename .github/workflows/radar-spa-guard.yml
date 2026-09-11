@@ -1,0 +1,14 @@
+name: radar-spa-guard
+on:
+  pull_request:
+  push:
+    paths:
+      - "radar/**"
+      - ".github/workflows/radar-spa-guard.yml"
+jobs:
+  anti-snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fail static 3-card snapshot
+        run: python3 radar/check_spa.py
