@@ -2,6 +2,7 @@
 """Fail if radar/index.html is a static 3-card snapshot instead of the interactive SPA."""
 from __future__ import annotations
 
+import json
 import re
 import sys
 from pathlib import Path
@@ -33,6 +34,16 @@ MARKERS = [
     ("favicon.png", r"favicon\.png"),
     ("favicon.ico", r"favicon\.ico"),
     ("favicon GO_v2", r"icono_radar_rotacion_GO_v2\.png"),
+    ("tab Hallazgo", r"Hallazgo"),
+    ("fetch hallazgos_inventario.json", r"hallazgos_inventario\.json"),
+    ("hallazgos schema", r"arfershop\.radar\.hallazgos_inventario\.v1"),
+    ("decision RECOMPRAR", r"RECOMPRAR"),
+    ("decision PRECIO_BUENO", r"PRECIO_BUENO"),
+    ("decision ESPERAR", r"ESPERAR"),
+    ("decision NO", r"\bNO\b"),
+    ("decision MANUAL", r"MANUAL"),
+    ("Hallazgo 404 copy", r"Codex todavía está emitiendo"),
+    ("Hallazgo techo verb", r"Compra solo si no pasa de"),
 ]
 
 BANNED = [
@@ -83,6 +94,26 @@ def main() -> int:
     ):
         if not asset.is_file():
             errors.append(f"{asset.relative_to(ROOT)} missing")
+    hallazgo = ROOT / "radar" / "hallazgos_inventario.json"
+    if hallazgo.is_file():
+        try:
+            doc = json.loads(hallazgo.read_text(encoding="utf-8"))
+        except Exception as exc:
+            errors.append(f"hallazgos_inventario.json: invalid JSON ({exc})")
+        else:
+            if doc.get("schema") != "arfershop.radar.hallazgos_inventario.v1":
+                errors.append("hallazgos_inventario.json: schema must be arfershop.radar.hallazgos_inventario.v1")
+            if not isinstance(doc.get("items"), list):
+                errors.append("hallazgos_inventario.json: missing items[]")
+            decisions = {"RECOMPRAR", "PRECIO_BUENO", "ESPERAR", "NO", "MANUAL"}
+            seen = {str(it.get("decision")) for it in (doc.get("items") or []) if isinstance(it, dict)}
+            extra = seen - decisions
+            if extra:
+                errors.append(f"hallazgos_inventario.json: unknown decision(s) {sorted(extra)}")
+            counts = doc.get("counts") or {}
+            for key in ("RECOMPRAR", "PRECIO_BUENO", "ESPERAR", "NO", "MANUAL", "total"):
+                if key not in counts:
+                    errors.append(f"hallazgos_inventario.json: counts missing {key}")
     if errors:
         print("radar SPA guard FAILED:")
         for e in errors:

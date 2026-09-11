@@ -59,6 +59,54 @@
   .techo-extra{display:block;margin-top:6px;font-size:13px;font-weight:650;color:var(--muted)}
   .offer-landed{margin:0 0 8px;font-size:14px;line-height:1.4;font-weight:650;color:var(--text)}
   .offer-landed .muted{color:var(--muted);font-weight:600}
+  .wrap.wide{max-width:1280px;width:min(1280px, calc(100% - 24px))}
+  .hallazgo-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0 8px}
+  .hallazgo-filters{display:flex;flex-wrap:wrap;gap:8px}
+  .hallazgo-search{
+    flex:1 1 220px;min-height:var(--tap);border:1px solid var(--line);border-radius:12px;
+    padding:10px 12px;font:inherit;font-size:15px;color:var(--text);background:#fff;
+  }
+  .hallazgo-meta{margin:0 0 12px;font-size:13px;line-height:1.4;color:var(--muted);font-weight:600}
+  .hallazgo-group{margin:18px 0 8px}
+  .hallazgo-group h2{
+    position:sticky;top:0;z-index:3;margin:0 0 10px;padding:10px 0;
+    min-height:var(--tap);display:flex;align-items:center;gap:8px;
+    font-size:16px;letter-spacing:-.02em;background:var(--bg);
+  }
+  .hallazgo-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .hallazgo-table{width:100%;border-collapse:separate;border-spacing:0;min-width:980px}
+  .hallazgo-table th{
+    text-align:left;font-size:12px;font-weight:750;
+    letter-spacing:.04em;text-transform:uppercase;color:var(--muted);
+    background:#f8fafc;border-bottom:1px solid var(--line);padding:10px 12px;
+  }
+  .hallazgo-table td{
+    vertical-align:top;padding:14px 12px;border-bottom:1px solid var(--line);
+    background:#fff;font-size:14px;line-height:1.4;
+  }
+  .hallazgo-table tr:hover td{background:#f8fafc}
+  .hallazgo-table .h-sku{font-weight:750;white-space:nowrap}
+  .hallazgo-table .h-upc{display:block;margin-top:4px;font-size:12px;color:var(--muted);font-weight:650}
+  .hallazgo-table .h-name{margin:0 0 6px;font-size:15px;font-weight:750;letter-spacing:-.02em}
+  .hallazgo-table .h-why{margin:0;color:var(--muted)}
+  .hallazgo-table .h-signal,.hallazgo-table .h-money,.hallazgo-table .h-motor{
+    margin:0;font-size:13px;font-weight:650;color:var(--evidence)
+  }
+  .hallazgo-table .techo-block{margin:0}
+  .hallazgo-table .techo-amount{font-size:clamp(28px,3.2vw,40px)}
+  .hallazgo-table .techo-empty{color:var(--muted-2);font-size:28px}
+  .badge.RECOMPRAR{color:#166534;background:#dcfce7}
+  .badge.PRECIO_BUENO{color:#1d4ed8;background:#dbeafe}
+  .badge.ESPERAR{color:#334155;background:#e2e8f0}
+  .badge.NO{color:#b91c1c;background:#fee2e2}
+  .badge.MANUAL{color:#a16207;background:#fef3c7}
+  .hallazgo-cards{display:none}
+  .hallazgo-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+  .hallazgo-card .h-name{margin:8px 0;font-size:17px;font-weight:750;letter-spacing:-.02em}
+  .hallazgo-card .h-why{margin:0 0 8px;color:var(--muted);font-size:14px;line-height:1.45}
+  .hallazgo-card .h-signal,.hallazgo-card .h-money,.hallazgo-card .h-motor{
+    margin:0 0 6px;font-size:13px;font-weight:650;color:var(--evidence)
+  }
   .csv-bar{display:flex;justify-content:flex-end;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0 0}
   .csv-status{margin:0;font-size:13px;font-weight:650;color:var(--muted)}
   .sync-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;max-width:420px}
@@ -158,6 +206,12 @@
     .actions,.outcomes,.actions-sub{max-width:none}
     .field-row{grid-template-columns:1fr}
   }
+  @media (max-width:819px){
+    .hallazgo-scroll{overflow:visible}
+    .hallazgo-table{display:none;min-width:0}
+    .hallazgo-cards{display:grid;gap:12px}
+    .hallazgo-card .techo-amount{font-size:clamp(36px,8vw,48px)}
+  }
   @media (min-width:640px){
     .modal-root{align-items:center}
   }
@@ -178,6 +232,8 @@
 <div class="modal-root" id="modal-root" hidden></div>
 <script>
 const JSON_URL = "./hoy_3_tarjetas.json";
+const HALLAZGO_URL = "./hallazgos_inventario.json";
+const HALLAZGO_SCHEMA = "arfershop.radar.hallazgos_inventario.v1";
 const PENDING_FILE_URL = "./purchases_pending.json";
 const LOCAL_HOST = "http://127.0.0.1:8766";
 const LOCAL_API = LOCAL_HOST + "/api/actions";
@@ -244,12 +300,26 @@ const STATUS_TEXT = {
 const TAB_HOY = "hoy";
 const TAB_QUEUE = "queue";
 const TAB_DECIDED = "decided";
+const TAB_HALLAZGO = "hallazgo";
+const DECISIONS = [
+  { id: "RECOMPRAR", label: "Recomprar" },
+  { id: "PRECIO_BUENO", label: "Precio bueno" },
+  { id: "ESPERAR", label: "Esperar" },
+  { id: "NO", label: "No" },
+  { id: "MANUAL", label: "Manual" }
+];
+const DECISION_IDS = DECISIONS.map((d) => d.id);
 
 let cachedData = null;
 let activeTab = TAB_HOY;
 let cardById = new Map();
 let offerBySku = new Map();
 let lastFocus = null;
+let hallazgoDoc = null;
+let hallazgoStatus = "idle";
+let hallazgoError = "";
+let hallazgoFilter = "ALL";
+let hallazgoQuery = "";
 
 const money0 = (n) => new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(Number(n));
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -958,7 +1028,317 @@ function weeklyPendingSpend(items) {
     .reduce((sum, it) => sum + purchaseTotal(it), 0);
 }
 
+function decisionLabel(id) {
+  return (DECISIONS.find((d) => d.id === id) || {}).label || id;
+}
+
+function hallazgoDecision(raw) {
+  const key = String(raw || "").trim().toUpperCase().replace(/[\s-]+/g, "_");
+  if (key === "PRECIOBUENO" || key === "PRECIO_BUENO") return "PRECIO_BUENO";
+  if (DECISION_IDS.includes(key)) return key;
+  return "MANUAL";
+}
+
+function numOrNull(v) {
+  if (v == null || v === "") return null;
+  const n = Number(v);
+  return Number.isNaN(n) ? null : n;
+}
+
+function normalizeHallazgoItem(raw) {
+  if (!raw || typeof raw !== "object") return null;
+  const sku = asText(raw.sku);
+  if (!sku) return null;
+  return {
+    sku,
+    upc: asText(raw.upc),
+    name: asText(raw.name) || sku,
+    decision: hallazgoDecision(raw.decision),
+    qty: numOrNull(raw.qty),
+    techo_mxn: numOrNull(raw.techo_mxn),
+    por_que: asText(raw.por_que),
+    soh: numOrNull(raw.soh),
+    sales_30: numOrNull(raw.sales_30),
+    sales_90: numOrNull(raw.sales_90),
+    sales_total: numOrNull(raw.sales_total),
+    ganancia_estimada_mxn: numOrNull(raw.ganancia_estimada_mxn),
+    roi_pct: numOrNull(raw.roi_pct),
+    gate_ok: raw.gate_ok === true ? true : raw.gate_ok === false ? false : null,
+    gate_reason_es: asText(raw.gate_reason_es),
+    action_motor: asText(raw.action_motor),
+    suggested_order: numOrNull(raw.suggested_order)
+  };
+}
+
+function emptyHallazgoCounts() {
+  return { RECOMPRAR: 0, PRECIO_BUENO: 0, ESPERAR: 0, NO: 0, MANUAL: 0, total: 0 };
+}
+
+function countHallazgoItems(items) {
+  const counts = emptyHallazgoCounts();
+  for (const it of items) {
+    counts[it.decision] = (counts[it.decision] || 0) + 1;
+    counts.total += 1;
+  }
+  return counts;
+}
+
+function normalizeHallazgoDoc(raw) {
+  const items = Array.isArray(raw && raw.items)
+    ? raw.items.map(normalizeHallazgoItem).filter(Boolean)
+    : [];
+  const computed = countHallazgoItems(items);
+  const given = raw && raw.counts && typeof raw.counts === "object" ? raw.counts : {};
+  const counts = emptyHallazgoCounts();
+  for (const id of DECISION_IDS) {
+    const n = numOrNull(given[id]);
+    counts[id] = n != null ? n : computed[id];
+  }
+  counts.total = numOrNull(given.total) != null ? Number(given.total) : computed.total;
+  const gate = raw && raw.gate && typeof raw.gate === "object" ? raw.gate : {};
+  return {
+    schema: asText(raw && raw.schema) || HALLAZGO_SCHEMA,
+    generated_at: asText(raw && raw.generated_at),
+    source_snapshot_at: asText(raw && raw.source_snapshot_at),
+    gate: {
+      ganancia_min_mxn: numOrNull(gate.ganancia_min_mxn) ?? 120,
+      roi_min_pct: numOrNull(gate.roi_min_pct) ?? 30
+    },
+    counts,
+    items
+  };
+}
+
+function hallazgoTabCount() {
+  if (hallazgoStatus === "ok" && hallazgoDoc) return hallazgoDoc.counts.total;
+  return null;
+}
+
+function hallazgoVerbTitle(item) {
+  const name = item.name || item.sku || "este producto";
+  if (item.decision === "RECOMPRAR") return `Recompra ${name}`;
+  if (item.decision === "PRECIO_BUENO") return `Caza precio bueno de ${name}`;
+  if (item.decision === "ESPERAR") return `Espera ${name}`;
+  if (item.decision === "NO") return `No recompras ${name}`;
+  return `Revisa a mano ${name}`;
+}
+
+function hallazgoTechoHtml(item) {
+  const cap = item.techo_mxn;
+  if (cap == null || cap <= 0) {
+    return `<p class="techo-block hallazgo-techo"><span class="techo-verb">Compra solo si no pasa de</span><span class="techo-amount techo-empty">—</span></p>`;
+  }
+  return `<p class="techo-block hallazgo-techo"><span class="techo-verb">Compra solo si no pasa de</span><span class="techo-amount">${esc(money0(cap))}</span></p>`;
+}
+
+function hallazgoGateChip(item) {
+  if (item.decision !== "RECOMPRAR" || item.gate_ok !== false) return "";
+  const reason = item.gate_reason_es || "No pasa el piso de ganancia/ROI";
+  return `<span class="gate-chip">${esc(reason)}</span>`;
+}
+
+function hallazgoSignal(item) {
+  const bits = [];
+  if (item.soh != null) bits.push(`existencias ${item.soh}`);
+  if (item.sales_30 != null) bits.push(`${item.sales_30} en 30d`);
+  if (item.sales_90 != null) bits.push(`${item.sales_90} en 90d`);
+  if (item.sales_total != null) bits.push(`${item.sales_total} hist`);
+  return bits.join(" · ");
+}
+
+function hallazgoMoney(item) {
+  const bits = [];
+  if (item.ganancia_estimada_mxn != null) bits.push(`ganas ~${money0(item.ganancia_estimada_mxn)}`);
+  if (item.roi_pct != null) bits.push(`ROI ~${Number(item.roi_pct).toFixed(0)}%`);
+  return bits.join(" · ");
+}
+
+function hallazgoMotor(item) {
+  const bits = [];
+  if (item.action_motor) bits.push(item.action_motor);
+  const order = item.suggested_order;
+  if (order != null && order > 0) bits.push(order === 1 ? "pide 1" : `pide ${order}`);
+  const qty = item.qty;
+  if (qty != null && qty > 0) bits.push(qty === 1 ? "1 pieza" : `${qty} piezas`);
+  return bits.join(" · ");
+}
+
+function hallazgoMatchesQuery(item, q) {
+  if (!q) return true;
+  const blob = [item.sku, item.upc, item.name, item.por_que, item.action_motor].join(" ").toLowerCase();
+  return blob.includes(q);
+}
+
+function filteredHallazgoItems() {
+  const items = (hallazgoDoc && hallazgoDoc.items) || [];
+  const q = hallazgoQuery.trim().toLowerCase();
+  return items.filter((it) => {
+    if (hallazgoFilter !== "ALL" && it.decision !== hallazgoFilter) return false;
+    return hallazgoMatchesQuery(it, q);
+  });
+}
+
+function sortHallazgoItems(items) {
+  return items.slice().sort((a, b) => {
+    const ga = a.ganancia_estimada_mxn;
+    const gb = b.ganancia_estimada_mxn;
+    if (ga != null && gb != null && gb !== ga) return gb - ga;
+    if (gb != null && ga == null) return 1;
+    if (ga != null && gb == null) return -1;
+    return String(a.sku).localeCompare(String(b.sku), "es-MX");
+  });
+}
+
+function groupedHallazgoItems(items) {
+  const groups = { RECOMPRAR: [], PRECIO_BUENO: [], ESPERAR: [], NO: [], MANUAL: [] };
+  for (const it of items) groups[it.decision].push(it);
+  for (const id of DECISION_IDS) groups[id] = sortHallazgoItems(groups[id]);
+  return groups;
+}
+
+function formatStamp(raw) {
+  const t = Date.parse(raw);
+  if (Number.isNaN(t)) return asText(raw);
+  try {
+    return new Intl.DateTimeFormat("es-MX", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(t));
+  } catch {
+    return asText(raw);
+  }
+}
+
+function hallazgoMetaLine() {
+  if (!hallazgoDoc) return "";
+  const g = hallazgoDoc.gate || {};
+  const bits = [];
+  if (g.ganancia_min_mxn != null && g.roi_min_pct != null) {
+    bits.push(`Piso Recomprar: gana ≥ ${money0(g.ganancia_min_mxn)} y ROI ≥ ${Number(g.roi_min_pct).toFixed(0)}%`);
+  }
+  if (hallazgoDoc.source_snapshot_at) bits.push("snapshot " + formatStamp(hallazgoDoc.source_snapshot_at));
+  if (hallazgoDoc.generated_at) bits.push("emitido " + formatStamp(hallazgoDoc.generated_at));
+  return bits.join(" · ");
+}
+
+function renderHallazgoCells(item) {
+  const gate = hallazgoGateChip(item);
+  const signal = hallazgoSignal(item);
+  const money = hallazgoMoney(item);
+  const motor = hallazgoMotor(item);
+  return {
+    sku: `<span class="h-sku">${esc(item.sku)}</span>${item.upc ? `<span class="h-upc">${esc(item.upc)}</span>` : ""}`,
+    name: `<h3 class="h-name">${esc(hallazgoVerbTitle(item))}</h3>${gate}`,
+    techo: hallazgoTechoHtml(item),
+    why: item.por_que ? `<p class="h-why">${esc(item.por_que)}</p>` : `<p class="h-why">Sin nota todavía.</p>`,
+    signal: signal ? `<p class="h-signal">${esc(signal)}</p>` : "",
+    money: money ? `<p class="h-money">${esc(money)}</p>` : "",
+    motor: motor ? `<p class="h-motor">${esc(motor)}</p>` : ""
+  };
+}
+
+function renderHallazgoRow(item) {
+  const c = renderHallazgoCells(item);
+  return `<tr data-sku="${esc(item.sku)}" data-decision="${esc(item.decision)}">
+    <td>${c.sku}</td>
+    <td><span class="badge ${esc(item.decision)}">${esc(decisionLabel(item.decision))}</span></td>
+    <td>${c.name}</td>
+    <td>${c.techo}</td>
+    <td>${c.why}${c.signal}${c.money}${c.motor}</td>
+  </tr>`;
+}
+
+function renderHallazgoCard(item) {
+  const c = renderHallazgoCells(item);
+  return `<article class="hallazgo-card" data-sku="${esc(item.sku)}" data-decision="${esc(item.decision)}">
+    <div class="badges"><span class="badge ${esc(item.decision)}">${esc(decisionLabel(item.decision))}</span></div>
+    <p class="index">${esc(item.sku)}${item.upc ? " · " + esc(item.upc) : ""}</p>
+    ${c.name}
+    ${c.techo}
+    ${c.why}
+    ${c.signal}
+    ${c.money}
+    ${c.motor}
+  </article>`;
+}
+
+function renderHallazgoGroup(id, items) {
+  const label = decisionLabel(id);
+  const empty = !items.length
+    ? `<div class="state"><h2>Ningún SKU en ${esc(label)}</h2><p>Esta decisión quedó vacía en el inventario.</p></div>`
+    : "";
+  const table = items.length
+    ? `<div class="hallazgo-scroll"><table class="hallazgo-table">
+        <thead><tr>
+          <th>SKU</th><th>Decisión</th><th>Qué hacer</th><th>Techo</th><th>Por qué</th>
+        </tr></thead>
+        <tbody>${items.map(renderHallazgoRow).join("")}</tbody>
+      </table></div>
+      <div class="hallazgo-cards">${items.map(renderHallazgoCard).join("")}</div>`
+    : empty;
+  return `<section class="hallazgo-group" data-decision="${esc(id)}">
+    <h2><span class="badge ${esc(id)}">${esc(label)}</span> ${items.length}</h2>
+    ${table}
+  </section>`;
+}
+
+function renderHallazgoFilters(counts) {
+  const allN = counts && counts.total != null ? counts.total : 0;
+  const chips = [
+    { id: "ALL", label: `Todas (${allN})` },
+    ...DECISIONS.map((d) => ({ id: d.id, label: `${d.label} (${(counts && counts[d.id]) || 0})` }))
+  ];
+  return `<div class="hallazgo-toolbar">
+    <div class="hallazgo-filters" role="group" aria-label="Filtra por decisión">
+      ${chips.map((c) =>
+        `<button type="button" class="tab${hallazgoFilter === c.id ? " active" : ""}" data-hallazgo-filter="${esc(c.id)}">${esc(c.label)}</button>`
+      ).join("")}
+    </div>
+    <input class="hallazgo-search" id="hallazgoSearch" type="search" placeholder="Busca SKU, UPC o nombre" value="${esc(hallazgoQuery)}" aria-label="Busca SKU, UPC o nombre">
+  </div>`;
+}
+
+function renderHallazgoBody() {
+  if (hallazgoStatus === "loading" || hallazgoStatus === "idle") {
+    return `<div class="state"><h2>Armando el catálogo de Hallazgo</h2><p>Estoy leyendo hallazgos_inventario.json.</p></div>
+      <div class="stack">${skelCardHtml()}${skelCardHtml()}</div>`;
+  }
+  if (hallazgoStatus === "missing") {
+    return `<div class="state">
+      <h2>Aún no llega el inventario</h2>
+      <p>Codex todavía está emitiendo hallazgos_inventario.json. Hoy, Más oportunidades y Ya decididas siguen igual.</p>
+      <div class="actions"><button type="button" class="btn-primary" id="retryHallazgo">Reintentar</button></div>
+    </div>`;
+  }
+  if (hallazgoStatus === "error") {
+    return `<div class="state">
+      <h2>No pude leer Hallazgo</h2>
+      <p>${esc(hallazgoError || "Algo falló al leer el catálogo.")} Hoy sigue intacto.</p>
+      <div class="actions"><button type="button" class="btn-primary" id="retryHallazgo">Reintentar</button></div>
+    </div>`;
+  }
+  const items = filteredHallazgoItems();
+  const counts = hallazgoDoc ? hallazgoDoc.counts : emptyHallazgoCounts();
+  const filters = renderHallazgoFilters(counts);
+  const meta = hallazgoMetaLine();
+  if (!items.length) {
+    const why = hallazgoQuery.trim()
+      ? "Ningún SKU coincide con esa búsqueda."
+      : (hallazgoFilter === "ALL" ? "Hallazgo llegó sin SKUs." : `Ningún SKU en ${decisionLabel(hallazgoFilter)}.`);
+    return `${filters}${meta ? `<p class="hallazgo-meta">${esc(meta)}</p>` : ""}
+      <div class="state"><h2>${esc(why)}</h2><p>Cambia el filtro o limpia la búsqueda.</p></div>`;
+  }
+  const groups = groupedHallazgoItems(items);
+  const order = hallazgoFilter === "ALL" ? DECISION_IDS : [hallazgoFilter];
+  return `${filters}${meta ? `<p class="hallazgo-meta">${esc(meta)}</p>` : ""}
+    ${order.map((id) => renderHallazgoGroup(id, groups[id] || [])).join("")}`;
+}
+
 function pageHeadline(tab, n) {
+  if (tab === TAB_HALLAZGO) {
+    if (hallazgoStatus === "missing") return "Aún no llega Hallazgo";
+    if (hallazgoStatus === "error") return "No pude leer Hallazgo";
+    if (hallazgoStatus === "loading" || hallazgoStatus === "idle") return "Armando Hallazgo";
+    if (!n) return "Hallazgo no tiene SKUs";
+    return n === 1 ? "Revisa 1 hallazgo" : `Revisa ${n} hallazgos`;
+  }
   if (tab === TAB_QUEUE) {
     if (!n) return "Sin más oportunidades";
     return n === 1 ? "1 oportunidad más" : `${n} oportunidades más`;
@@ -972,6 +1352,12 @@ function pageHeadline(tab, n) {
 }
 
 function pageLead(tab, cards, data) {
+  if (tab === TAB_HALLAZGO) {
+    if (hallazgoStatus === "missing") return "Codex todavía está emitiendo el JSON. El resto del radar no se toca.";
+    if (hallazgoStatus === "error") return "El catálogo nativo espera hallazgos_inventario.json. Reintenta cuando esté.";
+    if (hallazgoStatus === "loading" || hallazgoStatus === "idle") return "Traigo el catálogo de decisiones sin tocar Hoy.";
+    return "Filtra por Recomprar, Precio bueno, Esperar, No o Manual. El radar no compra solo.";
+  }
   if (tab === TAB_QUEUE) {
     if (!cards.length) return "Cuando haya cola, aparece aquí.";
     return "Otras oportunidades si te sobra tiempo.";
@@ -1069,7 +1455,8 @@ function rememberCards(data) {
 }
 
 function eyebrowHtml() {
-  return `<p class="eyebrow">Radar de rotación · Hoy</p>`;
+  const bit = activeTab === TAB_HALLAZGO ? "Hallazgo" : "Hoy";
+  return `<p class="eyebrow">Radar de rotación · ${bit}</p>`;
 }
 
 function skelCardHtml() {
@@ -1096,6 +1483,7 @@ function renderLoading() {
       <span class="skel skel-tab"></span>
       <span class="skel skel-tab"></span>
       <span class="skel skel-tab"></span>
+      <span class="skel skel-tab"></span>
     </div>
     <div class="stack">${skelCardHtml()}${skelCardHtml()}</div>`;
 }
@@ -1109,10 +1497,15 @@ function renderError(msg) {
 }
 
 function renderTabs(counts) {
+  const hallazgoN = hallazgoTabCount();
+  const hallazgoLabel = hallazgoStatus === "loading" || hallazgoStatus === "idle"
+    ? "Hallazgo (…)"
+    : `Hallazgo (${hallazgoN == null ? "—" : hallazgoN})`;
   const items = [
     { id: TAB_HOY, label: `Hoy (${counts.hoy})` },
     { id: TAB_QUEUE, label: `Más oportunidades (${counts.queue})` },
-    { id: TAB_DECIDED, label: `Ya decididas (${counts.decided})` }
+    { id: TAB_DECIDED, label: `Ya decididas (${counts.decided})` },
+    { id: TAB_HALLAZGO, label: hallazgoLabel }
   ];
   return `<div class="tabs" role="tablist">${items.map((t) =>
     `<button type="button" class="tab${activeTab === t.id ? " active" : ""}" role="tab" aria-selected="${activeTab === t.id ? "true" : "false"}" data-tab="${t.id}">${esc(t.label)}</button>`
@@ -1284,6 +1677,16 @@ function renderData(data) {
   const cards = cardsForActiveTab(data);
   const pendingDoc = readPending();
   const tabs = renderTabs(counts);
+  if (activeTab === TAB_HALLAZGO) {
+    const n = hallazgoStatus === "ok" && hallazgoDoc ? filteredHallazgoItems().length : 0;
+    const stamp = hallazgoDoc && (hallazgoDoc.generated_at || hallazgoDoc.source_snapshot_at);
+    return `${eyebrowHtml()}
+      <h1>${esc(pageHeadline(TAB_HALLAZGO, hallazgoDoc ? hallazgoDoc.counts.total : n))}</h1>
+      <p class="lead">${esc(pageLead(TAB_HALLAZGO, [], data))}</p>
+      ${tabs}
+      ${renderHallazgoBody()}
+      <footer>Actualizado ${esc(stamp || data.generated_at || data.date || "")} · el radar nunca compra solo · <button type="button" class="text-link" id="resetHidden">Ver de nuevo</button></footer>`;
+  }
   let body;
   if (!cards.length) {
     let reason = null;
@@ -1844,15 +2247,56 @@ function openPurchaseModal(cardEl) {
   qtyEl.focus();
 }
 
-function wire(root) {
-  root.querySelectorAll("[data-tab]").forEach((btn) => {
+function setActiveTab(next) {
+  if (!next || next === activeTab) return;
+  activeTab = next;
+  try {
+    const hash = next === TAB_HOY ? "" : "#" + next;
+    history.replaceState(null, "", hash ? hash : (location.pathname + location.search));
+  } catch (_) { /* ignore */ }
+  if (cachedData) paint(cachedData);
+}
+
+function tabFromHash() {
+  const h = String(location.hash || "").replace(/^#/, "").toLowerCase();
+  if (h === TAB_HALLAZGO || h === "hallazgos") return TAB_HALLAZGO;
+  if (h === TAB_QUEUE || h === "queue") return TAB_QUEUE;
+  if (h === TAB_DECIDED || h === "decided") return TAB_DECIDED;
+  return TAB_HOY;
+}
+
+function wireHallazgo(root) {
+  root.querySelectorAll("[data-hallazgo-filter]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      const next = btn.getAttribute("data-tab");
-      if (!next || next === activeTab) return;
-      activeTab = next;
+      const next = btn.getAttribute("data-hallazgo-filter") || "ALL";
+      if (next === hallazgoFilter) return;
+      hallazgoFilter = next;
       if (cachedData) paint(cachedData);
     });
   });
+  const search = root.querySelector("#hallazgoSearch");
+  if (search) {
+    search.addEventListener("input", () => {
+      hallazgoQuery = search.value || "";
+      if (cachedData) paint(cachedData);
+      const again = document.getElementById("hallazgoSearch");
+      if (again) {
+        again.focus();
+        const len = again.value.length;
+        try { again.setSelectionRange(len, len); } catch (_) { /* ignore */ }
+      }
+    });
+  }
+  document.getElementById("retryHallazgo")?.addEventListener("click", () => { loadHallazgo(); });
+}
+
+function wire(root) {
+  root.querySelectorAll("[data-tab]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      setActiveTab(btn.getAttribute("data-tab"));
+    });
+  });
+  wireHallazgo(root);
   root.querySelectorAll(".card").forEach((card) => {
     card.addEventListener("click", async (ev) => {
       const copyBtn = ev.target.closest("button[data-act='copy-ctx']");
@@ -1915,7 +2359,9 @@ function wire(root) {
 function paint(data) {
   rememberCards(data);
   const app = document.getElementById("app");
+  app.classList.toggle("wide", activeTab === TAB_HALLAZGO);
   app.innerHTML = renderData(data);
+  document.title = activeTab === TAB_HALLAZGO ? "Radar de rotación · Hallazgo" : "Radar de rotación · Hoy";
   wire(app);
   document.getElementById("resetHidden")?.addEventListener("click", radarResetHidden);
   document.getElementById("exportCsv")?.addEventListener("click", exportQueueCsv);
@@ -1940,6 +2386,29 @@ function radarResetHidden() {
   else load();
 }
 
+async function loadHallazgo() {
+  hallazgoStatus = "loading";
+  hallazgoError = "";
+  try {
+    const res = await fetch(HALLAZGO_URL, { cache: "no-store" });
+    if (res.status === 404) {
+      hallazgoDoc = null;
+      hallazgoStatus = "missing";
+      return;
+    }
+    if (!res.ok) throw new Error("No encontré hallazgos_inventario.json");
+    const raw = await res.json();
+    hallazgoDoc = normalizeHallazgoDoc(raw);
+    hallazgoStatus = "ok";
+  } catch (e) {
+    hallazgoDoc = null;
+    hallazgoStatus = "error";
+    hallazgoError = (e && e.message) || "No pude leer el catálogo.";
+  } finally {
+    if (cachedData) paint(cachedData);
+  }
+}
+
 async function loadCompanionPending() {
   try {
     const res = await fetch(PENDING_FILE_URL, { cache: "no-store" });
@@ -1953,7 +2422,9 @@ async function loadCompanionPending() {
 
 async function load() {
   const app = document.getElementById("app");
+  activeTab = tabFromHash();
   app.innerHTML = renderLoading();
+  loadHallazgo();
   try {
     const res = await fetch(JSON_URL, { cache: "no-store" });
     if (!res.ok) throw new Error("No encontré el archivo del día");
@@ -1967,6 +2438,13 @@ async function load() {
     document.getElementById("retry")?.addEventListener("click", load);
   }
 }
+
+window.addEventListener("hashchange", () => {
+  const next = tabFromHash();
+  if (next === activeTab) return;
+  activeTab = next;
+  if (cachedData) paint(cachedData);
+});
 
 load();
 </script>
