@@ -47,6 +47,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Set De Biberones Options + 4 Oz Rosa 0 A",
       "unit_margin": 180.9,
+      "upc": "72239315347",
       "why": {
         "detail": "No lo has vendido en los últimos 30 días y ya no te queda ninguna. Comprándolo en $440 o menos, cada pieza te deja cerca de $181.",
         "max_landed_cost": 440,
@@ -105,6 +106,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Soporte Vertical Ventilador Blanco Usb X",
       "unit_margin": 215.08,
+      "upc": "6972520253614",
       "why": {
         "detail": "No lo has vendido en los últimos 30 días y ya no te queda ninguna. Comprándolo en $335 o menos, cada pieza te deja cerca de $215.",
         "max_landed_cost": 335,
@@ -163,6 +165,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Mouse Pulsefire Core RGB Gaming - HyperX",
       "unit_margin": 164.49,
+      "upc": "740617279078",
       "why": {
         "detail": "No lo has vendido en los últimos 30 días y ya no te queda ninguna. Comprándolo en $363 o menos, cada pieza te deja cerca de $164.",
         "max_landed_cost": 363,
@@ -177,6 +180,10 @@
     }
   ],
   "contracts": {
+    "card_identity": {
+      "sku": "str required",
+      "upc": "str|null — UPC/EAN del inventario si existe (tipado). FE: preferir shopping_url del emisor para Buscar precio (ya concatena name+upc)."
+    },
     "gate": {
       "fields": {
         "gate_codes": "list[str] — todas las fallas: sin_margen | bajo_120 | roi_bajo_30",
@@ -278,6 +285,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Lentes para Eclipse Solar 1 Pieza - Amer",
       "unit_margin": 92.4,
+      "upc": "748486120026",
       "why": {
         "detail": "No lo has vendido en los últimos 30 días y ya no te queda ninguna. Comprándolo en $72 o menos, cada pieza te deja cerca de $92.",
         "max_landed_cost": 72,
@@ -340,6 +348,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Peluche de Juguete The Child Talking Plu",
       "unit_margin": 177.03,
+      "upc": "5010993761500",
       "why": {
         "detail": "No lo has vendido en los últimos 30 días y ya no te queda ninguna. Comprándolo en $329 o menos, cada pieza te deja cerca de $177.",
         "max_landed_cost": 329,
@@ -430,6 +439,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Jurassic World Cráneo T. Rex 76964 577 P",
       "unit_margin": 64.56,
+      "upc": "673419388399",
       "why": {
         "detail": "Vendiste 1 pieza en los últimos 30 días y ya no te queda ninguna. Comprándolo en $663 o menos, cada pieza te deja cerca de $65.",
         "max_landed_cost": 663,
@@ -492,6 +502,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Casa De Muñecas Gabby Purrfect Dollhouse",
       "unit_margin": 500.89,
+      "upc": "778988374122",
       "why": {
         "detail": "No lo has vendido en los últimos 30 días y ya no te queda ninguna. Comprándolo en $1,000 o menos, cada pieza te deja cerca de $501.",
         "max_landed_cost": 1000,
@@ -554,6 +565,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Figura Coleccionable Star Wars Grogu 3+ ",
       "unit_margin": 150.52,
+      "upc": "889698502115",
       "why": {
         "detail": "No lo has vendido en los últimos 30 días y ya no te queda ninguna. Comprándolo en $289 o menos, cada pieza te deja cerca de $151.",
         "max_landed_cost": 289,
@@ -618,6 +630,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Peluche De Pomni The Amazing Digital Cir",
       "unit_margin": 103.32,
+      "upc": "9361452000002",
       "why": {
         "detail": "No lo has vendido en los últimos 30 días y ya no te queda ninguna. Comprándolo en $60 o menos, cada pieza te deja cerca de $103.",
         "max_landed_cost": 60,
@@ -682,6 +695,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Peluche Jax The Amazing Digital Circus G",
       "unit_margin": 46.99,
+      "upc": "ARFPLU026",
       "why": {
         "detail": "No lo has vendido en los últimos 30 días y ya no te queda ninguna. Comprándolo en $0 o menos, cada pieza te deja cerca de $47.",
         "max_landed_cost": 0,
@@ -800,6 +814,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Lentes para Eclipse Solar 1 Pieza - Amer",
       "unit_margin": 92.4,
+      "upc": "748486120026",
       "why": {
         "detail": "No lo has vendido en los últimos 30 días y ya no te queda ninguna. Comprándolo en $72 o menos, cada pieza te deja cerca de $92.",
         "max_landed_cost": 72,
@@ -862,6 +877,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Peluche de Juguete The Child Talking Plu",
       "unit_margin": 177.03,
+      "upc": "5010993761500",
       "why": {
         "detail": "No lo has vendido en los últimos 30 días y ya no te queda ninguna. Comprándolo en $329 o menos, cada pieza te deja cerca de $177.",
         "max_landed_cost": 329,
@@ -952,6 +968,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Jurassic World Cráneo T. Rex 76964 577 P",
       "unit_margin": 64.56,
+      "upc": "673419388399",
       "why": {
         "detail": "Vendiste 1 pieza en los últimos 30 días y ya no te queda ninguna. Comprándolo en $663 o menos, cada pieza te deja cerca de $65.",
         "max_landed_cost": 663,
@@ -1014,6 +1031,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Casa De Muñecas Gabby Purrfect Dollhouse",
       "unit_margin": 500.89,
+      "upc": "778988374122",
       "why": {
         "detail": "No lo has vendido en los últimos 30 días y ya no te queda ninguna. Comprándolo en $1,000 o menos, cada pieza te deja cerca de $501.",
         "max_landed_cost": 1000,
@@ -1076,6 +1094,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Figura Coleccionable Star Wars Grogu 3+ ",
       "unit_margin": 150.52,
+      "upc": "889698502115",
       "why": {
         "detail": "No lo has vendido en los últimos 30 días y ya no te queda ninguna. Comprándolo en $289 o menos, cada pieza te deja cerca de $151.",
         "max_landed_cost": 289,
@@ -1140,6 +1159,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Peluche De Pomni The Amazing Digital Cir",
       "unit_margin": 103.32,
+      "upc": "9361452000002",
       "why": {
         "detail": "No lo has vendido en los últimos 30 días y ya no te queda ninguna. Comprándolo en $60 o menos, cada pieza te deja cerca de $103.",
         "max_landed_cost": 60,
@@ -1204,6 +1224,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Peluche Jax The Amazing Digital Circus G",
       "unit_margin": 46.99,
+      "upc": "ARFPLU026",
       "why": {
         "detail": "No lo has vendido en los últimos 30 días y ya no te queda ninguna. Comprándolo en $0 o menos, cada pieza te deja cerca de $47.",
         "max_landed_cost": 0,
@@ -1265,6 +1286,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Panda Juguete De Peluche Aprendizaje Mus",
       "unit_margin": 228.59,
+      "upc": "887961819458",
       "why": {
         "detail": "No lo has vendido en los últimos 30 días y ya no te queda ninguna. Comprándolo en $621 o menos, cada pieza te deja cerca de $229.",
         "max_landed_cost": 621,
@@ -1323,6 +1345,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Lanzador Rival Roundhouse XX1500 - Nerf",
       "unit_margin": 379.56,
+      "upc": "630509951680",
       "why": {
         "detail": "No lo has vendido en los últimos 30 días y ya no te queda ninguna. Comprándolo en $509 o menos, cada pieza te deja cerca de $380.",
         "max_landed_cost": 509,
@@ -1381,6 +1404,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Baby Cojín de Actividades 0m+ Oso Perezo",
       "unit_margin": 278.91,
+      "upc": "887961910261",
       "why": {
         "detail": "No lo has vendido en los últimos 30 días y ya no te queda ninguna. Comprándolo en $579 o menos, cada pieza te deja cerca de $279.",
         "max_landed_cost": 579,
@@ -1439,6 +1463,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Rompecabezas Cubos De Madera Granja 16 P",
       "unit_margin": 236.17,
+      "upc": "000772007757",
       "why": {
         "detail": "Vendiste 1 pieza en los últimos 30 días y ya no te queda ninguna. Comprándolo en $296 o menos, cada pieza te deja cerca de $236.",
         "max_landed_cost": 296,
@@ -1497,6 +1522,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Figura Coleccionable DANDADAN Okarun +3 ",
       "unit_margin": 301.33,
+      "upc": "889698906678",
       "why": {
         "detail": "Vendiste 1 pieza en los últimos 30 días y ya no te queda ninguna. Comprándolo en $462 o menos, cada pieza te deja cerca de $301.",
         "max_landed_cost": 462,
@@ -1555,6 +1581,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Juguete Tienda De Modas City Life 100Pzs",
       "unit_margin": 249.77,
+      "upc": "4008789700179",
       "why": {
         "detail": "No lo has vendido en los últimos 30 días y ya no te queda ninguna. Comprándolo en $625 o menos, cada pieza te deja cerca de $250.",
         "max_landed_cost": 625,
@@ -1613,6 +1640,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Accesorio Ventilador TP5-3538 para PS5 S",
       "unit_margin": 160.67,
+      "upc": "6972520256646",
       "why": {
         "detail": "No lo has vendido en los últimos 30 días y ya no te queda ninguna. Comprándolo en $240 o menos, cada pieza te deja cerca de $161.",
         "max_landed_cost": 240,
@@ -1671,6 +1699,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Cafetera Todo en Uno Café y Espresso COM",
       "unit_margin": 1479.44,
+      "upc": "044387153003",
       "why": {
         "detail": "No lo has vendido en los últimos 30 días y ya no te queda ninguna. Comprándolo en $3,061 o menos, cada pieza te deja cerca de $1,479.",
         "max_landed_cost": 3061,
@@ -1729,6 +1758,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Mascotas Rastreador GPS a Prueba de Agua",
       "unit_margin": 1043.77,
+      "upc": "9120056451005",
       "why": {
         "detail": "No lo has vendido en los últimos 30 días y ya no te queda ninguna. Comprándolo en $1,159 o menos, cada pieza te deja cerca de $1,044.",
         "max_landed_cost": 1159,
@@ -1787,6 +1817,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Comfort Grip Pikachu Nintendo - Power A",
       "unit_margin": 215.15,
+      "upc": "617885024283",
       "why": {
         "detail": "No lo has vendido en los últimos 30 días y ya no te queda ninguna. Comprándolo en $334 o menos, cada pieza te deja cerca de $215.",
         "max_landed_cost": 334,
@@ -1845,6 +1876,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Juego de Mesa de Estrategia Azul 8+ - Ne",
       "unit_margin": 189.13,
+      "upc": "826956600107",
       "why": {
         "detail": "No lo has vendido en los últimos 30 días y ya no te queda ninguna. Comprándolo en $602 o menos, cada pieza te deja cerca de $189.",
         "max_landed_cost": 602,
@@ -1903,6 +1935,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Juguete Color Reveal 2Pack - Hot Wheels",
       "unit_margin": 164.02,
+      "upc": "887961977776",
       "why": {
         "detail": "No lo has vendido en los últimos 30 días y ya no te queda ninguna. Comprándolo en $193 o menos, cada pieza te deja cerca de $164.",
         "max_landed_cost": 193,
@@ -1961,6 +1994,7 @@
       "tipo": "BUSCAR",
       "title": "Busca proveedor · Peluche Jax Kawaii The Amazing Digital C",
       "unit_margin": 209.34,
+      "upc": "ARFPLU027",
       "why": {
         "detail": "No lo has vendido en los últimos 30 días y ya no te queda ninguna. Comprándolo en $235 o menos, cada pieza te deja cerca de $209.",
         "max_landed_cost": 235,
@@ -1974,7 +2008,7 @@
       "why_line": "0·30d / soh 0 / techo $235"
     }
   ],
-  "schema": "arfershop.radar.hoy_3_tarjetas.v10",
+  "schema": "arfershop.radar.hoy_3_tarjetas.v11",
   "skus": [
     "01BX001",
     "10EU001",
