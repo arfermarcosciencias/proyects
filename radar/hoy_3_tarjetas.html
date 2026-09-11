@@ -5,12 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 <meta name="theme-color" content="#f3f7fb"/>
 <title>Radar de rotación · Hoy</title>
+<link rel="icon" type="image/png" href="./icono_radar_rotacion_GO_v2.png"/>
+<link rel="apple-touch-icon" href="./icono_radar_rotacion_GO_v2.png"/>
 <style>
   :root {
     --bg:#eef2f6; --card:#fff; --text:#0f172a; --muted:#64748b; --muted-2:#94a3b8;
     --evidence:#334155;
     --line:#e2e8f0; --green:#166534; --green-bg:#dcfce7; --blue:#1d4ed8; --blue-bg:#dbeafe;
     --amber:#9a3412; --amber-bg:#ffedd5; --pending:#166534; --pending-bg:#dcfce7;
+    --phone:#1e3a5f; --phone-bg:#e8eef6;
     --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Helvetica,Arial,sans-serif;
     --wrap:min(1120px, calc(100% - 32px));
     --radius:18px;
@@ -29,7 +32,7 @@
   .stack{display:grid;grid-template-columns:1fr;gap:16px;margin-top:18px}
   .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:0 10px 30px rgba(15,23,42,.05)}
   .card.done,.card.skipped{opacity:.5}
-  .card.pending-buy{opacity:1;box-shadow:0 0 0 2px #bbf7d0, 0 10px 30px rgba(15,23,42,.05)}
+  .card.pending-buy,.card.registered-buy{opacity:1;box-shadow:0 0 0 2px #bbf7d0, 0 10px 30px rgba(15,23,42,.05)}
   .badges{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:12px}
   .badge{display:inline-flex;align-items:center;font-size:11px;font-weight:750;letter-spacing:.08em;padding:5px 10px;border-radius:999px}
   .badge.BUSCAR{color:#6d28d9;background:#f3e8ff}
@@ -37,12 +40,19 @@
   .badge.REPONER{color:#1d4ed8;background:#dbeafe}
   .badge.ESTRELLA{color:#a16207;background:#fef9c3}
   .badge.CASHFLOW{color:#166534;background:#dcfce7}
-  .gate-chip,.pending-chip{
+  .gate-chip,.pending-chip,.registered-chip,.phone-chip{
     display:inline-flex;align-items:center;min-height:28px;font-size:12px;font-weight:750;
     padding:4px 10px;border-radius:999px;letter-spacing:.01em;
   }
   .gate-chip{color:var(--amber);background:var(--amber-bg)}
-  .pending-chip{color:var(--pending);background:var(--pending-bg)}
+  .pending-chip,.registered-chip{color:var(--pending);background:var(--pending-bg)}
+  .phone-chip{color:var(--phone);background:var(--phone-bg)}
+  .techo-block{margin:0 0 10px}
+  .techo-verb{display:block;font-size:13px;font-weight:650;color:var(--muted);margin-bottom:4px}
+  .techo-amount{display:block;font-size:clamp(32px,5.2vw,46px);line-height:1.05;font-weight:800;letter-spacing:-.04em;color:var(--green)}
+  .techo-extra{display:block;margin-top:4px;font-size:13px;font-weight:650;color:var(--muted)}
+  .csv-bar{display:flex;justify-content:flex-end;margin:12px 0 0}
+  .sync-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;max-width:420px}
   .row{display:flex;gap:16px;align-items:flex-start}
   .photo{width:112px;height:112px;object-fit:cover;border-radius:14px;background:#f1f5f9;flex:0 0 auto}
   .photo.ph{display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--muted);text-align:center;padding:8px}
@@ -159,7 +169,10 @@
 <script>
 const JSON_URL = "./hoy_3_tarjetas.json";
 const PENDING_FILE_URL = "./purchases_pending.json";
-const LOCAL_API = "http://127.0.0.1:8766/api/actions";
+const LOCAL_HOST = "http://127.0.0.1:8766";
+const LOCAL_API = LOCAL_HOST + "/api/actions";
+const HEALTH_URL = LOCAL_HOST + "/api/health";
+const PENDING_POST_URL = LOCAL_HOST + "/api/purchases_pending";
 const WEEKLY_CEILING = 2500;
 const PENDING_KEY = "radar-hoy:purchases_pending:v1";
 const INBOX_KEY = "radar-hoy:pages_action_inbox:v1";
@@ -168,7 +181,15 @@ const DEFAULT_STORES = [
   { value: "Amazon", label: "Amazon" },
   { value: "ML", label: "Mercado Libre" }
 ];
-const WAITING_MAC = "Anotada · esperando Mac";
+const REGISTERED_SHORT = "Registrada";
+const REGISTERED_MAC = "Quedó anotada en Mac";
+const PHONE_SYNC = "Anotada en el teléfono/Pages · abre el Radar en la Mac para sincronizar";
+const CSV_COLS = [
+  "sku", "upc", "title", "tipo", "action", "qty", "gate_ok", "gate_reason_es",
+  "ganancia_estimada_mxn", "roi_pct", "max_landed_cost", "alert_price", "unit_margin",
+  "soh", "sales_30", "sales_90", "sales_total", "supplier_name", "shopping_url",
+  "marketplace_url", "done_id", "priority_top3"
+];
 const HIDE_DAYS = { purchased: 7, not_found: 3, tomorrow: 1, descartado: 30, done: 1, skip: 1 };
 const OUTCOME_TEXT = {
   purchased: "Anotado como comprado",
@@ -341,17 +362,23 @@ function compraSiNoPasa(card) {
   return cap == null ? "" : `Compra solo si no pasa de ${money0(cap)}`;
 }
 
-function priceGoalLine(card) {
-  const base = compraSiNoPasa(card);
-  if (!base) return null;
+function techoExtra(card) {
   const g = estimatedGain(card);
   const r = estimatedRoi(card);
-  if (g != null && r != null) {
-    return `${base} — ganas ~${money0(g)} (ROI ~${Number(r).toFixed(0)}%)`;
+  if (g != null && r != null) return `ganas ~${money0(g)} (ROI ~${Number(r).toFixed(0)}%)`;
+  if (g != null) return `ganas ~${money0(g)}`;
+  if (r != null) return `mantén un ROI de ~${Number(r).toFixed(0)}%`;
+  return "";
+}
+
+function techoHtml(card) {
+  const cap = capAmount(card);
+  const extra = techoExtra(card);
+  if (cap == null) {
+    const plata = plataLine(card);
+    return plata ? `<p class="plata">${esc(plata)}</p>` : "";
   }
-  if (g != null) return `${base} — ganas ~${money0(g)}`;
-  if (r != null) return `${base} — mantén un ROI de ~${Number(r).toFixed(0)}%`;
-  return base;
+  return `<p class="techo-block"><span class="techo-verb">Compra solo si no pasa de</span><span class="techo-amount">${esc(money0(cap))}</span>${extra ? `<span class="techo-extra">${esc(extra)}</span>` : ""}</p>`;
 }
 
 function suggestedQty(card) {
@@ -652,6 +679,24 @@ function waitingPurchaseForCard(card) {
   return isWaitingPurchase(item) ? item : null;
 }
 
+function isImportedPurchase(item) {
+  return !!item && String(item.status || "").toLowerCase() === "imported";
+}
+
+function livePurchaseForCard(card) {
+  return purchaseForCard(card);
+}
+
+function purchaseBits(purchase) {
+  if (!purchase) return "";
+  const qty = Number(purchase.qty) || 1;
+  const piezas = qty === 1 ? "1 pieza" : qty + " piezas";
+  const paid = purchaseTotal(purchase);
+  const store = purchase.store ? ` · ${purchase.store}` : "";
+  const paidTxt = paid ? ` · ${money0(paid)}` : "";
+  return `${piezas}${paidTxt}${store}`;
+}
+
 function readInbox() {
   try {
     const raw = JSON.parse(localStorage.getItem(INBOX_KEY) || "null");
@@ -774,7 +819,7 @@ function ceilingLine(items) {
 function statusMessage(st) {
   if (!st) return "";
   const base = OUTCOME_TEXT[st.outcome] || localizeToken(st.outcome) || "Guardado";
-  if (st.outcome === "purchased") return WAITING_MAC;
+  if (st.outcome === "purchased") return REGISTERED_SHORT;
   const days = st.hide_days;
   return days ? `${base} · no vuelve por ${days} días` : base;
 }
@@ -902,20 +947,10 @@ function defaultStore(card) {
   return "otro";
 }
 
-function trailLine(purchase) {
-  if (!purchase) return "";
-  const qty = Number(purchase.qty) || 1;
-  const piezas = qty === 1 ? "1 pieza" : qty + " piezas";
-  const paid = purchaseTotal(purchase);
-  const store = purchase.store ? ` · ${purchase.store}` : "";
-  const paidTxt = paid ? ` · ${money0(paid)}` : "";
-  return `${WAITING_MAC} · ${piezas}${paidTxt}${store}`;
-}
-
 function pendingStatusLabel(status) {
   const s = String(status || "pending").toLowerCase();
-  if (s === "pending" || s === "") return "esperando Mac";
-  if (s === "imported") return "ya en Mac";
+  if (s === "imported") return REGISTERED_MAC;
+  if (s === "pending" || s === "") return "anotada en Pages";
   return status;
 }
 
@@ -924,29 +959,45 @@ function renderCard(card, i, opts) {
   const name = productName(card);
   const id = cardId(card);
   const st = readState(id);
-  const purchase = waitingPurchaseForCard(card);
-  const pending = !!purchase;
-  const cls = pending ? "pending-buy" : (!st ? "" : (st.outcome === "skip" ? "skipped" : "done"));
+  const purchase = livePurchaseForCard(card);
+  const imported = isImportedPurchase(purchase);
+  const pending = !!purchase && !imported;
+  const hideBuy = !!purchase;
+  const cls = purchase ? (imported ? "registered-buy" : "pending-buy") : (!st ? "" : (st.outcome === "skip" ? "skipped" : "done"));
   const img = photoHtml(card);
-  const plata = plataLine(card);
-  const goal = priceGoalLine(card);
   const ev = evidenceLine(card.evidence);
   const locked = decided || (!!st && isHidden(st));
   const stores = storeLinks(card);
   const storeHtml = stores.map((u) => `<a class="ghost" href="${esc(u.url)}" target="_blank" rel="noopener">${esc(u.label)}</a>`).join("");
   const parkLine = decided ? decidedMetaLine(card) : "";
   const reason = gateReason(card);
-  const canComprar = !decided && !pending && showComprarCta(card);
+  const canComprar = !decided && !hideBuy && showComprarCta(card);
   const tipo = cardAction(card) || "BUSCAR";
-  const statusFromCard = decided
-    ? (statusMessage(st) || (card.outcome ? (OUTCOME_TEXT[card.outcome] || localizeToken(card.outcome)) : "") || "Ya decidida")
-    : (pending ? trailLine(purchase) : statusMessage(st));
-  const showStatus = decided || pending || !!st;
+  const bits = purchaseBits(purchase);
+  let statusFromCard;
+  if (decided) {
+    statusFromCard = statusMessage(st) || (card.outcome ? (OUTCOME_TEXT[card.outcome] || localizeToken(card.outcome)) : "") || "Ya decidida";
+  } else if (imported) {
+    statusFromCard = bits ? `${REGISTERED_MAC} · ${bits}` : REGISTERED_MAC;
+  } else if (pending) {
+    statusFromCard = bits ? `${PHONE_SYNC} · ${bits}` : PHONE_SYNC;
+  } else {
+    statusFromCard = statusMessage(st);
+  }
+  const showStatus = decided || hideBuy || !!st;
   let actionsHtml;
   if (decided) {
     actionsHtml = `<p class="status show" data-status>${esc(statusFromCard)}</p>`;
-  } else if (pending) {
+  } else if (imported) {
     actionsHtml = `<p class="status show" data-status>${esc(statusFromCard)}</p>`;
+  } else if (pending) {
+    actionsHtml = `<p class="trail">${esc(PHONE_SYNC)}</p>
+      <p class="status show" data-status>${esc(bits)}</p>
+      <div class="sync-actions">
+        <button type="button" class="btn-comprar" data-act="retry-sync">Reintentar</button>
+        <button type="button" class="btn-secondary" data-act="copy-pending">Copiar JSON</button>
+        <button type="button" class="ghost-btn" data-act="dl-pending">Bajar JSON</button>
+      </div>`;
   } else {
     actionsHtml = `${canComprar ? `<div class="actions with-comprar">
         <button type="button" class="btn-comprar" data-act="comprar" ${locked ? "disabled" : ""}>COMPRAR</button>
@@ -966,24 +1017,26 @@ function renderCard(card, i, opts) {
     </div>
     <p class="status ${showStatus ? "show" : ""}" data-status>${esc(statusFromCard)}</p>`;
   }
+  const stateChip = imported
+    ? `<span class="registered-chip">${esc(REGISTERED_SHORT)}</span>`
+    : (pending ? `<span class="phone-chip">Anotada en Pages</span>` : "");
 
   return `<article class="card ${cls}" data-done-id="${esc(id)}" data-context="${esc(contextText(card))}" data-sku="${esc(card.sku || "")}" data-action-key="${esc(id)}" data-tab-kind="${decided ? "decided" : "active"}" data-gate-ok="${card.gate_ok === true ? "true" : card.gate_ok === false ? "false" : ""}" data-can-comprar="${canComprar ? "true" : "false"}">
     <div class="badges">
       <span class="badge ${esc(tipo)}">${esc(tipo)}</span>
-      ${!pending && !canComprar && reason ? `<span class="gate-chip">${esc(reason)}</span>` : ""}
-      ${pending ? `<span class="pending-chip">${esc(WAITING_MAC)}</span>` : ""}
+      ${!hideBuy && !canComprar && reason ? `<span class="gate-chip">${esc(reason)}</span>` : ""}
+      ${stateChip}
     </div>
     <div class="row">
       ${img}
       <div class="copy">
         <p class="index">#${i + 1} · ${esc(card.sku || "")}</p>
         <h2 class="title" title="${esc(verbTitle(card))}">${esc(verbTitle(card))}</h2>
-        ${goal ? `<p class="plata">${esc(goal)}</p>` : (plata ? `<p class="plata">${esc(plata)}</p>` : "")}
+        ${techoHtml(card)}
         <p class="qty-advice">${esc(qtyAdviceLine(card))}</p>
         <p class="why"><strong>Por qué:</strong> ${esc(whyText(card))}</p>
         ${ev ? `<p class="evidence">${esc(ev)}</p>` : ""}
         ${decided && parkLine ? `<p class="park-meta">${esc(parkLine)}</p>` : ""}
-        ${pending && !decided ? `<p class="trail">${esc(trailLine(purchase))}</p>` : ""}
       </div>
     </div>
     <div class="links">
@@ -998,16 +1051,22 @@ function renderCard(card, i, opts) {
 }
 
 function renderPendingStrip(items) {
-  const live = (items || []).filter((x) => x.status !== "cancelled");
+  const live = (items || []).filter((x) => x && x.status !== "cancelled");
   if (!live.length) return "";
   const lis = live.slice(0, 8).map((it) => {
     const qty = Number(it.qty) || 1;
     const paid = purchaseTotal(it);
     return `<li>${esc(it.sku || "")} · ${qty} pza${qty === 1 ? "" : "s"}${paid ? " · " + money0(paid) : ""}${it.store ? " · " + esc(it.store) : ""} · ${esc(pendingStatusLabel(it.status))}</li>`;
   }).join("");
-  return `<section class="pending-strip" aria-label="Anotadas · esperando Mac">
-    <h2>Anotadas · esperando Mac (${live.length})</h2>
+  const needRetry = live.some((it) => !isImportedPurchase(it));
+  return `<section class="pending-strip" aria-label="Compras anotadas">
+    <h2>Compras anotadas (${live.length})</h2>
     <ul>${lis}</ul>
+    ${needRetry ? `<div class="sync-actions">
+      <button type="button" class="btn-comprar" id="retryAllSync">Reintentar</button>
+      <button type="button" class="btn-secondary" id="copyPendingJson">Copiar JSON</button>
+      <button type="button" class="ghost-btn" id="dlPendingJson">Bajar JSON</button>
+    </div>` : ""}
   </section>`;
 }
 
@@ -1050,6 +1109,7 @@ function renderData(data) {
     <p class="lead">${esc(pageLead(activeTab, cards, data))}</p>
     ${ceiling}
     ${tabs}
+    ${activeTab === TAB_QUEUE ? `<div class="csv-bar"><button type="button" class="ghost-btn" id="exportCsv">Exportar CSV</button></div>` : ""}
     ${body}
     ${strip}
     <footer>Actualizado ${esc(data.generated_at || data.date || "")} · el radar nunca compra solo · <button type="button" class="text-link" id="resetHidden">Ver de nuevo</button></footer>`;
@@ -1059,10 +1119,131 @@ async function mirrorLocal(payload) {
   try {
     await fetch(LOCAL_API, {
       method: "POST",
+      mode: "cors",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
   } catch (_) { /* silencioso — Pages no depende de :8766 */ }
+}
+
+async function macHealth() {
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 1600);
+    const res = await fetch(HEALTH_URL, { method: "GET", mode: "cors", cache: "no-store", signal: ctrl.signal });
+    clearTimeout(t);
+    if (!res.ok) return { ok: false };
+    const data = await res.json().catch(() => ({}));
+    return { ok: data.ok !== false, data };
+  } catch (_) {
+    return { ok: false };
+  }
+}
+
+function responseImported(res, data) {
+  if (!res || (res.status !== 200 && res.status !== 201)) return false;
+  if (data && data.imported != null && Number(data.imported) > 0) return true;
+  if (data && Array.isArray(data.items) && data.items.some((x) => String(x && x.status).toLowerCase() === "imported")) return true;
+  if (data && data.item && String(data.item.status).toLowerCase() === "imported") return true;
+  if (res.status === 201) return true;
+  if (res.status === 200 && data && data.ok === true) return true;
+  return false;
+}
+
+async function postPurchasePending(item) {
+  const res = await fetch(PENDING_POST_URL, {
+    method: "POST",
+    mode: "cors",
+    cache: "no-store",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ item })
+  });
+  const data = await res.json().catch(() => ({}));
+  return { ok: res.ok, status: res.status, imported: responseImported(res, data), data };
+}
+
+async function syncPurchaseToMac(item) {
+  const health = await macHealth();
+  if (!health.ok) return { ok: false, reason: "mac_off" };
+  try {
+    const posted = await postPurchasePending(item);
+    if (posted.imported) return { ok: true, imported: true, data: posted.data };
+    return { ok: false, reason: "post_fail", data: posted.data };
+  } catch (_) {
+    return { ok: false, reason: "network" };
+  }
+}
+
+function markSynced(item, imported) {
+  const next = { ...item, status: imported ? "imported" : (item.status || "pending") };
+  if (imported) {
+    next.synced_at = new Date().toISOString();
+    delete next.mac_offline;
+  } else {
+    next.mac_offline = true;
+  }
+  upsertPurchase(next);
+  return next;
+}
+
+function csvCell(v) {
+  const s = v == null ? "" : String(v);
+  if (/[",\n\r]/.test(s)) return `"${s.replace(/"/g, "\"\"")}"`;
+  return s;
+}
+
+function queueCsv(data) {
+  const rows = (data && Array.isArray(data.queue) ? data.queue : []).map((c) => CSV_COLS.map((k) => {
+    if (k === "upc") return cardUpc(c);
+    if (k === "title") return productName(c);
+    if (k === "tipo" || k === "action") return cardAction(c) || asText(c[k]);
+    if (k === "unit_margin") return c.unit_margin != null ? c.unit_margin : (c.evidence && c.evidence.unit_margin);
+    if (k === "soh") return c.soh != null ? c.soh : (c.evidence && c.evidence.soh);
+    if (k === "sales_30") return c.sales_30 != null ? c.sales_30 : (c.evidence && c.evidence.sales_30);
+    if (k === "sales_90") return c.sales_90 != null ? c.sales_90 : (c.evidence && c.evidence.sales_90);
+    return c[k];
+  }));
+  return "\uFEFF" + [CSV_COLS.join(","), ...rows.map((r) => r.map(csvCell).join(","))].join("\n");
+}
+
+function downloadText(filename, text, mime) {
+  const blob = new Blob([text], { type: mime || "text/plain;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 400);
+}
+
+function exportQueueCsv() {
+  if (!cachedData) return;
+  downloadText("radar-mas-oportunidades.csv", queueCsv(cachedData), "text/csv;charset=utf-8");
+}
+
+function pendingJsonText() {
+  return JSON.stringify(readPending(), null, 2);
+}
+
+async function copyPendingJson() {
+  try {
+    await navigator.clipboard.writeText(pendingJsonText());
+  } catch (_) {
+    downloadText("purchases_pending.json", pendingJsonText(), "application/json");
+  }
+}
+
+async function retrySyncItem(item) {
+  if (!item) return item;
+  const sync = await syncPurchaseToMac(item);
+  return markSynced(item, !!(sync.ok && sync.imported));
+}
+
+async function retryAllPending() {
+  const items = readPending().items.filter((x) => x && x.status !== "cancelled" && !isImportedPurchase(x));
+  for (const item of items) await retrySyncItem(item);
+  if (cachedData) paint(cachedData);
 }
 
 function lockCard(cardEl, outcome, extra) {
@@ -1143,7 +1324,7 @@ function storeSelectHtml(selected) {
 function openPurchaseModal(cardEl) {
   const id = cardEl.getAttribute("data-done-id");
   const card = cardById.get(id);
-  if (!card || !showComprarCta(card) || waitingPurchaseForCard(card)) return;
+  if (!card || !showComprarCta(card) || livePurchaseForCard(card)) return;
   lastFocus = document.activeElement;
   const existing = purchaseForCard(card) || {};
   const qty = existing.qty || suggestedQty(card);
@@ -1222,7 +1403,7 @@ function openPurchaseModal(cardEl) {
   totalEl.addEventListener("input", () => syncTotal("total"));
   qtyEl.addEventListener("input", () => syncTotal("qty"));
   root.querySelectorAll("[data-close]").forEach((el) => el.addEventListener("click", closeModal));
-  root.querySelector("#buy-form").addEventListener("submit", (ev) => {
+  root.querySelector("#buy-form").addEventListener("submit", async (ev) => {
     ev.preventDefault();
     const qty = Number(qtyEl.value);
     const unit = unitEl.value === "" ? null : Number(unitEl.value);
@@ -1254,7 +1435,9 @@ function openPurchaseModal(cardEl) {
     };
     upsertPurchase(item);
     closeModal();
-    lockCard(cardEl, "purchased", { purchase: item });
+    const sync = await syncPurchaseToMac(item);
+    const saved = markSynced(item, !!(sync.ok && sync.imported));
+    lockCard(cardEl, "purchased", { purchase: saved });
   });
   qtyEl.focus();
 }
@@ -1283,6 +1466,25 @@ function wire(root) {
         }
         return;
       }
+      const retryBtn = ev.target.closest("button[data-act='retry-sync']");
+      if (retryBtn) {
+        const cardObj = cardById.get(card.getAttribute("data-done-id"));
+        await retrySyncItem(livePurchaseForCard(cardObj));
+        if (cachedData) paint(cachedData);
+        return;
+      }
+      const copyPend = ev.target.closest("button[data-act='copy-pending']");
+      if (copyPend) {
+        await copyPendingJson();
+        copyPend.textContent = "Copiado";
+        setTimeout(() => { copyPend.textContent = "Copiar JSON"; }, 1200);
+        return;
+      }
+      const dlPend = ev.target.closest("button[data-act='dl-pending']");
+      if (dlPend) {
+        downloadText("purchases_pending.json", pendingJsonText(), "application/json");
+        return;
+      }
       if (card.getAttribute("data-tab-kind") === "decided") return;
       const buyBtn = ev.target.closest("button[data-act='comprar']");
       const doneBtn = ev.target.closest("button[data-act='done']");
@@ -1308,6 +1510,12 @@ function paint(data) {
   app.innerHTML = renderData(data);
   wire(app);
   document.getElementById("resetHidden")?.addEventListener("click", radarResetHidden);
+  document.getElementById("exportCsv")?.addEventListener("click", exportQueueCsv);
+  document.getElementById("retryAllSync")?.addEventListener("click", retryAllPending);
+  document.getElementById("copyPendingJson")?.addEventListener("click", copyPendingJson);
+  document.getElementById("dlPendingJson")?.addEventListener("click", () => {
+    downloadText("purchases_pending.json", pendingJsonText(), "application/json");
+  });
 }
 
 function radarResetHidden() {
