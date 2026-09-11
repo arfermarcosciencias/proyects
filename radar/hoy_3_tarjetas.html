@@ -183,7 +183,7 @@ const DEFAULT_STORES = [
 ];
 const ANOTADA_SHORT = "Anotada";
 const REGISTERED_SHORT = "Registrada";
-const REGISTERED_MAC = "Quedó anotada en Mac";
+const REGISTERED_MAC = "Registrada en Mac";
 const PHONE_SYNC = "Anotada en el teléfono/Pages · abre el Radar en la Mac para sincronizar";
 const CSV_COLS = [
   "sku", "upc", "title", "tipo", "action", "qty", "gate_ok", "gate_reason_es",
@@ -659,33 +659,45 @@ function upsertPurchase(item) {
   return writePending(doc);
 }
 
-function purchaseForCard(card) {
-  const id = cardId(card);
-  const sku = card && card.sku;
-  return readPending().items.find((x) =>
-    x.status !== "cancelled" &&
-    x.sku === sku &&
-    String(x.done_id || x.action_key || "") === id
-  ) || null;
+function purchaseStatusOf(item) {
+  const s = String((item && item.status) || "pending").trim().toLowerCase();
+  return s || "pending";
 }
 
 function isWaitingPurchase(item) {
   if (!item) return false;
-  const s = String(item.status || "pending").toLowerCase();
-  return s === "pending" || s === "";
-}
-
-function waitingPurchaseForCard(card) {
-  const item = purchaseForCard(card);
-  return isWaitingPurchase(item) ? item : null;
+  const s = purchaseStatusOf(item);
+  return s === "pending" || s === "undefined";
 }
 
 function isImportedPurchase(item) {
-  return !!item && String(item.status || "").toLowerCase() === "imported";
+  return !!item && purchaseStatusOf(item) === "imported";
+}
+
+function isCancelledPurchase(item) {
+  return !!item && purchaseStatusOf(item) === "cancelled";
+}
+
+function matchPurchase(item, card) {
+  if (!item || !card || isCancelledPurchase(item)) return false;
+  if (item.sku !== card.sku) return false;
+  return String(item.done_id || item.action_key || "") === cardId(card);
+}
+
+function purchaseForCard(card) {
+  return readPending().items.find((x) => matchPurchase(x, card) && isWaitingPurchase(x)) || null;
+}
+
+function importedPurchaseForCard(card) {
+  return readPending().items.find((x) => matchPurchase(x, card) && isImportedPurchase(x)) || null;
+}
+
+function waitingPurchaseForCard(card) {
+  return purchaseForCard(card);
 }
 
 function livePurchaseForCard(card) {
-  return purchaseForCard(card);
+  return purchaseForCard(card) || importedPurchaseForCard(card);
 }
 
 function dismissLocalPurchase(card) {
@@ -975,10 +987,12 @@ function renderCard(card, i, opts) {
   const name = productName(card);
   const id = cardId(card);
   const st = readState(id);
-  const purchase = livePurchaseForCard(card);
-  const imported = isImportedPurchase(purchase);
-  const pending = !!purchase && !imported;
-  const hideBuy = !!purchase;
+  const pendingItem = purchaseForCard(card);
+  const importedItem = importedPurchaseForCard(card);
+  const purchase = pendingItem || importedItem;
+  const imported = !!importedItem && !pendingItem;
+  const pending = !!pendingItem;
+  const hideBuy = pending || imported;
   const cls = purchase ? (imported ? "registered-buy" : "pending-buy") : (!st ? "" : (st.outcome === "skip" ? "skipped" : "done"));
   const img = photoHtml(card);
   const ev = evidenceLine(card.evidence);
@@ -1037,9 +1051,7 @@ function renderCard(card, i, opts) {
     </div>
     <p class="status ${showStatus ? "show" : ""}" data-status>${esc(statusFromCard)}</p>`;
   }
-  const stateChip = imported
-    ? `<span class="registered-chip">${esc(REGISTERED_SHORT)}</span>`
-    : (pending ? `<span class="phone-chip">${esc(ANOTADA_SHORT)}</span>` : "");
+  const stateChip = pending ? `<span class="phone-chip">${esc(ANOTADA_SHORT)}</span>` : "";
 
   return `<article class="card ${cls}" data-done-id="${esc(id)}" data-context="${esc(contextText(card))}" data-sku="${esc(card.sku || "")}" data-action-key="${esc(id)}" data-tab-kind="${decided ? "decided" : "active"}" data-gate-ok="${card.gate_ok === true ? "true" : card.gate_ok === false ? "false" : ""}" data-can-comprar="${canComprar ? "true" : "false"}">
     <div class="badges">
