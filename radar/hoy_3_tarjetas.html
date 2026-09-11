@@ -248,6 +248,7 @@ const TAB_DECIDED = "decided";
 let cachedData = null;
 let activeTab = TAB_HOY;
 let cardById = new Map();
+let offerBySku = new Map();
 let lastFocus = null;
 
 const money0 = (n) => new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(Number(n));
@@ -396,6 +397,13 @@ function parseMoney(v) {
   return Number.isFinite(n) ? n : null;
 }
 
+function firstDefined(...vals) {
+  for (const v of vals) {
+    if (v != null && v !== "") return v;
+  }
+  return undefined;
+}
+
 function offerStatus(raw) {
   return String(raw || "").trim().toUpperCase().replace(/[\s-]+/g, "_");
 }
@@ -417,11 +425,11 @@ function pickOfferObject(card) {
 
 function computeFoundLanded(offer) {
   if (!offer) return null;
-  const direct = parseMoney(offer.found_landed);
+  const direct = parseMoney(firstDefined(offer.found_landed, offer.found_landed_cost_mxn));
   if (direct != null) return direct;
-  const item = parseMoney(offer.item_price);
-  const ship = parseMoney(offer.shipping);
-  const fees = parseMoney(offer.fees);
+  const item = parseMoney(firstDefined(offer.item_price, offer.found_product_price_mxn));
+  const ship = parseMoney(firstDefined(offer.shipping, offer.found_shipping_mxn));
+  const fees = parseMoney(firstDefined(offer.fees, offer.found_import_fees_mxn, offer.found_other_mandatory_costs_mxn));
   if (item == null && ship == null && fees == null) return null;
   return (item || 0) + (ship || 0) + (fees || 0);
 }
@@ -429,10 +437,11 @@ function computeFoundLanded(offer) {
 function normalizeExternalOffer(raw, card) {
   if (!raw || typeof raw !== "object") return null;
   const status = offerStatus(raw.status);
-  const found_url = asText(raw.found_url || raw.url || raw.offer_url);
-  const store = asText(raw.store || raw.tienda);
+  const found_url = asText(firstDefined(raw.found_url, raw.url, raw.offer_url));
+  const store = asText(firstDefined(raw.store, raw.found_supplier, raw.tienda));
   const found_landed = computeFoundLanded(raw);
   if (!status && !found_url && found_landed == null && !store) return null;
+  const qty = Number(firstDefined(raw.suggested_qty, raw.qty));
   return {
     offer_id: asText(raw.offer_id) || undefined,
     export_id: asText(raw.export_id) || undefined,
@@ -440,13 +449,15 @@ function normalizeExternalOffer(raw, card) {
     status: status || undefined,
     found_url: found_url || undefined,
     store: store || undefined,
-    item_price: parseMoney(raw.item_price),
-    shipping: parseMoney(raw.shipping),
-    fees: parseMoney(raw.fees),
+    item_price: parseMoney(firstDefined(raw.item_price, raw.found_product_price_mxn)),
+    shipping: parseMoney(firstDefined(raw.shipping, raw.found_shipping_mxn)),
+    fees: parseMoney(firstDefined(raw.fees, raw.found_import_fees_mxn)),
     found_landed,
     currency: asText(raw.currency) || "MXN",
-    max_landed_at_import: parseMoney(raw.max_landed_at_import),
-    imported_at: asText(raw.imported_at) || undefined
+    max_landed_at_import: parseMoney(firstDefined(raw.max_landed_at_import, raw.max_landed)),
+    below_limit_mxn: parseMoney(raw.below_limit_mxn),
+    suggested_qty: Number.isFinite(qty) && qty >= 1 ? qty : undefined,
+    imported_at: asText(firstDefined(raw.imported_at, raw.found_checked_at)) || undefined
   };
 }
 
@@ -467,11 +478,18 @@ function writeOfferOverlays(bySku) {
   }));
 }
 
+function rootActiveOffers(data) {
+  const raw = data && data.external_offers_active;
+  return Array.isArray(raw) ? raw : [];
+}
+
 function cardExternalOffer(card) {
   const embedded = normalizeExternalOffer(pickOfferObject(card), card);
   if (embedded) return embedded;
   const sku = card && asText(card.sku);
   if (!sku) return null;
+  const fromRoot = offerBySku.get(sku);
+  if (fromRoot) return normalizeExternalOffer(fromRoot, card);
   return normalizeExternalOffer(readOfferOverlays()[sku], card);
 }
 
@@ -479,10 +497,17 @@ function isOfertaEncontrada(offer) {
   return !!offer && offerStatus(offer.status) === OFFER_FOUND;
 }
 
+function offerCap(card, offer) {
+  const cap = capAmount(card);
+  if (cap != null) return cap;
+  if (offer && offer.max_landed_at_import != null) return offer.max_landed_at_import;
+  return null;
+}
+
 function offerLandedHtml(card, offer) {
   if (!isOfertaEncontrada(offer)) return "";
   const landed = offer.found_landed;
-  const cap = capAmount(card);
+  const cap = offerCap(card, offer);
   if (landed == null && !offer.store) return "";
   const bits = [];
   if (landed != null) bits.push(`Precio encontrado / landed: ${money0(landed)}`);
@@ -1025,8 +1050,17 @@ function cardsForActiveTab(data) {
   return filterVisible(lists.cards);
 }
 
+function rememberRootOffers(data) {
+  offerBySku = new Map();
+  for (const o of rootActiveOffers(data)) {
+    const sku = o && asText(o.sku);
+    if (sku && !offerBySku.has(sku)) offerBySku.set(sku, o);
+  }
+}
+
 function rememberCards(data) {
   cardById = new Map();
+  rememberRootOffers(data);
   const lists = tabLists(data);
   for (const c of [...lists.cards, ...lists.queue, ...lists.decided, ...(data.cards || []), ...(data.parked || [])]) {
     const id = cardId(c);
@@ -1476,11 +1510,11 @@ function importOfferRows(text) {
     export_id: idx("export_id"),
     sku: idx("sku"),
     found_url: idx("found_url", "url", "offer_url"),
-    store: idx("store", "tienda"),
-    item_price: idx("item_price", "precio", "precio_visto"),
-    shipping: idx("shipping", "envio", "envío"),
-    fees: idx("fees", "comision", "comisión"),
-    found_landed: idx("found_landed", "landed", "precio_encontrado"),
+    store: idx("store", "found_supplier", "tienda"),
+    item_price: idx("item_price", "found_product_price_mxn", "precio", "precio_visto"),
+    shipping: idx("shipping", "found_shipping_mxn", "envio", "envío"),
+    fees: idx("fees", "found_import_fees_mxn", "comision", "comisión"),
+    found_landed: idx("found_landed", "found_landed_cost_mxn", "landed", "precio_encontrado"),
     status: idx("status", "estado")
   };
   if (col.sku < 0) return { applied: 0, skipped: 0, error: "Falta la columna sku" };
@@ -1672,10 +1706,10 @@ function openPurchaseModal(cardEl) {
   if (!card || !showComprarCta(card) || livePurchaseForCard(card)) return;
   lastFocus = document.activeElement;
   const existing = purchaseForCard(card) || {};
-  const qty = existing.qty || suggestedQty(card);
-  const cap = card.max_landed_cost != null ? card.max_landed_cost : card.alert_price;
   const offer = cardExternalOffer(card);
   const offerFound = isOfertaEncontrada(offer);
+  const qty = existing.qty || (offerFound && offer.suggested_qty) || suggestedQty(card);
+  const cap = offerCap(card, offerFound ? offer : null);
   if (offerFound && offer.store) rememberCustomStore(offer.store);
   const landedPrefill = offerFound && offer.found_landed != null ? offer.found_landed : null;
   const storeVal = inferStoreValue(card, existing.store || (offerFound ? offer.store : ""));

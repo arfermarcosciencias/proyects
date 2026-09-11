@@ -24,6 +24,7 @@ MARKERS = [
     ("Exportar CSV", r"Exportar CSV"),
     ("Importar CSV", r"Importar CSV"),
     ("external_offer overlay", r"external_offer"),
+    ("external_offers_active", r"external_offers_active"),
     ("OFERTA_ENCONTRADA", r"OFERTA_ENCONTRADA"),
     ("Oferta encontrada chip", r"Oferta encontrada"),
     ("ABRIR offer", r">ABRIR<"),
