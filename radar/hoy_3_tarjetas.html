@@ -47,10 +47,13 @@
   .gate-chip{color:var(--amber);background:var(--amber-bg)}
   .pending-chip,.registered-chip{color:var(--pending);background:var(--pending-bg)}
   .phone-chip{color:var(--phone);background:var(--phone-bg)}
-  .techo-block{margin:0 0 10px}
-  .techo-verb{display:block;font-size:13px;font-weight:650;color:var(--muted);margin-bottom:4px}
-  .techo-amount{display:block;font-size:clamp(32px,5.2vw,46px);line-height:1.05;font-weight:800;letter-spacing:-.04em;color:var(--green)}
-  .techo-extra{display:block;margin-top:4px;font-size:13px;font-weight:650;color:var(--muted)}
+  .techo-block{margin:2px 0 12px}
+  .techo-verb{display:block;font-size:12px;font-weight:650;color:var(--muted);margin-bottom:2px;letter-spacing:.01em}
+  .techo-amount{
+    display:block;font-size:clamp(40px,7vw,56px);line-height:.95;font-weight:800;
+    letter-spacing:-.045em;color:var(--green);font-variant-numeric:tabular-nums;
+  }
+  .techo-extra{display:block;margin-top:6px;font-size:13px;font-weight:650;color:var(--muted)}
   .csv-bar{display:flex;justify-content:flex-end;margin:12px 0 0}
   .sync-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;max-width:420px}
   .row{display:flex;gap:16px;align-items:flex-start}
@@ -1039,10 +1042,7 @@ function renderCard(card, i, opts) {
   if (decided) {
     actionsHtml = `<p class="status show" data-status>${esc(statusFromCard)}</p>`;
   } else if (imported) {
-    actionsHtml = `<p class="status show" data-status>${esc(statusFromCard)}</p>
-      <div class="sync-actions">
-        <button type="button" class="btn-secondary" data-act="dismiss-pending">Quitar aviso</button>
-      </div>`;
+    actionsHtml = `<p class="status show" data-status>${esc(statusFromCard)}</p>`;
   } else if (pending) {
     actionsHtml = `<p class="status show" data-status>${esc(ANOTADA_SHORT)}${bits ? " · " + esc(bits) : ""}</p>
       <p class="trail">${esc(PHONE_SYNC)}</p>
