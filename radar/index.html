@@ -597,9 +597,16 @@ function descartadoWithin30d(card) {
   return false;
 }
 
+function localOutcome(card) {
+  const st = readState(cardId(card));
+  return normTag(st && st.outcome) || normTag(card && card.outcome);
+}
+
 function isOperatorPaused(card) {
   const reason = normTag(card && card.reason);
   if (reason === "pause" || reason === "paused" || reason === "pausada") return true;
+  const outcome = localOutcome(card);
+  if (outcome === "skip" || outcome === "tomorrow" || outcome === "not_found") return true;
   const note = asText(card && card.park_note).toLowerCase();
   return /operador|pausa/.test(note);
 }
@@ -617,11 +624,8 @@ function pauseReasonBlob(card) {
 
 function cardPayout(card) {
   if (!card || typeof card !== "object") return null;
-  const bags = [card, card.economics, card.evidence, card.why];
-  const keys = [
-    "payout", "payout_mxn", "net_payout", "net_payout_mxn",
-    "sale_price", "sale_price_mxn", "precio_venta", "ml_payout"
-  ];
+  const bags = [card, card.economics, card.evidence];
+  const keys = ["payout", "payout_mxn", "net_payout", "net_payout_mxn"];
   for (const bag of bags) {
     if (!bag || typeof bag !== "object") continue;
     for (const k of keys) {
@@ -699,8 +703,12 @@ function canResucitar(card) {
   if (hasNuncaTag(card)) return { ok: false, why: "nunca" };
   if (descartadoWithin30d(card)) return { ok: false, why: "descartado_30d" };
   const offer = cardExternalOffer(card);
-  if (!passesResurgeNumbers(card, offer)) return { ok: false, why: "piso" };
   if (!isOfertaEncontrada(offer)) return { ok: false, why: "sin_oferta" };
+  const cap = offerCap(card, offer);
+  if (offer.found_landed != null && cap != null && offer.found_landed > cap) {
+    return { ok: false, why: "sobre_techo" };
+  }
+  if (!passesResurgeNumbers(card, offer)) return { ok: false, why: "piso" };
   const paused = isOperatorPaused(card);
   const cured = paused && offerCuresPause(card, offer);
   if (paused && !cured) return { ok: false, why: "pausa_no_curada" };

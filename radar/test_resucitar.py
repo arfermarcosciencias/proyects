@@ -91,10 +91,6 @@ def card_payout(card: dict) -> float | None:
             "payout_mxn",
             "net_payout",
             "net_payout_mxn",
-            "sale_price",
-            "sale_price_mxn",
-            "precio_venta",
-            "ml_payout",
         ):
             v = bag.get(key)
             if v is None:
@@ -176,6 +172,12 @@ def can_resucitar(card: dict, offer: dict | None) -> bool:
         return False
     if str(card.get("outcome") or "").lower() == "descartado":
         return False
+    if not offer or str(offer.get("status") or "").upper() != "OFERTA_ENCONTRADA":
+        return False
+    landed = offer.get("found_landed")
+    cap = card.get("max_landed_cost")
+    if landed is not None and cap is not None and float(landed) > float(cap):
+        return False
     if not passes_numbers(card, offer):
         return False
     if not offer_cures(card, offer):
@@ -202,6 +204,7 @@ def check_spa_markers(html: str, errors: list[str]) -> None:
         ("cardPayout", r"function cardPayout\("),
         ("resurgidoCandidates", r"function resurgidoCandidates\("),
         ("hasLocalDecision", r"function hasLocalDecision\("),
+        ("skip is pause", r'outcome === "skip"'),
         ("util_post", r"util_post"),
         ("roi_post", r"roi_post"),
         ("afterOfferImport paints", r"function afterOfferImport\([\s\S]{0,240}paint\("),
