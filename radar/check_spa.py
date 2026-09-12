@@ -53,6 +53,18 @@ MARKERS = [
     ("decision MANUAL", r"MANUAL"),
     ("Hallazgo 404 copy", r"Codex todavía está emitiendo"),
     ("Hallazgo techo verb", r"Compra solo si no pasa de"),
+    ("queue csv filename", r"radar-mas-oportunidades\.csv"),
+    ("hallazgo csv filename", r"radar-hallazgo\.csv"),
+    ("HALLAZGO_CSV_COLS", r"HALLAZGO_CSV_COLS"),
+    ("hallazgoCsv", r"function hallazgoCsv\("),
+    ("exportHallazgoCsv", r"function exportHallazgoCsv\("),
+    ("copyHallazgoCsv", r"function copyHallazgoCsv\("),
+    ("exportHallazgo button", r"id=[\"']exportHallazgoCsv[\"']"),
+    ("copyHallazgo button", r"id=[\"']copyHallazgoCsv[\"']"),
+    ("Hallazgo Solo filtro", r"Solo filtro"),
+    ("Hallazgo CSV Todos", r"data-hallazgo-csv-scope=[\"']all[\"']"),
+    ("oferta_encontrada column", r"oferta_encontrada"),
+    ("queue Importar still present", r"id=[\"']importCsv[\"']"),
 ]
 
 BANNED = [
@@ -63,6 +75,7 @@ BANNED = [
     ("small-file data URI CSV", r"text\.length\s*<\s*800000"),
     ("hidden download anchor display:none", r"a\.style\.display\s*=\s*['\"]none['\"]"),
     ("data URI href download", r"a\.href\s*=\s*['\"]data:"),
+    ("Hallazgo Import this PR", r"importHallazgoCsv|id=[\"']importHallazgoCsv[\"']"),
 ]
 
 
@@ -109,6 +122,41 @@ def check_download_text(path: Path, html: str, errors: list[str]) -> None:
         errors.append(f"{path.name}: downloadText must revoke object URL after ≥4s")
     if "copyCsv" in html and "copyQueueCsv" not in html:
         errors.append(f"{path.name}: #copyCsv present but copyQueueCsv missing")
+    if "copyHallazgoCsv" in html and "function copyHallazgoCsv(" not in html:
+        errors.append(f"{path.name}: #copyHallazgoCsv present but copyHallazgoCsv missing")
+    if "radar-mas-oportunidades.csv" not in html:
+        errors.append(f"{path.name}: queue CSV filename radar-mas-oportunidades.csv must stay")
+
+
+LOCKED_HALLAZGO_CSV = (
+    "sku",
+    "upc",
+    "estado",
+    "qty",
+    "techo",
+    "landed",
+    "margen",
+    "gate_ok",
+    "why",
+    "url_amazon",
+    "url_ml",
+    "url_oferta",
+    "notas",
+    "oferta_encontrada",
+)
+
+
+def check_hallazgo_csv_cols(path: Path, html: str, errors: list[str]) -> None:
+    block = re.search(r"const HALLAZGO_CSV_COLS = \[(.*?)\]", html, re.S)
+    if not block:
+        errors.append(f"{path.name}: missing HALLAZGO_CSV_COLS")
+        return
+    headers = re.findall(r'header:\s*"([^"]+)"', block.group(1))
+    missing = [h for h in LOCKED_HALLAZGO_CSV if h not in headers]
+    if missing:
+        errors.append(f"{path.name}: HALLAZGO_CSV_COLS missing locked column(s) {missing}")
+    if "radar-hallazgo.csv" not in html:
+        errors.append(f"{path.name}: Hallazgo export must use radar-hallazgo.csv")
 
 
 def check(path: Path, html: str, errors: list[str]) -> None:
@@ -123,6 +171,7 @@ def check(path: Path, html: str, errors: list[str]) -> None:
     if "<script>" not in html:
         errors.append(f"{path.name}: missing <script> (not the ritual SPA)")
     check_download_text(path, html, errors)
+    check_hallazgo_csv_cols(path, html, errors)
 
 
 def main() -> int:

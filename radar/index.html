@@ -121,6 +121,8 @@
     background:var(--blue);color:#fff;border:1px solid var(--blue);cursor:pointer;
   }
   .csv-status{margin:0;flex:1 1 100%;font-size:13px;font-weight:650;color:var(--muted)}
+  .hallazgo-csv-scope{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .hallazgo-csv-scope .tab{min-width:44px}
   .radar-toast{
     position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(8px);
     z-index:60;background:var(--blue);color:#fff;font-size:14px;font-weight:700;
@@ -292,6 +294,24 @@ const CSV_COLS = [
   { key: "sales_30", header: "sales_30" },
   { key: "sales_90", header: "sales_90" }
 ];
+const HALLAZGO_CSV_COLS = [
+  { key: "sku", header: "sku" },
+  { key: "upc", header: "upc" },
+  { key: "name", header: "name" },
+  { key: "estado", header: "estado" },
+  { key: "qty", header: "qty" },
+  { key: "techo", header: "techo" },
+  { key: "landed", header: "landed" },
+  { key: "margen", header: "margen" },
+  { key: "gate_ok", header: "gate_ok" },
+  { key: "why", header: "why" },
+  { key: "url_amazon", header: "url_amazon" },
+  { key: "url_ml", header: "url_ml" },
+  { key: "url_oferta", header: "url_oferta" },
+  { key: "notas", header: "notas" },
+  { key: "oferta_encontrada", header: "oferta_encontrada" }
+];
+const HALLAZGO_CSV_FILE = "radar-hallazgo.csv";
 const HIDE_DAYS = { purchased: 7, not_found: 3, tomorrow: 1, descartado: 30, done: 1, skip: 1 };
 const OUTCOME_TEXT = {
   purchased: "Anotado como comprado",
@@ -341,6 +361,7 @@ let hallazgoStatus = "idle";
 let hallazgoError = "";
 let hallazgoFilter = "ALL";
 let hallazgoQuery = "";
+let hallazgoCsvScope = "filter";
 
 const money0 = (n) => new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(Number(n));
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1087,7 +1108,12 @@ function normalizeHallazgoItem(raw) {
     gate_ok: raw.gate_ok === true ? true : raw.gate_ok === false ? false : null,
     gate_reason_es: asText(raw.gate_reason_es),
     action_motor: asText(raw.action_motor),
-    suggested_order: numOrNull(raw.suggested_order)
+    suggested_order: numOrNull(raw.suggested_order),
+    found_landed: numOrNull(firstDefined(raw.found_landed, raw.found_landed_cost_mxn, raw.ganancia)),
+    url_amazon: asText(firstDefined(raw.url_amazon, raw.shopping_url)),
+    url_ml: asText(firstDefined(raw.url_ml, raw.marketplace_url)),
+    url_oferta: asText(firstDefined(raw.url_oferta, raw.found_url, raw.offer_url)),
+    notas: asText(firstDefined(raw.notas, raw.notes))
   };
 }
 
@@ -1197,6 +1223,12 @@ function filteredHallazgoItems() {
     if (hallazgoFilter !== "ALL" && it.decision !== hallazgoFilter) return false;
     return hallazgoMatchesQuery(it, q);
   });
+}
+
+function hallazgoCsvItems() {
+  const items = (hallazgoDoc && hallazgoDoc.items) || [];
+  if (hallazgoFilter === "ALL" || hallazgoCsvScope === "all") return items.slice();
+  return items.filter((it) => it.decision === hallazgoFilter);
 }
 
 function sortHallazgoItems(items) {
@@ -1316,6 +1348,32 @@ function renderHallazgoFilters(counts) {
   </div>`;
 }
 
+function hallazgoCsvStatusText() {
+  const n = hallazgoCsvItems().length;
+  const filtered = hallazgoFilter !== "ALL" && hallazgoCsvScope !== "all";
+  if (filtered) {
+    const label = decisionLabel(hallazgoFilter);
+    return n === 1 ? `1 ${label}` : `${n} ${label}`;
+  }
+  return n === 1 ? "1 hallazgo" : `${n} hallazgos`;
+}
+
+function renderHallazgoCsvBar() {
+  if (hallazgoStatus !== "ok" || !hallazgoDoc) return "";
+  const scope = hallazgoFilter !== "ALL"
+    ? `<div class="hallazgo-csv-scope" role="group" aria-label="Alcance del CSV">
+        <button type="button" class="tab${hallazgoCsvScope !== "all" ? " active" : ""}" data-hallazgo-csv-scope="filter">Solo filtro</button>
+        <button type="button" class="tab${hallazgoCsvScope === "all" ? " active" : ""}" data-hallazgo-csv-scope="all">Todos</button>
+      </div>`
+    : "";
+  return `<div class="csv-bar" role="group" aria-label="CSV Hallazgo">
+    <button type="button" class="ghost-btn" id="exportHallazgoCsv">Exportar CSV</button>
+    <button type="button" class="csv-copy" id="copyHallazgoCsv">Copiar CSV</button>
+    ${scope}
+    <p class="csv-status" id="hallazgoCsvStatus">${esc(`Archivo ${HALLAZGO_CSV_FILE} · ${hallazgoCsvStatusText()}`)}</p>
+  </div>`;
+}
+
 function renderHallazgoBody() {
   if (hallazgoStatus === "loading" || hallazgoStatus === "idle") {
     return `<div class="state"><h2>Armando el catálogo de Hallazgo</h2><p>Estoy leyendo hallazgos_inventario.json.</p></div>
@@ -1377,7 +1435,7 @@ function pageLead(tab, cards, data) {
     if (hallazgoStatus === "missing") return "Codex todavía está emitiendo el JSON. El resto del radar no se toca.";
     if (hallazgoStatus === "error") return "El catálogo nativo espera hallazgos_inventario.json. Reintenta cuando esté.";
     if (hallazgoStatus === "loading" || hallazgoStatus === "idle") return "Traigo el catálogo de decisiones sin tocar Hoy.";
-    return "Filtra por Recomprar, Precio bueno, Esperar, No o Manual. El radar no compra solo.";
+    return "Filtra por Recomprar, Precio bueno, Esperar, No o Manual. Exporta o copia el CSV para ChatGPT. El radar no compra solo.";
   }
   if (tab === TAB_QUEUE) {
     if (!cards.length) return "Cuando haya cola, aparece aquí.";
@@ -1705,6 +1763,7 @@ function renderData(data) {
       <h1>${esc(pageHeadline(TAB_HALLAZGO, hallazgoDoc ? hallazgoDoc.counts.total : n))}</h1>
       <p class="lead">${esc(pageLead(TAB_HALLAZGO, [], data))}</p>
       ${tabs}
+      ${renderHallazgoCsvBar()}
       ${renderHallazgoBody()}
       <footer>Actualizado ${esc(stamp || data.generated_at || data.date || "")} · el radar nunca compra solo · <button type="button" class="text-link" id="resetHidden">Ver de nuevo</button></footer>`;
   }
@@ -1873,6 +1932,72 @@ function queueCsv(data) {
   const rows = (data && Array.isArray(data.queue) ? data.queue : []).map((c) => CSV_COLS.map((col) => csvValue(c, col.key, ctx)));
   const header = CSV_COLS.map((col) => col.header).join(",");
   return "\uFEFF" + [header, ...rows.map((r) => r.map(csvCell).join(","))].join("\n");
+}
+
+function lookupCardBySku(sku) {
+  const key = asText(sku);
+  if (!key) return null;
+  for (const card of cardById.values()) {
+    if (asText(card.sku) === key) return card;
+  }
+  if (!cachedData) return null;
+  const lists = tabLists(cachedData);
+  const bags = [...lists.cards, ...lists.queue, ...lists.decided, ...(cachedData.cards || []), ...(cachedData.parked || [])];
+  return bags.find((c) => asText(c.sku) === key) || null;
+}
+
+function hallazgoOfferForItem(item) {
+  const sku = asText(item && item.sku);
+  const card = lookupCardBySku(sku);
+  if (card) {
+    const embedded = cardExternalOffer(card);
+    if (embedded) return embedded;
+  }
+  if (!sku) return null;
+  const fromRoot = offerBySku.get(sku);
+  if (fromRoot) return normalizeExternalOffer(fromRoot, item);
+  return normalizeExternalOffer(readOfferOverlays()[sku], item);
+}
+
+function hallazgoCsvBool(v) {
+  if (v === true) return "true";
+  if (v === false) return "false";
+  return "";
+}
+
+function hallazgoCsvValue(item, key, offer, card) {
+  if (key === "sku") return item.sku || "";
+  if (key === "upc") return item.upc || "";
+  if (key === "name") return item.name || "";
+  if (key === "estado") return item.decision || "";
+  if (key === "qty") return item.qty == null ? "" : item.qty;
+  if (key === "techo") return item.techo_mxn == null ? "" : item.techo_mxn;
+  if (key === "landed") {
+    if (offer && offer.found_landed != null) return offer.found_landed;
+    if (item.found_landed != null) return item.found_landed;
+    if (item.ganancia_estimada_mxn != null) return item.ganancia_estimada_mxn;
+    return "";
+  }
+  if (key === "margen") return item.roi_pct == null ? "" : item.roi_pct;
+  if (key === "gate_ok") return hallazgoCsvBool(item.gate_ok);
+  if (key === "why") return item.por_que || "";
+  if (key === "url_amazon") return item.url_amazon || (card && asText(firstDefined(card.shopping_url, card.url_amazon))) || "";
+  if (key === "url_ml") return item.url_ml || (card && asText(firstDefined(card.marketplace_url, card.url_ml))) || "";
+  if (key === "url_oferta") return item.url_oferta || (offer && offer.found_url) || "";
+  if (key === "notas") return item.notas || item.gate_reason_es || "";
+  if (key === "oferta_encontrada") return isOfertaEncontrada(offer) ? "true" : "false";
+  return "";
+}
+
+function hallazgoCsv() {
+  const items = hallazgoCsvItems();
+  const header = HALLAZGO_CSV_COLS.map((col) => col.header).join(",");
+  const rows = items.map((item) => {
+    const card = lookupCardBySku(item.sku);
+    const offer = hallazgoOfferForItem(item);
+    return HALLAZGO_CSV_COLS.map((col) => csvCell(hallazgoCsvValue(item, col.key, offer, card)));
+  });
+  return "\uFEFF" + [header, ...rows.map((r) => r.join(","))].join("\n");
 }
 
 function parseCsv(text) {
@@ -2068,9 +2193,8 @@ async function exportQueueCsv() {
   await downloadText("radar-mas-oportunidades.csv", queueCsv(cachedData), "text/csv;charset=utf-8");
 }
 
-async function copyQueueCsv() {
-  if (!cachedData) return;
-  const text = queueCsv(cachedData);
+async function copyTextCsv(text) {
+  if (!text) return;
   try {
     await navigator.clipboard.writeText(text);
     showToast("CSV copiado — pégalo en ChatGPT");
@@ -2091,6 +2215,21 @@ async function copyQueueCsv() {
   } catch (_) {
     showToast("No se pudo copiar — usa Exportar CSV");
   }
+}
+
+async function copyQueueCsv() {
+  if (!cachedData) return;
+  await copyTextCsv(queueCsv(cachedData));
+}
+
+async function exportHallazgoCsv() {
+  if (hallazgoStatus !== "ok" || !hallazgoDoc) return;
+  await downloadText(HALLAZGO_CSV_FILE, hallazgoCsv(), "text/csv;charset=utf-8");
+}
+
+async function copyHallazgoCsv() {
+  if (hallazgoStatus !== "ok" || !hallazgoDoc) return;
+  await copyTextCsv(hallazgoCsv());
 }
 
 function pendingJsonText() {
@@ -2377,6 +2516,14 @@ function wireHallazgo(root) {
     });
   }
   document.getElementById("retryHallazgo")?.addEventListener("click", () => { loadHallazgo(); });
+  root.querySelectorAll("[data-hallazgo-csv-scope]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const next = btn.getAttribute("data-hallazgo-csv-scope") === "all" ? "all" : "filter";
+      if (next === hallazgoCsvScope) return;
+      hallazgoCsvScope = next;
+      if (cachedData) paint(cachedData);
+    });
+  });
 }
 
 function wire(root) {
@@ -2455,6 +2602,8 @@ function paint(data) {
   document.getElementById("resetHidden")?.addEventListener("click", radarResetHidden);
   document.getElementById("exportCsv")?.addEventListener("click", exportQueueCsv);
   document.getElementById("copyCsv")?.addEventListener("click", copyQueueCsv);
+  document.getElementById("exportHallazgoCsv")?.addEventListener("click", exportHallazgoCsv);
+  document.getElementById("copyHallazgoCsv")?.addEventListener("click", copyHallazgoCsv);
   document.getElementById("importCsv")?.addEventListener("click", () => document.getElementById("importCsvFile")?.click());
   document.getElementById("importCsvFile")?.addEventListener("change", onImportCsvFile);
   document.getElementById("retryAllSync")?.addEventListener("click", retryAllPending);
