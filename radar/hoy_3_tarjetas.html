@@ -123,8 +123,8 @@
   .csv-status{margin:0;flex:1 1 100%;font-size:13px;font-weight:650;color:var(--muted)}
   .radar-toast{
     position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(8px);
-    z-index:60;background:var(--text);color:#fff;font-size:14px;font-weight:700;
-    padding:12px 16px;border-radius:12px;box-shadow:0 12px 32px rgba(15,23,42,.2);
+    z-index:60;background:var(--blue);color:#fff;font-size:14px;font-weight:700;
+    padding:12px 16px;border-radius:12px;box-shadow:0 12px 32px rgba(29,78,216,.28);
     max-width:min(92vw,440px);text-align:center;opacity:0;pointer-events:none;
     transition:opacity .18s ease,transform .18s ease;
   }
@@ -2025,34 +2025,47 @@ function showToast(message) {
   showToast._t = setTimeout(() => el.classList.remove("show"), 3200);
 }
 
-function downloadText(filename, text, mime) {
+async function downloadText(filename, text, mime) {
   const type = mime || "text/plain;charset=utf-8";
+  const isCsv = /\.csv$/i.test(filename) || /^text\/csv/i.test(type);
+
+  if (typeof window.showSaveFilePicker === "function") {
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: filename,
+        types: isCsv
+          ? [{ description: "CSV", accept: { "text/csv": [".csv"] } }]
+          : [{ description: "File", accept: { [type.split(";")[0]]: ["." + (filename.split(".").pop() || "txt")] } }]
+      });
+      const writable = await handle.createWritable();
+      await writable.write(new File([text], filename, { type: type }));
+      await writable.close();
+      return;
+    } catch (err) {
+      if (err && err.name === "AbortError") return;
+    }
+  }
+
+  const file = new File([text], filename, { type: type });
+  const url = URL.createObjectURL(file);
   const a = document.createElement("a");
   a.download = filename;
   a.setAttribute("download", filename);
   a.rel = "noopener";
-  a.style.display = "none";
+  a.setAttribute("aria-hidden", "true");
+  a.style.cssText = "position:fixed;left:-9999px;top:0;opacity:0";
+  a.href = url;
   document.body.appendChild(a);
-
-  let objectUrl = "";
-  try {
-    const blob = new Blob([text], { type: type });
-    objectUrl = URL.createObjectURL(blob);
-    a.href = objectUrl;
-  } catch (_) {
-    // Last resort only. Chrome ignores download= on data: URLs → UUID filename.
-    a.href = "data:" + type + "," + encodeURIComponent(text);
-  }
   a.click();
   setTimeout(() => {
     a.remove();
-    if (objectUrl) URL.revokeObjectURL(objectUrl);
+    URL.revokeObjectURL(url);
   }, 4000);
 }
 
-function exportQueueCsv() {
+async function exportQueueCsv() {
   if (!cachedData) return;
-  downloadText("radar-mas-oportunidades.csv", queueCsv(cachedData), "text/csv;charset=utf-8");
+  await downloadText("radar-mas-oportunidades.csv", queueCsv(cachedData), "text/csv;charset=utf-8");
 }
 
 async function copyQueueCsv() {
