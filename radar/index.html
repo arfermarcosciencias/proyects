@@ -42,7 +42,7 @@
   .badge.REPONER{color:#1d4ed8;background:#dbeafe}
   .badge.ESTRELLA{color:#a16207;background:#fef9c3}
   .badge.CASHFLOW{color:#166534;background:#dcfce7}
-  .gate-chip,.pending-chip,.registered-chip,.phone-chip,.offer-chip{
+  .gate-chip,.pending-chip,.registered-chip,.phone-chip,.offer-chip,.resurge-chip{
     display:inline-flex;align-items:center;min-height:28px;font-size:12px;font-weight:750;
     padding:4px 10px;border-radius:999px;letter-spacing:.01em;
   }
@@ -50,6 +50,7 @@
   .pending-chip,.registered-chip{color:var(--pending);background:var(--pending-bg)}
   .phone-chip{color:var(--phone);background:var(--phone-bg)}
   .offer-chip{color:#065f46;background:#d1fae5}
+  .resurge-chip{color:#6d28d9;background:#f3e8ff}
   .techo-block{margin:2px 0 12px}
   .techo-verb{display:block;font-size:12px;font-weight:650;color:var(--muted);margin-bottom:2px;letter-spacing:.01em}
   .techo-amount{
@@ -182,6 +183,19 @@
   .pending-strip ul{margin:0;padding:0;list-style:none}
   .pending-strip li{font-size:13px;line-height:1.45;color:var(--evidence);padding:6px 0;border-top:1px solid #ecfdf5}
   .pending-strip li:first-child{border-top:0;padding-top:0}
+  .resurgidos-strip{
+    margin-top:18px;background:#fff;border:1px solid #ddd6fe;border-radius:var(--radius);
+    padding:14px 16px;box-shadow:0 8px 20px rgba(15,23,42,.04);
+  }
+  .resurgidos-strip h2{margin:0 0 6px;font-size:15px;letter-spacing:-.02em}
+  .resurgidos-strip p{margin:0 0 10px;font-size:13px;line-height:1.4;color:var(--muted);font-weight:600}
+  .resurgidos-strip ul{margin:0;padding:0;list-style:none}
+  .resurgidos-strip li{padding:0}
+  .resurge-item{
+    display:flex;align-items:center;width:100%;min-height:var(--tap);
+    padding:10px 12px;margin:4px 0;border-radius:12px;text-align:left;
+    background:#f5f3ff;color:#5b21b6;border:1px solid #ddd6fe;font-weight:750;cursor:pointer;
+  }
   .state{margin-top:14px;background:#fff;border-radius:var(--radius);padding:36px 22px;border:1px solid var(--line);text-align:center}
   .state h2{margin:0 0 8px;font-size:18px}
   .state p{margin:0;color:var(--muted);font-size:14px;line-height:1.45}
@@ -267,7 +281,12 @@ const PENDING_KEY = "radar-hoy:purchases_pending:v1";
 const INBOX_KEY = "radar-hoy:pages_action_inbox:v1";
 const PREFS_KEY = "radar-hoy:prefs:v1";
 const OFFER_KEY = "radar-hoy:external_offer:v1";
+const RESURGIDOS_KEY = "radar-hoy:resurgidos:v1";
 const OFFER_FOUND = "OFERTA_ENCONTRADA";
+const RESURGIDO = "RESURGIDO";
+const RESURGIDO_UTIL_MIN = 120;
+const RESURGIDO_ROI_MIN = 30;
+const DESCARTADO_BLOCK_DAYS = 30;
 const DEFAULT_STORES = [
   { value: "Amazon", label: "Amazon" },
   { value: "ML", label: "Mercado Libre" }
@@ -343,7 +362,9 @@ const STATUS_TEXT = {
   dismissed: "descartada",
   hidden: "oculta",
   queue: "en cola",
-  active: "activa"
+  active: "activa",
+  resurgido: "RESURGIDO",
+  nunca: "nunca"
 };
 const TAB_HOY = "hoy";
 const TAB_QUEUE = "queue";
@@ -369,6 +390,7 @@ let hallazgoError = "";
 let hallazgoFilter = "ALL";
 let hallazgoQuery = "";
 let hallazgoCsvScope = "filter";
+let resurgidoBySku = new Map();
 
 const money0 = (n) => new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(Number(n));
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -459,9 +481,11 @@ function parseContextMoney(card) {
   const ctx = asText(card && card.contexto_prompt);
   const um = ctx.match(/Utilidad est\.\s*\/\s*u:\s*\$?\s*([\d.]+)/i);
   const roi = ctx.match(/ROI:\s*([\d.]+)\s*%/i);
+  const mg = ctx.match(/margen u:\s*\$?\s*([\d.]+)/i);
   return {
     gain: um ? Number(um[1]) : null,
-    roi: roi ? Number(roi[1]) : null
+    roi: roi ? Number(roi[1]) : null,
+    margen: mg ? Number(mg[1]) : null
   };
 }
 
@@ -479,6 +503,238 @@ function estimatedRoi(card) {
   if (card.roi_pct != null && !Number.isNaN(Number(card.roi_pct))) return Number(card.roi_pct);
   const parsed = parseContextMoney(card).roi;
   return parsed != null && !Number.isNaN(parsed) ? parsed : null;
+}
+
+function estimatedMargin(card) {
+  if (!card) return null;
+  for (const v of [card.unit_margin, card.margen_u, card.margen, card.evidence && card.evidence.unit_margin]) {
+    if (v != null && !Number.isNaN(Number(v))) return Number(v);
+  }
+  const parsed = parseContextMoney(card).margen;
+  if (parsed != null && !Number.isNaN(parsed)) return parsed;
+  return estimatedGain(card);
+}
+
+function normTag(v) {
+  return String(v || "").trim().toLowerCase().replace(/[\s-]+/g, "_");
+}
+
+function pushTags(out, v) {
+  if (v == null || v === "") return;
+  if (Array.isArray(v)) {
+    v.forEach((item) => pushTags(out, item));
+    return;
+  }
+  if (typeof v === "object") {
+    for (const k of ["tag", "status", "id", "label", "value", "outcome", "reason"]) pushTags(out, v[k]);
+    return;
+  }
+  const t = normTag(v);
+  if (t) out.push(t);
+}
+
+function collectCardTags(card) {
+  const out = [];
+  if (!card) return out;
+  pushTags(out, card.tag);
+  pushTags(out, card.tags);
+  pushTags(out, card.status);
+  pushTags(out, card.reason);
+  pushTags(out, card.outcome);
+  const st = readState(cardId(card));
+  if (st) {
+    pushTags(out, st.tag);
+    pushTags(out, st.tags);
+    pushTags(out, st.status);
+    pushTags(out, st.outcome);
+  }
+  return out;
+}
+
+function hasNuncaTag(card) {
+  return collectCardTags(card).some((t) => t === "nunca" || t === "never");
+}
+
+function withinLastDays(iso, days) {
+  const t = Date.parse(iso);
+  if (Number.isNaN(t)) return false;
+  return (Date.now() - t) <= days * 86400000;
+}
+
+function descartadoWithin30d(card) {
+  const days = DESCARTADO_BLOCK_DAYS;
+  const st = readState(cardId(card));
+  if (st && normTag(st.outcome) === "descartado") {
+    if (st.created_at && withinLastDays(st.created_at, days)) return true;
+    if (st.hide_until && Date.parse(st.hide_until) > Date.now()) return true;
+    if (!st.created_at && !st.hide_until) return true;
+    if (st.hide_until) {
+      const start = Date.parse(st.hide_until) - (Number(st.hide_days) || days) * 86400000;
+      if (!Number.isNaN(start) && (Date.now() - start) <= days * 86400000) return true;
+    }
+  }
+  if (normTag(card && card.outcome) === "descartado") {
+    if (card.hide_until && Date.parse(card.hide_until) > Date.now()) return true;
+    if (card.descartado_at && withinLastDays(card.descartado_at, days)) return true;
+    if (!card.hide_until && !card.descartado_at) return true;
+  }
+  for (const a of (readInbox().actions || [])) {
+    if (asText(a.sku) === asText(card && card.sku) && normTag(a.outcome) === "descartado" && withinLastDays(a.created_at, days)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function isOperatorPaused(card) {
+  const reason = normTag(card && card.reason);
+  if (reason === "pause" || reason === "paused" || reason === "pausada") return true;
+  const note = asText(card && card.park_note).toLowerCase();
+  return /operador|pausa/.test(note);
+}
+
+function pauseReasonBlob(card) {
+  return [
+    asText(card && card.park_note),
+    asText(card && card.reason),
+    asText(card && card.gate_reason_es),
+    Array.isArray(card && card.gate_codes) ? card.gate_codes.join(" ") : "",
+    asText(card && card.por_que),
+    asText(card && card.why_line)
+  ].join(" ").toLowerCase();
+}
+
+function passesResurgeNumbers(card) {
+  const util = estimatedGain(card);
+  const roi = estimatedRoi(card);
+  const margen = estimatedMargin(card);
+  const utilOk = util != null && util >= RESURGIDO_UTIL_MIN;
+  const roiOk = roi != null && roi >= RESURGIDO_ROI_MIN;
+  const margenOk = margen != null && margen > 0;
+  if (utilOk && roiOk && margenOk) return true;
+  if (card && card.gate_ok === true) {
+    if (util != null && util < RESURGIDO_UTIL_MIN) return false;
+    if (roi != null && roi < RESURGIDO_ROI_MIN) return false;
+    if (margen != null && !(margen > 0)) return false;
+    return true;
+  }
+  return false;
+}
+
+function offerCuresPause(card, offer) {
+  if (!isOfertaEncontrada(offer)) return false;
+  const blob = pauseReasonBlob(card);
+  const note = asText(card && card.park_note).toLowerCase();
+  const genericOp = !note || /pausa por el operador|en pausa|pausad/.test(note);
+  const offerRelated = /buy path|proveedor|agotado|techo|precio|oferta|landed|sin oferta|no hay/.test(blob);
+  const gateRelated = (Array.isArray(card && card.gate_codes) && card.gate_codes.length > 0)
+    || /gana menos|roi bajo|sin margen/.test(blob);
+  if (!genericOp && !offerRelated && !gateRelated) return false;
+  const cap = offerCap(card, offer);
+  if (offer.found_landed != null && cap != null && offer.found_landed > cap) return false;
+  if (gateRelated && !passesResurgeNumbers(card)) return false;
+  return true;
+}
+
+function canResucitar(card) {
+  if (!card) return { ok: false, why: "sin_tarjeta" };
+  if (hasNuncaTag(card)) return { ok: false, why: "nunca" };
+  if (descartadoWithin30d(card)) return { ok: false, why: "descartado_30d" };
+  if (!passesResurgeNumbers(card)) return { ok: false, why: "piso" };
+  const offer = cardExternalOffer(card);
+  if (!isOfertaEncontrada(offer)) return { ok: false, why: "sin_oferta" };
+  const paused = isOperatorPaused(card);
+  const cured = paused && offerCuresPause(card, offer);
+  if (paused && !cured) return { ok: false, why: "pausa_no_curada" };
+  return { ok: true, offer, paused, cured };
+}
+
+function prevStateOf(card, paused) {
+  return paused || isOperatorPaused(card) ? "paused" : "dismissed";
+}
+
+function emptyResurgidosDoc() {
+  return { schema: "arfershop.radar.resurgidos.v1", updated_at: null, resurgidos: [] };
+}
+
+function readResurgidosDoc() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(RESURGIDOS_KEY) || "null");
+    if (raw && Array.isArray(raw.resurgidos)) return raw;
+    if (raw && Array.isArray(raw.items)) return { ...raw, resurgidos: raw.items };
+  } catch { /* ignore */ }
+  return emptyResurgidosDoc();
+}
+
+function writeResurgidosDoc(doc) {
+  const next = {
+    schema: "arfershop.radar.resurgidos.v1",
+    updated_at: new Date().toISOString(),
+    resurgidos: Array.isArray(doc && doc.resurgidos) ? doc.resurgidos : []
+  };
+  localStorage.setItem(RESURGIDOS_KEY, JSON.stringify(next));
+  return next;
+}
+
+function isResurgido(card) {
+  const sku = asText(card && card.sku);
+  if (sku && resurgidoBySku.has(sku)) return true;
+  return normTag(card && (card.tag || card.status)) === "resurgido";
+}
+
+function decidedSource(data) {
+  if (Array.isArray(data && data.dismissed_or_paused)) return data.dismissed_or_paused;
+  if (Array.isArray(data && data.parked)) return data.parked;
+  return [];
+}
+
+function refreshResurgidos(data) {
+  const prev = new Map((readResurgidosDoc().resurgidos || []).map((x) => [asText(x && x.sku), x]));
+  const items = [];
+  if (!data) {
+    resurgidoBySku = new Map();
+    return items;
+  }
+  for (const card of decidedSource(data)) {
+    const verdict = canResucitar(card);
+    if (!verdict.ok) continue;
+    const sku = asText(card.sku);
+    const old = prev.get(sku);
+    const resurrected_at = (old && old.resurrected_at) || new Date().toISOString();
+    const resurrect_reason = "gate_ok_post_import";
+    const prev_state = prevStateOf(card, verdict.paused);
+    const cured_pause_reason = !!verdict.cured;
+    const found_landed = verdict.offer && verdict.offer.found_landed != null ? verdict.offer.found_landed : undefined;
+    const util = estimatedGain(card);
+    const roi = estimatedRoi(card);
+    if (card && typeof card === "object") {
+      card.status = RESURGIDO;
+      card.tag = RESURGIDO;
+      card.resurgido = true;
+      card.resurrected_at = resurrected_at;
+      card.resurrect_reason = resurrect_reason;
+      card.prev_state = prev_state;
+      card.cured_pause_reason = cured_pause_reason;
+    }
+    const row = {
+      sku,
+      status: RESURGIDO,
+      resurrected_at,
+      util,
+      roi,
+      resurrect_reason,
+      prev_state,
+      cured_pause_reason
+    };
+    const doneId = cardId(card);
+    if (doneId) row.done_id = doneId;
+    if (found_landed != null) row.found_landed = found_landed;
+    items.push(row);
+  }
+  writeResurgidosDoc({ resurgidos: items });
+  resurgidoBySku = new Map(items.map((x) => [x.sku, x]));
+  if (data && typeof data === "object") data.resurgidos = items;
+  return items;
 }
 
 function verbTitle(card) {
@@ -1485,6 +1741,8 @@ function pageLead(tab, cards, data) {
   }
   if (tab === TAB_DECIDED) {
     if (!cards.length) return "Aquí verás lo pausado o descartado.";
+    const n = resurgidoBySku.size;
+    if (n) return n === 1 ? "1 resurgido por oferta. El radar no compra solo." : `${n} resurgidos por oferta. El radar no compra solo.`;
     return "Pausadas, descartadas o ya resueltas.";
   }
   if (!cards.length) return "Respira. Nada ejecutable hoy.";
@@ -1531,9 +1789,7 @@ function decidedMetaLine(card) {
 function tabLists(data) {
   const cards = (data.cards || []).filter(isHoyExecutable).slice(0, 3);
   const queue = (Array.isArray(data.queue) ? data.queue : []).filter(isHoyExecutable);
-  const decided = Array.isArray(data.dismissed_or_paused)
-    ? data.dismissed_or_paused
-    : (Array.isArray(data.parked) ? data.parked : []);
+  const decided = decidedSource(data);
   return { cards, queue, decided };
 }
 
@@ -1553,7 +1809,9 @@ function countsFor(data) {
 function cardsForActiveTab(data) {
   const lists = tabLists(data);
   if (activeTab === TAB_QUEUE) return lists.queue;
-  if (activeTab === TAB_DECIDED) return lists.decided;
+  if (activeTab === TAB_DECIDED) {
+    return [...lists.decided].sort((a, b) => Number(isResurgido(b)) - Number(isResurgido(a)));
+  }
   return filterVisible(lists.cards);
 }
 
@@ -1660,6 +1918,7 @@ function pendingStatusLabel(status) {
 
 function renderCard(card, i, opts) {
   const decided = !!(opts && opts.decided);
+  const resurgido = isResurgido(card);
   const name = productName(card);
   const id = cardId(card);
   const st = readState(id);
@@ -1681,7 +1940,9 @@ function renderCard(card, i, opts) {
   const tipo = cardAction(card) || "BUSCAR";
   const bits = purchaseBits(purchase);
   let statusFromCard;
-  if (decided) {
+  if (resurgido) {
+    statusFromCard = "RESURGIDO · el radar no compra solo";
+  } else if (decided) {
     statusFromCard = statusMessage(st) || (card.outcome ? (OUTCOME_TEXT[card.outcome] || localizeToken(card.outcome)) : "") || "Ya decidida";
   } else if (imported) {
     statusFromCard = bits ? `${REGISTERED_MAC} · ${bits}` : REGISTERED_MAC;
@@ -1690,7 +1951,7 @@ function renderCard(card, i, opts) {
   } else {
     statusFromCard = statusMessage(st);
   }
-  const showStatus = decided || hideBuy || !!st;
+  const showStatus = decided || resurgido || hideBuy || !!st;
   let actionsHtml;
   if (decided) {
     actionsHtml = `<p class="status show" data-status>${esc(statusFromCard)}</p>`;
@@ -1729,9 +1990,10 @@ function renderCard(card, i, opts) {
   const offerFound = isOfertaEncontrada(offer);
   const offerUrl = offerFound && offer.found_url && /^https?:\/\//i.test(offer.found_url) ? offer.found_url : "";
 
-  return `<article class="card ${cls}" data-done-id="${esc(id)}" data-context="${esc(contextText(card))}" data-sku="${esc(card.sku || "")}" data-action-key="${esc(id)}" data-tab-kind="${decided ? "decided" : "active"}" data-gate-ok="${card.gate_ok === true ? "true" : card.gate_ok === false ? "false" : ""}" data-can-comprar="${canComprar ? "true" : "false"}" data-resurgido="${card.resurgido === true || card.resurgido === "true" ? "true" : ""}">
+  return `<article class="card ${cls}" data-done-id="${esc(id)}" data-context="${esc(contextText(card))}" data-sku="${esc(card.sku || "")}" data-action-key="${esc(id)}" data-tab-kind="${decided ? "decided" : "active"}" data-gate-ok="${card.gate_ok === true ? "true" : card.gate_ok === false ? "false" : ""}" data-can-comprar="${canComprar ? "true" : "false"}" data-resurgido="${resurgido ? "true" : ""}">
     <div class="badges">
       <span class="badge ${esc(tipo)}">${esc(tipo)}</span>
+      ${resurgido ? `<span class="resurge-chip">RESURGIDO</span>` : ""}
       ${!hideBuy && !canComprar && reason ? `<span class="gate-chip">${esc(reason)}</span>` : ""}
       ${offerFound ? `<span class="offer-chip">Oferta encontrada</span>` : ""}
       ${stateChip}
@@ -1778,6 +2040,22 @@ function renderPendingStrip(items) {
       <button type="button" class="btn-secondary" id="copyPendingJson">Copiar JSON</button>
       <button type="button" class="ghost-btn" id="dlPendingJson">Bajar JSON</button>
     </div>` : ""}
+  </section>`;
+}
+
+function renderResurgidosStrip() {
+  const items = [...resurgidoBySku.values()];
+  if (!items.length) return "";
+  const lis = items.map((it) => {
+    const bits = [];
+    if (it.util != null) bits.push(`ganas ~${money0(it.util)}`);
+    if (it.roi != null) bits.push(`ROI ~${Number(it.roi).toFixed(0)}%`);
+    return `<li><button type="button" class="resurge-item" data-tab="${TAB_DECIDED}">${esc(it.sku || "")}${bits.length ? " · " + esc(bits.join(" · ")) : ""} · RESURGIDO</button></li>`;
+  }).join("");
+  return `<section class="resurgidos-strip" aria-label="Resurgidos">
+    <h2>Resurgidos (${items.length})</h2>
+    <p>Volvieron por una oferta. El radar no compra solo.</p>
+    <ul>${lis}</ul>
   </section>`;
 }
 
@@ -1832,6 +2110,7 @@ function renderData(data) {
     ${ceiling}
     ${tabs}
     ${renderActiveTabCsvBar(cards.length)}
+    ${activeTab === TAB_QUEUE || activeTab === TAB_DECIDED ? renderResurgidosStrip() : ""}
     ${body}
     ${strip}
     <footer>Actualizado ${esc(data.generated_at || data.date || "")} · el radar nunca compra solo · <button type="button" class="text-link" id="resetHidden">Ver de nuevo</button></footer>`;
@@ -2152,7 +2431,8 @@ function importOfferRows(text) {
     applied++;
   }
   writeOfferOverlays(bySku);
-  return { applied, skipped };
+  const resurgidos = refreshResurgidos(cachedData);
+  return { applied, skipped, resurgidos: resurgidos.length };
 }
 
 function setCsvStatus(msg) {
@@ -2186,6 +2466,8 @@ async function onImportCsvFile(ev) {
   const bits = [`Aplicamos ${result.applied} oferta${result.applied === 1 ? "" : "s"}`];
   if (result.skipped) bits.push(`${result.skipped} sin datos`);
   bits.push("sin tocar ganancia ni techo");
+  if (result.resurgidos) bits.push(`${result.resurgidos} resurgido${result.resurgidos === 1 ? "" : "s"}`);
+  bits.push("el radar no compra solo");
   if (cachedData) paint(cachedData);
   setCsvStatus(bits.join(" · "));
 }
@@ -2669,6 +2951,7 @@ function wire(root) {
 
 function paint(data) {
   rememberCards(data);
+  refreshResurgidos(data);
   const app = document.getElementById("app");
   app.classList.toggle("wide", activeTab === TAB_HALLAZGO);
   app.innerHTML = renderData(data);

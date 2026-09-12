@@ -75,6 +75,15 @@ MARKERS = [
     ("copyHoy button", r"id=[\"']copyHoyCsv[\"']"),
     ("exportDecided button", r"id=[\"']exportDecidedCsv[\"']"),
     ("copyDecided button", r"id=[\"']copyDecidedCsv[\"']"),
+    ("RESURGIDO tag", r"RESURGIDO"),
+    ("resurgidos[] artifact", r"resurgidos"),
+    ("resucitar eval", r"function (?:canResucitar|refreshResurgidos)\("),
+    ("nunca exclusion", r"function hasNuncaTag\("),
+    ("descartado 30d block", r"DESCARTADO_BLOCK_DAYS"),
+    ("resurrect_reason", r"resurrect_reason"),
+    ("prev_state", r"prev_state"),
+    ("cured_pause_reason", r"cured_pause_reason"),
+    ("no auto-compra resurgido", r"el radar no compra solo"),
 ]
 
 BANNED = [
@@ -228,6 +237,13 @@ def main() -> int:
             for key in ("RECOMPRAR", "PRECIO_BUENO", "ESPERAR", "NO", "MANUAL", "total"):
                 if key not in counts:
                     errors.append(f"hallazgos_inventario.json: counts missing {key}")
+    try:
+        from test_resucitar import main as resucitar_main
+    except ImportError:
+        sys.path.insert(0, str(ROOT / "radar"))
+        from test_resucitar import main as resucitar_main
+    if resucitar_main() != 0:
+        errors.append("radar/test_resucitar.py failed")
     if errors:
         print("radar SPA guard FAILED:")
         for e in errors:

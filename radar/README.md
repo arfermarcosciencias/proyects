@@ -10,4 +10,6 @@ Tabs: **Hoy** · **Más oportunidades** · **Ya decididas** · **Hallazgo**.
 
 Overlay Codex (`card.external_offer` o root `external_offers_active[]`, solo `OFERTA_ENCONTRADA`): chip **Oferta encontrada**, **ABRIR** → `found_url`, y `found_landed` vs techo `max_landed_cost` / `max_landed_at_import`. Aliases `*_mxn` / `found_supplier` OK. No pisa ganancia/ROI/techo del motor. Importar CSV (Más oportunidades) solo pega ese overlay.
 
+**Resucitar (mínimo, contrato FE):** en Import/CSV/oferta se evalúa `dismissed_or_paused`. Si util≥120 AND ROI≥30% AND margen>0 AND not (nunca | descartado 30d) AND (si pausa, la oferta cura la razón) → `status=RESURGIDO`, `resurrected_at` ISO-8601, `resurrect_reason=gate_ok_post_import`, `prev_state=dismissed|paused`, `cured_pause_reason` bool. Root `resurgidos[]`: `{sku, done_id?, status, resurrected_at, found_landed?, util, roi}`. Badge mínimo; no auto-buy. Ya→Hoy max3 deferred to FE. Export multi-tab (PR #13) untouched.
+
 **Nunca publiques un HTML estático de 3 tarjetas como la página ritual.** El guard `radar/check_spa.py` (CI `radar-spa-guard`) falla si falta el SPA (tabs Hoy / Más oportunidades / Ya decididas / Hallazgo, overlay Oferta encontrada / ABRIR / Importar CSV, `Ya lo hice`, `fetch` de `hoy_3_tarjetas.json` y `hallazgos_inventario.json`).
