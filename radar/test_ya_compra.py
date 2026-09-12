@@ -33,6 +33,8 @@ def main() -> int:
         ("no auto-buy copy", r"el radar no compra solo"),
         ("COMPRAR button", r">COMPRAR<"),
         ("Hoy RESURGIDO Ya lo compré", r">Ya lo compré<"),
+        ("Hoy/Más primary Ya lo compré", r'class="btn-comprar" data-act="comprar".*>Ya lo compré<'),
+        ("jump Hoy after annotate", r"if \(activeTab !== TAB_HOY\) setActiveTab\(TAB_HOY\)"),
         ("qty+precio modal", r'id="buy-qty"'),
         ("tienda modal", r'id="buy-store"'),
         ("tap 44px", r"--tap:44px"),
@@ -42,16 +44,31 @@ def main() -> int:
 
     render = _fn_body(html, "renderCard")
     decided = re.search(r"else if \(decided\) \{\s*actionsHtml", render)
+    active = re.search(r"else \{\s*actionsHtml", render)
     if not decided:
         errors.append("renderCard missing decided actions branch")
     else:
-        chunk = render[decided.start():decided.start() + 700]
+        end = active.start() if active and active.start() > decided.start() else decided.start() + 500
+        chunk = render[decided.start():end]
         if "Registré compra" not in chunk:
             errors.append("Ya decididas must render Registré compra")
         if "COMPRAR" not in chunk or "canComprar" not in chunk:
             errors.append("Ya decididas RESURGIDO must be able to render COMPRAR")
+        if "Ya lo compré" in chunk:
+            errors.append("Ya decididas must keep Registré compra, not Hoy/Más Ya lo compré")
         if 'data-act="comprar"' not in chunk:
             errors.append("Ya decididas purchase CTAs must reuse data-act=comprar")
+
+    if not active:
+        errors.append("renderCard missing active (Hoy/Más) actions branch")
+    else:
+        chunk = render[active.start():active.start() + 900]
+        if "Ya lo compré" not in chunk:
+            errors.append("Hoy/Más canComprar must render Ya lo compré")
+        if re.search(r"resurgido \? `[^`]*Ya lo compré", chunk):
+            errors.append("Hoy/Más Ya lo compré must not be RESURGIDO-only")
+        if "Registré compra" in chunk:
+            errors.append("Hoy/Más must not use Ya decididas Registré compra label")
 
     modal = _fn_body(html, "openPurchaseModal")
     guard = re.search(r"if\s*\((.{0,120}?)\)\s*return", modal)
@@ -65,6 +82,10 @@ def main() -> int:
         errors.append("openPurchaseModal must still upsertPurchase")
     if "syncPurchaseToMac" not in modal:
         errors.append("openPurchaseModal must still syncPurchaseToMac")
+    if "setActiveTab(TAB_HOY)" not in modal:
+        errors.append("openPurchaseModal must jump to Hoy after a successful annotate")
+    if not re.search(r"lockCard\([\s\S]{0,80}setActiveTab\(TAB_HOY\)", modal):
+        errors.append("Hoy jump must run after lockCard so Anotada + pending-strip paint")
 
     wire = _fn_body(html, "wire")
     buy = wire.find("button[data-act='comprar']")

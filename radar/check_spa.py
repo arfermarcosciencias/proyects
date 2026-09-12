@@ -103,6 +103,8 @@ MARKERS = [
     ("Ya Registré compra", r"Registré compra"),
     ("RESURGIDO canComprar", r"canComprar = !hideBuy && \(resurgido \|\| showComprarCta"),
     ("Hoy RESURGIDO Ya lo compré", r"Ya lo compré"),
+    ("Hoy/Más Ya lo compré primary", r"btn-comprar\" data-act=\"comprar\".*>Ya lo compré<"),
+    ("jump Hoy after Anota", r"if \(activeTab !== TAB_HOY\) setActiveTab\(TAB_HOY\)"),
 ]
 
 BANNED = [
