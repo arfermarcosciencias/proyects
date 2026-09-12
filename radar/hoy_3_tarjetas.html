@@ -2173,12 +2173,12 @@ function renderCard(card, i, opts) {
   const cls = purchase ? (imported ? "registered-buy" : "pending-buy") : (!st ? "" : (st.outcome === "skip" ? "skipped" : "done"));
   const img = photoHtml(card);
   const ev = evidenceLine(card.evidence);
-  const locked = decided || (!!st && isHidden(st, card));
+  const locked = !decided && (!!st && isHidden(st, card));
   const stores = storeLinks(card);
   const storeHtml = stores.map((u) => `<a class="ghost" href="${esc(u.url)}" target="_blank" rel="noopener">${esc(u.label)}</a>`).join("");
   const parkLine = decided ? decidedMetaLine(card) : "";
   const reason = gateReason(card);
-  const canComprar = !decided && !hideBuy && showComprarCta(card);
+  const canComprar = !hideBuy && (resurgido || showComprarCta(card));
   const tipo = cardAction(card) || "BUSCAR";
   const bits = purchaseBits(purchase);
   let statusFromCard;
@@ -2195,9 +2195,7 @@ function renderCard(card, i, opts) {
   }
   const showStatus = decided || resurgido || hideBuy || !!st;
   let actionsHtml;
-  if (decided) {
-    actionsHtml = `<p class="status show" data-status>${esc(statusFromCard)}</p>`;
-  } else if (imported) {
+  if (imported) {
     actionsHtml = `<p class="status show" data-status>${esc(statusFromCard)}</p>`;
   } else if (pending) {
     actionsHtml = `<p class="status show" data-status>${esc(ANOTADA_SHORT)}${bits ? " · " + esc(bits) : ""}</p>
@@ -2208,9 +2206,16 @@ function renderCard(card, i, opts) {
         <button type="button" class="ghost-btn" data-act="copy-pending">Copiar JSON</button>
         <button type="button" class="ghost-btn" data-act="dl-pending">Bajar JSON</button>
       </div>`;
+  } else if (decided) {
+    actionsHtml = `<p class="status show" data-status>${esc(statusFromCard)}</p>
+      <div class="actions with-comprar">
+        ${canComprar ? `<button type="button" class="btn-comprar" data-act="comprar">COMPRAR</button>` : ""}
+        <button type="button" class="btn-primary" data-act="comprar">Registré compra</button>
+      </div>`;
   } else {
     actionsHtml = `${canComprar ? `<div class="actions with-comprar">
         <button type="button" class="btn-comprar" data-act="comprar" ${locked ? "disabled" : ""}>COMPRAR</button>
+        ${resurgido ? `<button type="button" class="btn-primary" data-act="comprar" ${locked ? "disabled" : ""}>Ya lo compré</button>` : ""}
         <div class="actions-sub">
           <button type="button" class="btn-primary" data-act="done" ${locked ? "disabled" : ""}>Ya lo hice</button>
           <button type="button" class="btn-secondary" data-act="skip" ${locked ? "disabled" : ""}>Saltar</button>
@@ -2220,7 +2225,7 @@ function renderCard(card, i, opts) {
         <button type="button" class="btn-secondary" data-act="skip" ${locked ? "disabled" : ""}>Saltar</button>
       </div>`}
     <div class="outcomes" data-outcomes>
-      ${canComprar ? `<button type="button" data-act="comprar">Anota la compra</button>` : ""}
+      ${canComprar ? `<button type="button" data-act="comprar">${resurgido ? "Ya lo compré" : "Anota la compra"}</button>` : ""}
       <button type="button" data-outcome="not_found">No lo encontré</button>
       <button type="button" data-outcome="tomorrow">Mañana</button>
       <button type="button" data-outcome="descartado">Descartar 30d</button>
@@ -3150,7 +3155,7 @@ function storeSelectHtml(selected) {
 function openPurchaseModal(cardEl) {
   const id = cardEl.getAttribute("data-done-id");
   const card = cardById.get(id);
-  if (!card || !showComprarCta(card) || livePurchaseForCard(card)) return;
+  if (!card || livePurchaseForCard(card)) return;
   lastFocus = document.activeElement;
   const existing = purchaseForCard(card) || {};
   const offer = cardExternalOffer(card);
@@ -3389,15 +3394,15 @@ function wire(root) {
         downloadText("purchases_pending.json", pendingJsonText(), "application/json");
         return;
       }
-      if (card.getAttribute("data-tab-kind") === "decided") return;
       const buyBtn = ev.target.closest("button[data-act='comprar']");
-      const doneBtn = ev.target.closest("button[data-act='done']");
-      const skipBtn = ev.target.closest("button[data-act='skip']");
-      const outBtn = ev.target.closest("button[data-outcome]");
       if (buyBtn && !buyBtn.disabled) {
         openPurchaseModal(card);
         return;
       }
+      if (card.getAttribute("data-tab-kind") === "decided") return;
+      const doneBtn = ev.target.closest("button[data-act='done']");
+      const skipBtn = ev.target.closest("button[data-act='skip']");
+      const outBtn = ev.target.closest("button[data-outcome]");
       if (doneBtn && !doneBtn.disabled) {
         card.querySelector("[data-outcomes]")?.classList.toggle("open");
         return;

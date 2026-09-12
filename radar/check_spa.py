@@ -100,6 +100,9 @@ MARKERS = [
     ("Hoy max 3", r"const HOY_MAX = 3"),
     ("clear hide on resurge", r"function clearHideForResurgido\("),
     ("data-resurgido hook", r"data-resurgido"),
+    ("Ya Registré compra", r"Registré compra"),
+    ("RESURGIDO canComprar", r"canComprar = !hideBuy && \(resurgido \|\| showComprarCta"),
+    ("Hoy RESURGIDO Ya lo compré", r"Ya lo compré"),
 ]
 
 BANNED = [
@@ -275,6 +278,13 @@ def main() -> int:
         from test_resurgido_ui import main as resurgido_ui_main
     if resurgido_ui_main() != 0:
         errors.append("radar/test_resurgido_ui.py failed")
+    try:
+        from test_ya_compra import main as ya_compra_main
+    except ImportError:
+        sys.path.insert(0, str(ROOT / "radar"))
+        from test_ya_compra import main as ya_compra_main
+    if ya_compra_main() != 0:
+        errors.append("radar/test_ya_compra.py failed")
     if errors:
         print("radar SPA guard FAILED:")
         for e in errors:
