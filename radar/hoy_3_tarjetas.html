@@ -846,6 +846,10 @@ function stampResurgidoCard(card, row) {
   card.resurrect_reason = row.resurrect_reason || "gate_ok_post_import";
   if (row.prev_state) card.prev_state = row.prev_state;
   if (row.cured_pause_reason != null) card.cured_pause_reason = !!row.cured_pause_reason;
+  if (row.util != null) card.util_post = row.util;
+  if (row.roi != null) card.roi_post = row.roi;
+  if (row.util_post != null) card.util_post = row.util_post;
+  if (row.roi_post != null) card.roi_post = row.roi_post;
   clearHideForResurgido(card);
 }
 
@@ -883,6 +887,8 @@ function refreshResurgidos(data) {
       resurrected_at,
       util,
       roi,
+      util_post: util,
+      roi_post: roi,
       resurrect_reason,
       prev_state,
       cured_pause_reason
@@ -2073,12 +2079,6 @@ function cardKey(card) {
 
 function promoteResurgidosFromDecided(hoySeed, queueBase, decidedAll) {
   const seen = new Set();
-  const mark = (c) => {
-    const key = cardKey(c);
-    if (key) seen.add(key);
-  };
-  (hoySeed || []).forEach(mark);
-  (queueBase || []).forEach(mark);
   const promoted = [];
   const decided = [];
   for (const c of decidedAll || []) {
@@ -2092,13 +2092,24 @@ function promoteResurgidosFromDecided(hoySeed, queueBase, decidedAll) {
     }
     decided.push(c);
   }
-  const hoy = filterVisible(hoySeed || []).slice(0, HOY_MAX);
+  const hoy = [];
   const overflow = [];
-  for (const c of promoted) {
+  const take = (c) => {
+    const key = cardKey(c);
+    if (key && hoy.some((x) => cardKey(x) === key)) return;
     if (hoy.length < HOY_MAX) hoy.push(c);
     else overflow.push(c);
-  }
-  const queue = [...overflow, ...(queueBase || [])];
+  };
+  promoted.forEach(take);
+  filterVisible(hoySeed || []).forEach(take);
+  const hoyKeys = new Set(hoy.map((c) => cardKey(c)).filter(Boolean));
+  const queue = [
+    ...overflow,
+    ...(queueBase || []).filter((c) => {
+      const key = cardKey(c);
+      return !key || !hoyKeys.has(key);
+    })
+  ];
   return { cards: hoy, queue, decided, promoted, overflow };
 }
 
@@ -2713,7 +2724,10 @@ function normCsvHeader(h) {
 }
 
 function afterOfferImport() {
-  return refreshResurgidos(cachedData);
+  const items = refreshResurgidos(cachedData);
+  if (items && items.length) activeTab = TAB_HOY;
+  if (cachedData) paint(cachedData);
+  return items;
 }
 
 function importOfferRows(text) {
@@ -3010,8 +3024,10 @@ async function onImportCsvFile(ev) {
   bits.push("sin tocar ganancia ni techo");
   if (result.resurgidos) bits.push(`${result.resurgidos} resurgido${result.resurgidos === 1 ? "" : "s"}`);
   bits.push("el radar no compra solo");
+  const msg = bits.join(" · ");
   if (cachedData) paint(cachedData);
-  setCsvStatus(bits.join(" · "));
+  setCsvStatus(msg);
+  showToast(msg);
 }
 
 function showToast(message) {

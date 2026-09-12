@@ -112,6 +112,10 @@ def check_spa(html: str, errors: list[str]) -> None:
     hook = extract_fn(html, "afterOfferImport")
     if "refreshResurgidos" not in hook:
         errors.append("afterOfferImport must call refreshResurgidos")
+    if "paint(" not in hook:
+        errors.append("afterOfferImport must re-paint so resurgidos land on Hoy")
+    if "TAB_HOY" not in hook and 'activeTab = "hoy"' not in hook:
+        errors.append("afterOfferImport must switch to Hoy after a resurgido")
     if "mirrorLocal" in hook or "fetch(" in hook:
         errors.append("afterOfferImport must not open a Mac/HTTP path")
 
