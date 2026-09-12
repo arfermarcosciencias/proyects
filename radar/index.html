@@ -1366,16 +1366,17 @@ function hallazgoCsvStatusText() {
 }
 
 function renderHallazgoCsvBar() {
-  if (hallazgoStatus !== "ok" || !hallazgoDoc) return "";
-  const scope = hallazgoFilter !== "ALL"
+  const ready = hallazgoStatus === "ok" && hallazgoDoc;
+  const disabled = ready ? "" : " disabled";
+  const scope = ready && hallazgoFilter !== "ALL"
     ? `<div class="hallazgo-csv-scope" role="group" aria-label="Alcance del CSV">
         <button type="button" class="tab${hallazgoCsvScope !== "all" ? " active" : ""}" data-hallazgo-csv-scope="filter">Solo filtro</button>
         <button type="button" class="tab${hallazgoCsvScope === "all" ? " active" : ""}" data-hallazgo-csv-scope="all">Todos</button>
       </div>`
     : "";
   return `<div class="csv-bar" role="group" aria-label="CSV Hallazgo">
-    <button type="button" class="ghost-btn" id="exportHallazgoCsv">Exportar CSV</button>
-    <button type="button" class="csv-copy" id="copyHallazgoCsv">Copiar CSV</button>
+    <button type="button" class="ghost-btn" id="exportHallazgoCsv"${disabled}>Exportar CSV</button>
+    <button type="button" class="csv-copy" id="copyHallazgoCsv"${disabled}>Copiar CSV</button>
     ${scope}
     <p class="csv-status" id="hallazgoCsvStatus">${esc(`Archivo ${HALLAZGO_CSV_FILE} · ${hallazgoCsvStatusText()}`)}</p>
   </div>`;
