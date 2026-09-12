@@ -226,10 +226,11 @@
   .field{display:flex;flex-direction:column;gap:6px;margin:0 0 12px}
   .field[hidden]{display:none}
   .field label{font-size:13px;font-weight:700;color:var(--text)}
-  .field input,.field select{
+  .field input,.field select,.field textarea{
     min-height:var(--tap);border:1px solid var(--line);border-radius:12px;padding:10px 12px;
     font:inherit;font-size:15px;color:var(--text);background:#fff;
   }
+  .field textarea{min-height:160px;font-size:13px;resize:vertical;line-height:1.4}
   .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .modal-actions{display:grid;grid-template-columns:1fr 1.4fr;gap:10px;margin-top:8px}
   .modal-error{display:none;margin:0 0 10px;font-size:13px;font-weight:700;color:#b91c1c}
@@ -282,6 +283,8 @@ const INBOX_KEY = "radar-hoy:pages_action_inbox:v1";
 const PREFS_KEY = "radar-hoy:prefs:v1";
 const OFFER_KEY = "radar-hoy:external_offer:v1";
 const RESURGIDOS_KEY = "radar-hoy:resurgidos:v1";
+const ESTADO_KEY = "radar-hoy:hallazgo_estado:v1";
+const IMPORT_RESULT_KEY = "radar-hoy:csv_import_result:v1";
 const OFFER_FOUND = "OFERTA_ENCONTRADA";
 const RESURGIDO = "RESURGIDO";
 const RESURGIDO_UTIL_MIN = 120;
@@ -1344,6 +1347,82 @@ function hallazgoDecision(raw) {
   return "MANUAL";
 }
 
+function parseImportedEstado(raw) {
+  const key = String(raw || "").trim().toUpperCase().replace(/[\s-]+/g, "_");
+  if (!key || key === OFFER_FOUND || key === RESURGIDO) return null;
+  if (key === "PRECIOBUENO" || key === "PRECIO_BUENO") return "PRECIO_BUENO";
+  if (DECISION_IDS.includes(key)) return key;
+  return null;
+}
+
+function parseCsvFlag(raw) {
+  const s = String(raw || "").trim();
+  if (!s) return null;
+  const key = s.toLowerCase().replace(/[\s-]+/g, "_");
+  if (key === "true" || key === "1" || key === "si" || key === "sí" || key === "yes") return true;
+  if (offerStatus(s) === OFFER_FOUND) return true;
+  if (key === "false" || key === "0") return false;
+  return null;
+}
+
+function emptyEstadoDoc() {
+  return { schema: "arfershop.radar.hallazgo_estado.v1", updated_at: null, by_sku: {} };
+}
+
+function readEstadoOverlays() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(ESTADO_KEY) || "null");
+    if (raw && raw.by_sku && typeof raw.by_sku === "object") return raw.by_sku;
+    if (raw && typeof raw === "object" && !Array.isArray(raw) && !raw.schema) return raw;
+  } catch { /* ignore */ }
+  return {};
+}
+
+function writeEstadoOverlays(bySku) {
+  localStorage.setItem(ESTADO_KEY, JSON.stringify({
+    schema: "arfershop.radar.hallazgo_estado.v1",
+    updated_at: new Date().toISOString(),
+    by_sku: bySku || {}
+  }));
+}
+
+function writeImportResult(doc) {
+  const next = {
+    schema: "arfershop.radar.csv_import_result.v1",
+    imported_at: new Date().toISOString(),
+    hook: "refreshResurgidos",
+    source_tab: activeTab,
+    ...(doc && typeof doc === "object" ? doc : {})
+  };
+  localStorage.setItem(IMPORT_RESULT_KEY, JSON.stringify(next));
+  return next;
+}
+
+function applyEstadoOverlayToItem(item, ov) {
+  if (!item || !ov) return item;
+  if (ov.estado && DECISION_IDS.includes(ov.estado)) item.decision = ov.estado;
+  if (ov.upc) item.upc = ov.upc;
+  if (ov.qty != null) item.qty = ov.qty;
+  if (ov.techo != null) item.techo_mxn = ov.techo;
+  if (ov.landed != null) item.found_landed = ov.landed;
+  if (ov.margen != null) item.roi_pct = ov.margen;
+  if (ov.gate_ok === true || ov.gate_ok === false) item.gate_ok = ov.gate_ok;
+  if (ov.why) item.por_que = ov.why;
+  if (ov.url_amazon) item.url_amazon = ov.url_amazon;
+  if (ov.url_ml) item.url_ml = ov.url_ml;
+  if (ov.url_oferta) item.url_oferta = ov.url_oferta;
+  if (ov.notas) item.notas = ov.notas;
+  return item;
+}
+
+function applyEstadoOverlaysToDoc(doc) {
+  if (!doc || !Array.isArray(doc.items)) return doc;
+  const bySku = readEstadoOverlays();
+  for (const it of doc.items) applyEstadoOverlayToItem(it, bySku[asText(it.sku)]);
+  doc.counts = countHallazgoItems(doc.items);
+  return doc;
+}
+
 function numOrNull(v) {
   if (v == null || v === "") return null;
   const n = Number(v);
@@ -1633,6 +1712,9 @@ function renderHallazgoCsvBar() {
   return `<div class="csv-bar" role="group" aria-label="CSV Hallazgo">
     <button type="button" class="ghost-btn" id="exportHallazgoCsv"${disabled}>Exportar CSV</button>
     <button type="button" class="csv-copy" id="copyHallazgoCsv"${disabled}>Copiar CSV</button>
+    <button type="button" class="ghost-btn" id="importHallazgoCsv">Importar CSV</button>
+    <button type="button" class="ghost-btn" id="pasteHallazgoCsv">Pegar CSV</button>
+    <input id="importHallazgoCsvFile" type="file" accept=".csv,text/csv,text/plain" hidden>
     ${scope}
     <p class="csv-status" id="hallazgoCsvStatus">${esc(`Archivo ${HALLAZGO_CSV_FILE} · ${hallazgoCsvStatusText()}`)}</p>
   </div>`;
@@ -1653,6 +1735,9 @@ function renderHoyCsvBar(n) {
   return `<div class="csv-bar" role="group" aria-label="CSV Hoy">
     <button type="button" class="ghost-btn" id="exportHoyCsv">Exportar CSV</button>
     <button type="button" class="csv-copy" id="copyHoyCsv">Copiar CSV</button>
+    <button type="button" class="ghost-btn" id="importHoyCsv">Importar CSV</button>
+    <button type="button" class="ghost-btn" id="pasteHoyCsv">Pegar CSV</button>
+    <input id="importHoyCsvFile" type="file" accept=".csv,text/csv,text/plain" hidden>
     <p class="csv-status" id="hoyCsvStatus">${esc(`Archivo ${HOY_CSV_FILE} · ${label}`)}</p>
   </div>`;
 }
@@ -1662,6 +1747,9 @@ function renderDecidedCsvBar(n) {
   return `<div class="csv-bar" role="group" aria-label="CSV Ya decididas">
     <button type="button" class="ghost-btn" id="exportDecidedCsv">Exportar CSV</button>
     <button type="button" class="csv-copy" id="copyDecidedCsv">Copiar CSV</button>
+    <button type="button" class="ghost-btn" id="importDecidedCsv">Importar CSV</button>
+    <button type="button" class="ghost-btn" id="pasteDecidedCsv">Pegar CSV</button>
+    <input id="importDecidedCsvFile" type="file" accept=".csv,text/csv,text/plain" hidden>
     <p class="csv-status" id="decidedCsvStatus">${esc(`Archivo ${DECIDED_CSV_FILE} · ${label}`)}</p>
   </div>`;
 }
@@ -2410,6 +2498,9 @@ function importOfferRows(text) {
     const get = (k) => (col[k] >= 0 ? r[col[k]] : "");
     const sku = asText(get("sku"));
     if (!sku) { skipped++; continue; }
+    const statusRaw = get("status");
+    const statusNorm = offerStatus(statusRaw);
+    const status = (DECISION_IDS.includes(statusNorm) || statusNorm === RESURGIDO) ? "" : statusRaw;
     const raw = {
       export_id: get("export_id"),
       sku,
@@ -2419,7 +2510,7 @@ function importOfferRows(text) {
       shipping: get("shipping"),
       fees: get("fees"),
       found_landed: get("found_landed"),
-      status: get("status"),
+      status,
       imported_at: new Date().toISOString()
     };
     const offer = normalizeExternalOffer(raw);
@@ -2434,6 +2525,209 @@ function importOfferRows(text) {
   writeOfferOverlays(bySku);
   const resurgidos = refreshResurgidos(cachedData);
   return { applied, skipped, resurgidos: resurgidos.length };
+}
+
+function csvHeaderIndex(headers, ...names) {
+  for (const n of names) {
+    const i = headers.indexOf(n);
+    if (i >= 0) return i;
+  }
+  return -1;
+}
+
+function importEstadoRows(text) {
+  const rows = parseCsv(text);
+  if (rows.length < 2) return { applied: 0, skipped: 0, estados: 0, ofertas: 0, resurgidos: 0, error: "El CSV no tiene filas" };
+  const headers = rows[0].map(normCsvHeader);
+  const idx = (...names) => csvHeaderIndex(headers, ...names);
+  const col = {
+    sku: idx("sku"),
+    upc: idx("upc"),
+    estado: idx("estado"),
+    qty: idx("qty"),
+    techo: idx("techo", "techo_mxn", "max_landed_cost"),
+    landed: idx("landed", "found_landed", "found_landed_cost_mxn"),
+    margen: idx("margen", "roi_pct", "roi"),
+    gate_ok: idx("gate_ok"),
+    why: idx("why", "por_que"),
+    url_amazon: idx("url_amazon", "shopping_url"),
+    url_ml: idx("url_ml", "marketplace_url"),
+    url_oferta: idx("url_oferta", "found_url", "offer_url"),
+    notas: idx("notas", "notes"),
+    oferta_encontrada: idx("oferta_encontrada")
+  };
+  if (col.sku < 0) return { applied: 0, skipped: 0, estados: 0, ofertas: 0, resurgidos: 0, error: "Falta la columna sku" };
+  const byEstado = { ...readEstadoOverlays() };
+  const byOffer = { ...readOfferOverlays() };
+  const importedAt = new Date().toISOString();
+  let applied = 0;
+  let skipped = 0;
+  let estados = 0;
+  let ofertas = 0;
+  for (const r of rows.slice(1)) {
+    const get = (k) => (col[k] >= 0 ? r[col[k]] : "");
+    const sku = asText(get("sku"));
+    if (!sku) { skipped++; continue; }
+    const estado = parseImportedEstado(get("estado"));
+    const offerFlag = parseCsvFlag(get("oferta_encontrada"));
+    const urlOferta = asText(get("url_oferta"));
+    const landed = parseMoney(get("landed"));
+    const upc = asText(get("upc"));
+    const qty = numOrNull(get("qty"));
+    const techo = parseMoney(get("techo"));
+    const margen = numOrNull(get("margen"));
+    const gate_ok = parseCsvFlag(get("gate_ok"));
+    const why = asText(get("why"));
+    const urlAmazon = asText(get("url_amazon"));
+    const urlMl = asText(get("url_ml"));
+    const notas = asText(get("notas"));
+    const hasEstado = !!estado;
+    const hasEnrich = !!(upc || qty != null || techo != null || landed != null || margen != null || gate_ok != null || why || urlAmazon || urlMl || urlOferta || notas || offerFlag != null);
+    if (!hasEstado && !hasEnrich) { skipped++; continue; }
+    const prev = byEstado[sku] && typeof byEstado[sku] === "object" ? { ...byEstado[sku] } : { sku };
+    prev.sku = sku;
+    prev.imported_at = importedAt;
+    if (hasEstado) prev.estado = estado;
+    if (upc) prev.upc = upc;
+    if (qty != null) prev.qty = qty;
+    if (techo != null) prev.techo = techo;
+    if (landed != null) prev.landed = landed;
+    if (margen != null) prev.margen = margen;
+    if (gate_ok === true || gate_ok === false) prev.gate_ok = gate_ok;
+    if (why) prev.why = why;
+    if (urlAmazon) prev.url_amazon = urlAmazon;
+    if (urlMl) prev.url_ml = urlMl;
+    if (urlOferta) prev.url_oferta = urlOferta;
+    if (notas) prev.notas = notas;
+    if (offerFlag != null) prev.oferta_encontrada = offerFlag;
+    byEstado[sku] = prev;
+    if (hasEstado) estados++;
+    const wantOffer = offerFlag === true || (offerFlag !== false && (!!urlOferta || landed != null));
+    if (wantOffer) {
+      const offer = normalizeExternalOffer({
+        sku,
+        found_url: urlOferta,
+        found_landed: landed,
+        status: OFFER_FOUND,
+        imported_at: importedAt
+      });
+      if (offer) {
+        byOffer[sku] = offer;
+        ofertas++;
+      }
+    }
+    applied++;
+  }
+  writeEstadoOverlays(byEstado);
+  writeOfferOverlays(byOffer);
+  if (hallazgoDoc) applyEstadoOverlaysToDoc(hallazgoDoc);
+  const resurgidos = refreshResurgidos(cachedData);
+  const result = {
+    applied,
+    skipped,
+    estados,
+    ofertas,
+    resurgidos: resurgidos.length,
+    hook: "refreshResurgidos",
+    source_tab: activeTab
+  };
+  writeImportResult(result);
+  mirrorLocal({ type: "csv_import", ...result });
+  return result;
+}
+
+function estadoImportMessage(result) {
+  if (!result || result.error) return (result && result.error) || "No pude importar el CSV";
+  const bits = [];
+  if (result.estados) bits.push(`${result.estados} estado${result.estados === 1 ? "" : "s"}`);
+  if (result.ofertas) bits.push(`${result.ofertas} oferta${result.ofertas === 1 ? "" : "s"}`);
+  if (!bits.length) bits.push(`${result.applied} fila${result.applied === 1 ? "" : "s"}`);
+  if (result.skipped) bits.push(`${result.skipped} sin datos`);
+  if (result.resurgidos) bits.push(`${result.resurgidos} resurgido${result.resurgidos === 1 ? "" : "s"}`);
+  bits.push("el radar no compra solo");
+  return "Aplicamos " + bits.join(" · ");
+}
+
+function setEstadoCsvStatus(msg) {
+  for (const id of ["hallazgoCsvStatus", "hoyCsvStatus", "decidedCsvStatus"]) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    el.hidden = false;
+    el.textContent = msg;
+  }
+}
+
+function finishEstadoImport(text) {
+  const result = importEstadoRows(text);
+  const msg = estadoImportMessage(result);
+  if (result.error) {
+    showToast(msg);
+    setEstadoCsvStatus(msg);
+    return;
+  }
+  if (cachedData) paint(cachedData);
+  showToast(msg);
+  setEstadoCsvStatus(msg);
+}
+
+async function onImportEstadoFile(ev) {
+  const file = ev.target && ev.target.files && ev.target.files[0];
+  ev.target.value = "";
+  if (!file) return;
+  let text = "";
+  try {
+    text = await file.text();
+  } catch (_) {
+    showToast("No pude leer el CSV");
+    setEstadoCsvStatus("No pude leer el CSV");
+    return;
+  }
+  finishEstadoImport(text);
+}
+
+function openPasteCsvModal() {
+  lastFocus = document.activeElement;
+  const root = document.getElementById("modal-root");
+  root.hidden = false;
+  root.innerHTML = `
+    <div class="modal-backdrop" data-close="1"></div>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="paste-csv-title">
+      <h2 id="paste-csv-title">Pegar CSV</h2>
+      <p class="hint">Merge por sku. Escribe los 5 estados (RECOMPRAR, PRECIO_BUENO, ESPERAR, NO, MANUAL). oferta_encontrada / OFERTA_ENCONTRADA va aparte — nunca se vuelve RECOMPRAR.</p>
+      <form id="paste-csv-form">
+        <div class="field">
+          <label for="paste-csv-text">CSV</label>
+          <textarea id="paste-csv-text" name="csv" rows="8" placeholder="sku,upc,estado,qty,techo,landed,margen,gate_ok,why,url_amazon,url_ml,url_oferta,notas,oferta_encontrada"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-close="1">Cierra</button>
+          <button type="submit" class="btn-primary" id="paste-csv-apply">Aplicar</button>
+        </div>
+      </form>
+    </div>`;
+  document.addEventListener("keydown", onModalKey);
+  root.querySelectorAll("[data-close]").forEach((el) => el.addEventListener("click", closeModal));
+  const ta = document.getElementById("paste-csv-text");
+  document.getElementById("paste-csv-form")?.addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    const text = ta ? ta.value : "";
+    closeModal();
+    finishEstadoImport(text);
+  });
+  if (ta) ta.focus();
+}
+
+function wireEstadoImport() {
+  const bind = (btnId, fileId) => {
+    document.getElementById(btnId)?.addEventListener("click", () => document.getElementById(fileId)?.click());
+    document.getElementById(fileId)?.addEventListener("change", onImportEstadoFile);
+  };
+  bind("importHallazgoCsv", "importHallazgoCsvFile");
+  bind("importHoyCsv", "importHoyCsvFile");
+  bind("importDecidedCsv", "importDecidedCsvFile");
+  document.getElementById("pasteHallazgoCsv")?.addEventListener("click", openPasteCsvModal);
+  document.getElementById("pasteHoyCsv")?.addEventListener("click", openPasteCsvModal);
+  document.getElementById("pasteDecidedCsv")?.addEventListener("click", openPasteCsvModal);
 }
 
 function setCsvStatus(msg) {
@@ -2969,6 +3263,7 @@ function paint(data) {
   document.getElementById("copyDecidedCsv")?.addEventListener("click", copyDecidedCsv);
   document.getElementById("importCsv")?.addEventListener("click", () => document.getElementById("importCsvFile")?.click());
   document.getElementById("importCsvFile")?.addEventListener("change", onImportCsvFile);
+  wireEstadoImport();
   document.getElementById("retryAllSync")?.addEventListener("click", retryAllPending);
   document.getElementById("copyPendingJson")?.addEventListener("click", copyPendingJson);
   document.getElementById("dlPendingJson")?.addEventListener("click", () => {
@@ -3000,7 +3295,7 @@ async function loadHallazgo() {
     }
     if (!res.ok) throw new Error("No encontré hallazgos_inventario.json");
     const raw = await res.json();
-    hallazgoDoc = normalizeHallazgoDoc(raw);
+    hallazgoDoc = applyEstadoOverlaysToDoc(normalizeHallazgoDoc(raw));
     hallazgoStatus = "ok";
   } catch (e) {
     hallazgoDoc = null;

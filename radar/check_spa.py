@@ -65,6 +65,16 @@ MARKERS = [
     ("Hallazgo CSV Todos", r"data-hallazgo-csv-scope=[\"']all[\"']"),
     ("oferta_encontrada column", r"oferta_encontrada"),
     ("queue Importar still present", r"id=[\"']importCsv[\"']"),
+    ("queue importOfferRows", r"function importOfferRows\("),
+    ("Hallazgo Importar CSV", r"id=[\"']importHallazgoCsv[\"']"),
+    ("Hoy Importar CSV", r"id=[\"']importHoyCsv[\"']"),
+    ("Ya Importar CSV", r"id=[\"']importDecidedCsv[\"']"),
+    ("Pegar CSV", r"Pegar CSV"),
+    ("parseImportedEstado", r"function parseImportedEstado\("),
+    ("importEstadoRows", r"function importEstadoRows\("),
+    ("estado overlay key", r"radar-hoy:hallazgo_estado:v1"),
+    ("csv import result hook", r"radar-hoy:csv_import_result:v1"),
+    ("import hook refreshResurgidos", r"writeImportResult"),
     ("hoy csv filename", r"radar-hoy\.csv"),
     ("decided csv filename", r"radar-ya-decididas\.csv"),
     ("exportHoyCsv", r"function exportHoyCsv\("),
@@ -94,8 +104,8 @@ BANNED = [
     ("small-file data URI CSV", r"text\.length\s*<\s*800000"),
     ("hidden download anchor display:none", r"a\.style\.display\s*=\s*['\"]none['\"]"),
     ("data URI href download", r"a\.href\s*=\s*['\"]data:"),
-    ("Hallazgo Import this PR", r"importHallazgoCsv|id=[\"']importHallazgoCsv[\"']"),
     ("Hallazgo CSV hidden until ok", r"if \(hallazgoStatus !== [\"']ok[\"'] \|\| !hallazgoDoc\) return [\"'][\"']"),
+    ("offer mapped to RECOMPRAR", r"estado\s*=\s*[\"']RECOMPRAR[\"'].*oferta|oferta.*estado\s*=\s*[\"']RECOMPRAR[\"']"),
 ]
 
 
@@ -245,6 +255,13 @@ def main() -> int:
         from test_resucitar import main as resucitar_main
     if resucitar_main() != 0:
         errors.append("radar/test_resucitar.py failed")
+    try:
+        from test_import_csv import main as import_csv_main
+    except ImportError:
+        sys.path.insert(0, str(ROOT / "radar"))
+        from test_import_csv import main as import_csv_main
+    if import_csv_main() != 0:
+        errors.append("radar/test_import_csv.py failed")
     if errors:
         print("radar SPA guard FAILED:")
         for e in errors:
