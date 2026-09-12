@@ -115,8 +115,19 @@ const parked = {
 const buItems = refreshResurgidos(parked);
 const buHit = buItems.find((x) => x.sku === "07BU001");
 const eco = resurgeEconomics(parked.dismissed_or_paused[0], cardExternalOffer(parked.dismissed_or_paused[0]));
-const buOk = !!(buHit && buHit.status === "RESURGIDO" && parked.dismissed_or_paused[0].resurgido
-  && eco.from_landed && eco.util >= 120 && eco.roi >= 30 && eco.margen > 0);
+const buCard = parked.dismissed_or_paused[0];
+const extra = techoExtra(buCard);
+const extraWant = `ganas ~${money0(eco.util)} (ROI ~${Number(eco.roi).toFixed(0)}%)`;
+const extraStale = `ganas ~${money0(estimatedGain(buCard))} (ROI ~${Number(estimatedRoi(buCard)).toFixed(0)}%)`;
+const extraOk = extra === extraWant && extra !== extraStale && !/ROI ~9%/.test(extra);
+const stampedOk = !!(buCard.util_post != null && buCard.roi_post != null
+  && Math.abs(buCard.util_post - eco.util) < 0.01
+  && Math.abs(buCard.roi_post - eco.roi) < 0.01
+  && buCard.util === buCard.util_post && buCard.roi === buCard.roi_post);
+const rowPostOk = !!(buHit && buHit.util_post != null && buHit.roi_post != null);
+const buOk = !!(buHit && buHit.status === "RESURGIDO" && buCard.resurgido
+  && eco.from_landed && eco.util >= 120 && eco.roi >= 30 && eco.margen > 0
+  && extraOk && stampedOk && rowPostOk);
 
 cachedData = {
   cards: JSON.parse(JSON.stringify(CASES.cards || [])).slice(0, 3),
@@ -133,12 +144,12 @@ const seedSkus = (CASES.cards || []).slice(0, 3).map((c) => c.sku);
 const displaced = (lists.queue || []).some((c) => seedSkus.includes(c.sku));
 const promoteOk = !!(afterHit && onHoy && activeTab === TAB_HOY && displaced && hoySkus.length <= HOY_MAX);
 
-const out = { hiddenOk, buOk, promoteOk, onHoy, activeTab, hoySkus, displaced, hiddenItems, buItems, eco };
+const out = { hiddenOk, buOk, extraOk, stampedOk, rowPostOk, extra, extraWant, extraStale, promoteOk, onHoy, activeTab, hoySkus, displaced, hiddenItems, buItems, eco };
 if (!hiddenOk || !buOk || !promoteOk) {
   console.error(JSON.stringify(out));
   process.exit(1);
 }
-console.log(JSON.stringify({ hiddenOk, buOk, promoteOk, buUtil: eco.util, buRoi: eco.roi, onHoy, hoySkus }));
+console.log(JSON.stringify({ hiddenOk, buOk, extraOk, stampedOk, promoteOk, buUtil: eco.util, buRoi: eco.roi, extra, onHoy, hoySkus }));
 """
     node_src = (
         harness
@@ -211,6 +222,12 @@ def main() -> int:
         ("hasLocalDecision", r"function hasLocalDecision\("),
         ("resurgeEconomics", r"function resurgeEconomics\("),
         ("stampResurgidoCard", r"function stampResurgidoCard\("),
+        ("displayGain prefers post", r"function displayGain\("),
+        ("displayRoi prefers post", r"function displayRoi\("),
+        ("techoExtra uses displayGain", r"function techoExtra\([^)]*\)\s*\{[\s\S]{0,80}displayGain\("),
+        ("techoExtra uses displayRoi", r"function techoExtra\([^)]*\)\s*\{[\s\S]{0,120}displayRoi\("),
+        ("stamp util_post", r"card\.util_post"),
+        ("stamp roi_post", r"card\.roi_post"),
         ("afterOfferImport setActiveTab Hoy", r"function afterOfferImport\([^)]*\)\s*\{[\s\S]{0,240}setActiveTab\(TAB_HOY\)"),
         ("afterOfferImport paints", r"function afterOfferImport\([^)]*\)\s*\{[\s\S]{0,280}paint\("),
         ("promote takes resurgidos first", r"promoted\.forEach\(take\)"),
