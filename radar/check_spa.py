@@ -86,6 +86,7 @@ BANNED = [
     ("hidden download anchor display:none", r"a\.style\.display\s*=\s*['\"]none['\"]"),
     ("data URI href download", r"a\.href\s*=\s*['\"]data:"),
     ("Hallazgo Import this PR", r"importHallazgoCsv|id=[\"']importHallazgoCsv[\"']"),
+    ("Hallazgo CSV hidden until ok", r"if \(hallazgoStatus !== [\"']ok[\"'] \|\| !hallazgoDoc\) return [\"'][\"']"),
 ]
 
 
