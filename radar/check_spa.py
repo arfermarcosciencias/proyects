@@ -74,7 +74,7 @@ MARKERS = [
     ("importEstadoRows", r"function importEstadoRows\("),
     ("estado overlay key", r"radar-hoy:hallazgo_estado:v1"),
     ("csv import result hook", r"radar-hoy:csv_import_result:v1"),
-    ("import hook refreshResurgidos", r"writeImportResult"),
+    ("import hook refreshResurgidos", r"function afterOfferImport\("),
     ("hoy csv filename", r"radar-hoy\.csv"),
     ("decided csv filename", r"radar-ya-decididas\.csv"),
     ("exportHoyCsv", r"function exportHoyCsv\("),

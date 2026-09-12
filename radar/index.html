@@ -2637,6 +2637,10 @@ function normCsvHeader(h) {
   return String(h || "").trim().toLowerCase().replace(/^\uFEFF/, "").replace(/[\s-]+/g, "_");
 }
 
+function afterOfferImport() {
+  return refreshResurgidos(cachedData);
+}
+
 function importOfferRows(text) {
   const rows = parseCsv(text);
   if (rows.length < 2) return { applied: 0, skipped: 0, error: "El CSV no tiene filas" };
@@ -2692,7 +2696,7 @@ function importOfferRows(text) {
     applied++;
   }
   writeOfferOverlays(bySku);
-  const resurgidos = refreshResurgidos(cachedData);
+  const resurgidos = afterOfferImport();
   return { applied, skipped, resurgidos: resurgidos.length };
 }
 
@@ -2790,7 +2794,7 @@ function importEstadoRows(text) {
   writeEstadoOverlays(byEstado);
   writeOfferOverlays(byOffer);
   if (hallazgoDoc) applyEstadoOverlaysToDoc(hallazgoDoc);
-  const resurgidos = refreshResurgidos(cachedData);
+  const resurgidos = afterOfferImport();
   const result = {
     applied,
     skipped,
@@ -2801,7 +2805,6 @@ function importEstadoRows(text) {
     source_tab: activeTab
   };
   writeImportResult(result);
-  mirrorLocal({ type: "csv_import", ...result });
   return result;
 }
 

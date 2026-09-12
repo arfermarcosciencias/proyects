@@ -69,6 +69,7 @@ def check_spa(html: str, errors: list[str]) -> None:
         ("Pegar CSV", r"Pegar CSV"),
         ("parseImportedEstado", r"function parseImportedEstado\("),
         ("importEstadoRows", r"function importEstadoRows\("),
+        ("afterOfferImport hook", r"function afterOfferImport\("),
         ("writeImportResult", r"function writeImportResult\("),
         ("ESTADO_KEY", r"radar-hoy:hallazgo_estado:v1"),
         ("IMPORT_RESULT_KEY", r"radar-hoy:csv_import_result:v1"),
@@ -91,21 +92,28 @@ def check_spa(html: str, errors: list[str]) -> None:
         errors.append("importEstadoRows must keep oferta_encontrada as its own column")
     if re.search(r"parseImportedEstado\(get\([\"']oferta_encontrada[\"']\)\)", imp):
         errors.append("importEstadoRows must not parse oferta_encontrada as estado")
-    if "refreshResurgidos" not in imp:
-        errors.append("importEstadoRows must hook refreshResurgidos (Codex #14)")
+    if "afterOfferImport" not in imp:
+        errors.append("importEstadoRows must reuse afterOfferImport → refreshResurgidos (#14)")
+    if "mirrorLocal" in imp or "/api/" in imp:
+        errors.append("importEstadoRows must not call Mac bridge or a new endpoint")
     if "writeImportResult" not in imp:
-        errors.append("importEstadoRows must store csv_import_result for Codex/Mac eval")
+        errors.append("importEstadoRows must store csv_import_result locally (no Mac)")
     if re.search(r"estado\s*=\s*[\"']RECOMPRAR[\"']", imp):
         errors.append("importEstadoRows must never hardcode estado=RECOMPRAR from offer")
 
     offer_imp = extract_fn(html, "importOfferRows")
     if "function importOfferRows" not in offer_imp:
         errors.append("Más oportunidades importOfferRows must stay")
+    if "afterOfferImport" not in offer_imp:
+        errors.append("importOfferRows must reuse afterOfferImport → refreshResurgidos (#14)")
     if "DECISION_IDS.includes(statusNorm)" not in offer_imp:
         errors.append("importOfferRows must ignore the 5 estados as offer status")
 
-    if "moverAHoy" in html or "moveToHoy" in html:
-        errors.append("no RESURGIDO move UI in this PR")
+    hook = extract_fn(html, "afterOfferImport")
+    if "refreshResurgidos" not in hook:
+        errors.append("afterOfferImport must call refreshResurgidos")
+    if "mirrorLocal" in hook or "fetch(" in hook:
+        errors.append("afterOfferImport must not open a Mac/HTTP path")
 
 
 def check_locked_cols(html: str, errors: list[str]) -> None:
