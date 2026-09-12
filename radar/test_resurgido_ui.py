@@ -209,6 +209,7 @@ def main() -> int:
         ("roi_post stamp", r"roi_post"),
         ("afterOfferImport paints", r"function afterOfferImport\([\s\S]*paint\("),
         ("sin tocar ganancia toast", r"sin tocar ganancia ni techo"),
+        ("estadoImport keeps sin tocar", r"function estadoImportMessage\([\s\S]*sin tocar ganancia ni techo"),
     ):
         if re.search(pat, html) is None:
             errors.append(f"missing {label}")

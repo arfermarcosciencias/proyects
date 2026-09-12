@@ -2911,6 +2911,7 @@ function estadoImportMessage(result) {
   if (result.estados) bits.push(`${result.estados} estado${result.estados === 1 ? "" : "s"}`);
   if (result.ofertas) bits.push(`${result.ofertas} oferta${result.ofertas === 1 ? "" : "s"}`);
   if (!bits.length) bits.push(`${result.applied} fila${result.applied === 1 ? "" : "s"}`);
+  if (result.ofertas) bits.push("sin tocar ganancia ni techo");
   if (result.skipped) bits.push(`${result.skipped} sin datos`);
   if (result.resurgidos) bits.push(`${result.resurgidos} resurgido${result.resurgidos === 1 ? "" : "s"}`);
   bits.push("el radar no compra solo");
