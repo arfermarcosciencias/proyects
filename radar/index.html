@@ -846,6 +846,16 @@ function stampResurgidoCard(card, row) {
   card.resurrect_reason = row.resurrect_reason || "gate_ok_post_import";
   if (row.prev_state) card.prev_state = row.prev_state;
   if (row.cured_pause_reason != null) card.cured_pause_reason = !!row.cured_pause_reason;
+  const util = firstMoney(row && row.util_post, row && row.util);
+  const roi = firstMoney(row && row.roi_post, row && row.roi);
+  if (util != null) {
+    card.util = util;
+    card.util_post = util;
+  }
+  if (roi != null) {
+    card.roi = roi;
+    card.roi_post = roi;
+  }
   clearHideForResurgido(card);
 }
 
@@ -883,6 +893,8 @@ function refreshResurgidos(data) {
       resurrected_at,
       util,
       roi,
+      util_post: util,
+      roi_post: roi,
       resurrect_reason,
       prev_state,
       cured_pause_reason
@@ -921,8 +933,43 @@ function verbTitle(card) {
   return n === 1 ? `Compra ${name}` : `Compra ${n} de ${name}`;
 }
 
+function firstMoney(...vals) {
+  for (const v of vals) {
+    const n = parseMoney(v);
+    if (n != null) return n;
+  }
+  return null;
+}
+
+function resurgidoRowOf(card) {
+  const sku = asText(card && card.sku);
+  return sku ? (resurgidoBySku.get(sku) || null) : null;
+}
+
+function displayGain(card) {
+  const row = resurgidoRowOf(card);
+  const n = firstMoney(
+    card && card.util_post,
+    card && card.util,
+    row && row.util_post,
+    row && row.util
+  );
+  return n != null ? n : estimatedGain(card);
+}
+
+function displayRoi(card) {
+  const row = resurgidoRowOf(card);
+  const n = firstMoney(
+    card && card.roi_post,
+    card && card.roi,
+    row && row.roi_post,
+    row && row.roi
+  );
+  return n != null ? n : estimatedRoi(card);
+}
+
 function plataLine(card) {
-  const g = estimatedGain(card);
+  const g = displayGain(card);
   if (g == null) return null;
   return `~gánele ${money0(g)}`;
 }
@@ -1067,8 +1114,8 @@ function offerLandedHtml(card, offer) {
 }
 
 function techoExtra(card) {
-  const g = estimatedGain(card);
-  const r = estimatedRoi(card);
+  const g = displayGain(card);
+  const r = displayRoi(card);
   if (g != null && r != null) return `ganas ~${money0(g)} (ROI ~${Number(r).toFixed(0)}%)`;
   if (g != null) return `ganas ~${money0(g)}`;
   if (r != null) return `mantén un ROI de ~${Number(r).toFixed(0)}%`;
@@ -2389,8 +2436,10 @@ function renderResurgidosStrip() {
   if (!items.length) return "";
   const lis = items.map((it) => {
     const bits = [];
-    if (it.util != null) bits.push(`ganas ~${money0(it.util)}`);
-    if (it.roi != null) bits.push(`ROI ~${Number(it.roi).toFixed(0)}%`);
+    const util = firstMoney(it.util_post, it.util);
+    const roi = firstMoney(it.roi_post, it.roi);
+    if (util != null) bits.push(`ganas ~${money0(util)}`);
+    if (roi != null) bits.push(`ROI ~${Number(roi).toFixed(0)}%`);
     const tab = tabForResurgidoSku(it.sku);
     return `<li><button type="button" class="resurge-item" data-tab="${tab}">${esc(it.sku || "")}${bits.length ? " · " + esc(bits.join(" · ")) : ""} · Resurgido</button></li>`;
   }).join("");
