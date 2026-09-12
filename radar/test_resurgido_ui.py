@@ -47,16 +47,35 @@ globalThis.localStorage = {
   key(i) { return [...store.keys()][i]; },
   get length() { return store.size; }
 };
-globalThis.window = { addEventListener() {}, location: { hash: "" } };
+function fakeEl() {
+  return {
+    innerHTML: "",
+    textContent: "",
+    hidden: false,
+    classList: { toggle() {}, add() {}, remove() {} },
+    addEventListener() {},
+    querySelector() { return null; },
+    querySelectorAll() { return []; },
+    setAttribute() {},
+    getAttribute() { return ""; }
+  };
+}
+globalThis.window = { addEventListener() {}, location: { hash: "", pathname: "/", search: "" } };
 globalThis.document = {
-  getElementById() { return { innerHTML: "", classList: { toggle() {} }, addEventListener() {} }; },
+  getElementById() { return fakeEl(); },
   addEventListener() {},
-  title: ""
+  title: "",
+  body: fakeEl(),
+  createElement() { return fakeEl(); }
 };
+globalThis.location = globalThis.window.location;
+globalThis.history = { replaceState() {} };
 """
     cases = {
         "hoy": hoy,
         "bu": bu,
+        "cards": cards,
+        "queue": [c for c in (snap.get("queue") or []) if isinstance(c, dict)][:4],
     }
     runner = r"""
 const hoy = CASES.hoy;
@@ -87,23 +106,30 @@ const hiddenItems = refreshResurgidos(hiddenOnly);
 const hiddenHit = hiddenItems.find((x) => x.sku === hoy.sku);
 const hiddenOk = !!(hiddenHit && hiddenHit.status === "RESURGIDO" && hiddenOnly.cards[0].resurgido);
 
-const parked = {
-  cards: [],
-  queue: [],
+cachedData = {
+  cards: JSON.parse(JSON.stringify(CASES.cards || [])),
+  queue: JSON.parse(JSON.stringify(CASES.queue || [])),
   dismissed_or_paused: [JSON.parse(JSON.stringify(bu))]
 };
-const buItems = refreshResurgidos(parked);
+activeTab = TAB_QUEUE;
+const buItems = afterOfferImport();
 const buHit = buItems.find((x) => x.sku === "07BU001");
-const eco = resurgeEconomics(parked.dismissed_or_paused[0], cardExternalOffer(parked.dismissed_or_paused[0]));
-const buOk = !!(buHit && buHit.status === "RESURGIDO" && parked.dismissed_or_paused[0].resurgido
-  && eco.from_landed && eco.util >= 120 && eco.roi >= 30 && eco.margen > 0);
+const stamped = cachedData.dismissed_or_paused[0];
+const eco = resurgeEconomics(stamped, cardExternalOffer(stamped));
+const lists = tabLists(cachedData);
+const onHoy = (lists.cards || []).some((c) => c.sku === "07BU001" && isResurgido(c));
+const buOk = !!(buHit && buHit.status === "RESURGIDO" && stamped.resurgido
+  && eco.from_landed && eco.util >= 120 && eco.roi >= 30 && eco.margen > 0
+  && buHit.util_post >= 120 && buHit.roi_post >= 30
+  && stamped.util_post >= 120 && stamped.roi_post >= 30
+  && onHoy && activeTab === TAB_HOY);
 
-const out = { hiddenOk, buOk, hiddenItems, buItems, eco };
+const out = { hiddenOk, buOk, hiddenItems, buItems, eco, onHoy, activeTab, hoySkus: (lists.cards || []).map((c) => c.sku) };
 if (!hiddenOk || !buOk) {
   console.error(JSON.stringify(out));
   process.exit(1);
 }
-console.log(JSON.stringify({ hiddenOk, buOk, buUtil: eco.util, buRoi: eco.roi }));
+console.log(JSON.stringify({ hiddenOk, buOk, buUtil: eco.util, buRoi: eco.roi, onHoy, hoySkus: out.hoySkus }));
 """
     node_src = (
         harness
@@ -138,10 +164,10 @@ console.log(JSON.stringify({ hiddenOk, buOk, buUtil: eco.util, buRoi: eco.roi })
 
 
 def slots_for_resurgidos(hoy_visible: int, n_resurgidos: int, hoy_max: int = HOY_MAX) -> tuple[int, int]:
-    """How many resurgidos go to Hoy vs Más oportunidades when Hoy already has hoy_visible cards."""
-    room = max(0, hoy_max - max(0, hoy_visible))
-    to_hoy = min(room, n_resurgidos)
-    to_queue = n_resurgidos - to_hoy
+    """Resurgidos take Hoy slots first (displace executables). Overflow only past HOY_MAX."""
+    del hoy_visible  # existing Hoy cards yield slots; not a cap on resurgidos
+    to_hoy = min(max(0, n_resurgidos), hoy_max)
+    to_queue = max(0, n_resurgidos - to_hoy)
     return to_hoy, to_queue
 
 
@@ -176,6 +202,10 @@ def main() -> int:
         ("hasLocalDecision", r"function hasLocalDecision\("),
         ("resurgeEconomics", r"function resurgeEconomics\("),
         ("stampResurgidoCard", r"function stampResurgidoCard\("),
+        ("util_post stamp", r"util_post"),
+        ("roi_post stamp", r"roi_post"),
+        ("afterOfferImport paints", r"function afterOfferImport\([\s\S]*paint\("),
+        ("sin tocar ganancia toast", r"sin tocar ganancia ni techo"),
     ):
         if re.search(pat, html) is None:
             errors.append(f"missing {label}")
@@ -199,9 +229,9 @@ def main() -> int:
     errors.extend(js_errors)
 
     cases = [
-        (3, 2, 0, 2, "Hoy full → overflow to Más oportunidades"),
+        (3, 2, 2, 0, "Hoy full → resurgidos still take Hoy slots"),
         (0, 2, 2, 0, "Hoy empty → fill Hoy"),
-        (2, 4, 1, 3, "Hoy has 1 slot → 1 Hoy + 3 queue"),
+        (2, 4, 3, 1, "4 resurgidos → 3 Hoy + 1 queue"),
         (3, 0, 0, 0, "no resurgidos"),
     ]
     for hoy_visible, n, expect_hoy, expect_queue, why in cases:
