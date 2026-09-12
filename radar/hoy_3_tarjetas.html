@@ -2073,32 +2073,42 @@ function cardKey(card) {
 
 function promoteResurgidosFromDecided(hoySeed, queueBase, decidedAll) {
   const seen = new Set();
-  const mark = (c) => {
-    const key = cardKey(c);
-    if (key) seen.add(key);
-  };
-  (hoySeed || []).forEach(mark);
-  (queueBase || []).forEach(mark);
   const promoted = [];
   const decided = [];
-  for (const c of decidedAll || []) {
+  const collect = (c) => {
+    if (!isResurgido(c)) return;
     const key = cardKey(c);
+    if (key && seen.has(key)) return;
+    if (key) seen.add(key);
+    promoted.push(c);
+  };
+  for (const c of decidedAll || []) {
     if (isResurgido(c)) {
-      if (key && !seen.has(key)) {
-        promoted.push(c);
-        seen.add(key);
-      }
+      collect(c);
       continue;
     }
     decided.push(c);
   }
-  const hoy = filterVisible(hoySeed || []).slice(0, HOY_MAX);
+  (hoySeed || []).forEach(collect);
+  (queueBase || []).forEach(collect);
+  const hoy = [];
   const overflow = [];
-  for (const c of promoted) {
+  const take = (c) => {
+    const key = cardKey(c);
+    if (key && hoy.some((x) => cardKey(x) === key)) return;
     if (hoy.length < HOY_MAX) hoy.push(c);
     else overflow.push(c);
-  }
-  const queue = [...overflow, ...(queueBase || [])];
+  };
+  promoted.forEach(take);
+  filterVisible(hoySeed || []).forEach(take);
+  const hoyKeys = new Set(hoy.map((c) => cardKey(c)).filter(Boolean));
+  const queue = [
+    ...overflow,
+    ...(queueBase || []).filter((c) => {
+      const key = cardKey(c);
+      return !key || !hoyKeys.has(key);
+    })
+  ];
   return { cards: hoy, queue, decided, promoted, overflow };
 }
 
@@ -2713,7 +2723,12 @@ function normCsvHeader(h) {
 }
 
 function afterOfferImport() {
-  return refreshResurgidos(cachedData);
+  const items = refreshResurgidos(cachedData);
+  if (items && items.length) {
+    setActiveTab(TAB_HOY);
+    if (cachedData) paint(cachedData);
+  }
+  return items;
 }
 
 function importOfferRows(text) {
