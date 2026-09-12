@@ -120,6 +120,7 @@ const lists = tabLists(cachedData);
 const onHoy = (lists.cards || []).some((c) => c.sku === "07BU001" && isResurgido(c));
 const buOk = !!(buHit && buHit.status === "RESURGIDO" && stamped.resurgido
   && eco.from_landed && eco.util >= 120 && eco.roi >= 30 && eco.margen > 0
+  && buHit.util === buHit.util_post && buHit.roi === buHit.roi_post
   && buHit.util_post >= 120 && buHit.roi_post >= 30
   && stamped.util_post >= 120 && stamped.roi_post >= 30
   && onHoy && activeTab === TAB_HOY);
@@ -207,6 +208,8 @@ def main() -> int:
         ("stampResurgidoCard", r"function stampResurgidoCard\("),
         ("util_post stamp", r"util_post"),
         ("roi_post stamp", r"roi_post"),
+        ("util equals util_post", r"const util = util_post"),
+        ("roi equals roi_post", r"const roi = roi_post"),
         ("afterOfferImport paints", r"function afterOfferImport\([\s\S]*paint\("),
         ("sin tocar ganancia toast", r"sin tocar ganancia ni techo"),
         ("estadoImport keeps sin tocar", r"function estadoImportMessage\([\s\S]*sin tocar ganancia ni techo"),

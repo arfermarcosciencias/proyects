@@ -887,16 +887,22 @@ function refreshResurgidos(data) {
       ? seed.found_landed
       : (offer && offer.found_landed != null ? offer.found_landed : old.found_landed);
     const eco = resurgeEconomics(card, offer);
-    const util = eco.util != null ? eco.util : (seed && seed.util != null ? seed.util : old.util);
-    const roi = eco.roi != null ? eco.roi : (seed && seed.roi != null ? seed.roi : old.roi);
+    const util_post = eco.from_landed && eco.util != null
+      ? eco.util
+      : firstDefined(seed && seed.util_post, seed && seed.util, old.util_post, old.util, eco.util);
+    const roi_post = eco.from_landed && eco.roi != null
+      ? eco.roi
+      : firstDefined(seed && seed.roi_post, seed && seed.roi, old.roi_post, old.roi, eco.roi);
+    const util = util_post;
+    const roi = roi_post;
     const row = {
       sku,
       status: RESURGIDO,
       resurrected_at,
       util,
       roi,
-      util_post: util,
-      roi_post: roi,
+      util_post,
+      roi_post,
       resurrect_reason,
       prev_state,
       cured_pause_reason
