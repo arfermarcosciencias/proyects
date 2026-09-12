@@ -16,6 +16,7 @@
     --line:#e2e8f0; --green:#166534; --green-bg:#dcfce7; --blue:#1d4ed8; --blue-bg:#dbeafe;
     --amber:#9a3412; --amber-bg:#ffedd5; --pending:#166534; --pending-bg:#dcfce7;
     --phone:#1e3a5f; --phone-bg:#e8eef6;
+    --resurge:#0c4a6e; --resurge-bg:#e0f2fe; --resurge-line:#7dd3fc;
     --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Helvetica,Arial,sans-serif;
     --wrap:min(1120px, calc(100% - 32px));
     --radius:18px;
@@ -42,7 +43,7 @@
   .badge.REPONER{color:#1d4ed8;background:#dbeafe}
   .badge.ESTRELLA{color:#a16207;background:#fef9c3}
   .badge.CASHFLOW{color:#166534;background:#dcfce7}
-  .gate-chip,.pending-chip,.registered-chip,.phone-chip,.offer-chip,.resurge-chip{
+  .gate-chip,.pending-chip,.registered-chip,.phone-chip,.offer-chip{
     display:inline-flex;align-items:center;min-height:28px;font-size:12px;font-weight:750;
     padding:4px 10px;border-radius:999px;letter-spacing:.01em;
   }
@@ -50,7 +51,13 @@
   .pending-chip,.registered-chip{color:var(--pending);background:var(--pending-bg)}
   .phone-chip{color:var(--phone);background:var(--phone-bg)}
   .offer-chip{color:#065f46;background:#d1fae5}
-  .resurge-chip{color:#6d28d9;background:#f3e8ff}
+  .resurge-chip{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-height:var(--tap);min-width:var(--tap);box-sizing:border-box;
+    padding:8px 14px;border-radius:999px;font-size:13px;font-weight:750;
+    letter-spacing:.01em;color:var(--resurge);background:var(--resurge-bg);
+    border:1px solid var(--resurge-line);
+  }
   .techo-block{margin:2px 0 12px}
   .techo-verb{display:block;font-size:12px;font-weight:650;color:var(--muted);margin-bottom:2px;letter-spacing:.01em}
   .techo-amount{
@@ -289,6 +296,7 @@ const OFFER_FOUND = "OFERTA_ENCONTRADA";
 const RESURGIDO = "RESURGIDO";
 const RESURGIDO_UTIL_MIN = 120;
 const RESURGIDO_ROI_MIN = 30;
+const HOY_MAX = 3;
 const DESCARTADO_BLOCK_DAYS = 30;
 const DEFAULT_STORES = [
   { value: "Amazon", label: "Amazon" },
@@ -366,7 +374,7 @@ const STATUS_TEXT = {
   hidden: "oculta",
   queue: "en cola",
   active: "activa",
-  resurgido: "RESURGIDO",
+  resurgido: "Resurgido",
   nunca: "nunca"
 };
 const TAB_HOY = "hoy";
@@ -679,10 +687,42 @@ function writeResurgidosDoc(doc) {
   return next;
 }
 
+function truthyFlag(v) {
+  if (v === true || v === 1) return true;
+  const t = normTag(v);
+  return t === "true" || t === "1" || t === "yes" || t === "si";
+}
+
+function rootResurgidos(data) {
+  const raw = data && data.resurgidos;
+  return Array.isArray(raw) ? raw : [];
+}
+
+function resurgidoRowForSku(sku, data) {
+  const key = asText(sku);
+  if (!key) return null;
+  if (resurgidoBySku.has(key)) return resurgidoBySku.get(key);
+  const bags = [
+    ...rootResurgidos(data || cachedData),
+    ...((readResurgidosDoc().resurgidos) || [])
+  ];
+  return bags.find((x) => asText(x && x.sku) === key && (!x.status || normTag(x.status) === "resurgido")) || null;
+}
+
+function cardLooksResurgido(card) {
+  if (!card) return false;
+  if (truthyFlag(card.resurgido) || truthyFlag(card["data-resurgido"])) return true;
+  if (normTag(card.status) === "resurgido" || normTag(card.tag) === "resurgido") return true;
+  return false;
+}
+
 function isResurgido(card) {
-  const sku = asText(card && card.sku);
+  if (!card) return false;
+  if (cardLooksResurgido(card)) return true;
+  const sku = asText(card.sku);
   if (sku && resurgidoBySku.has(sku)) return true;
-  return normTag(card && (card.tag || card.status)) === "resurgido";
+  const root = rootResurgidos(cachedData);
+  return !!(sku && root.some((x) => asText(x && x.sku) === sku && (!x.status || normTag(x.status) === "resurgido")));
 }
 
 function decidedSource(data) {
@@ -691,34 +731,77 @@ function decidedSource(data) {
   return [];
 }
 
+function allCardBags(data) {
+  return [
+    ...((data && data.cards) || []),
+    ...((data && data.queue) || []),
+    ...decidedSource(data),
+    ...((data && data.parked) || [])
+  ];
+}
+
+function findCardForResurge(data, row) {
+  const sku = asText(row && row.sku);
+  const done = asText(row && row.done_id);
+  if (!sku && !done) return null;
+  for (const c of allCardBags(data)) {
+    if (done && cardId(c) === done) return c;
+    if (sku && asText(c.sku) === sku) return c;
+  }
+  return null;
+}
+
+function clearHideForResurgido(card) {
+  if (!card || typeof card !== "object") return;
+  card.hide_until = null;
+  const id = cardId(card);
+  if (!id) return;
+  const st = readState(id);
+  if (!st) return;
+  if (st.hide_until || st.hide_days) {
+    writeState({ ...st, hide_until: null, hide_days: 0, resurgido: true, status: RESURGIDO });
+  }
+}
+
+function stampResurgidoCard(card, row) {
+  if (!card || typeof card !== "object") return;
+  card.status = RESURGIDO;
+  card.tag = RESURGIDO;
+  card.resurgido = true;
+  card.resurrected_at = row.resurrected_at;
+  card.resurrect_reason = row.resurrect_reason || "gate_ok_post_import";
+  if (row.prev_state) card.prev_state = row.prev_state;
+  if (row.cured_pause_reason != null) card.cured_pause_reason = !!row.cured_pause_reason;
+  clearHideForResurgido(card);
+}
+
 function refreshResurgidos(data) {
   const prev = new Map((readResurgidosDoc().resurgidos || []).map((x) => [asText(x && x.sku), x]));
   const items = [];
+  const seen = new Set();
   if (!data) {
     resurgidoBySku = new Map();
     return items;
   }
-  for (const card of decidedSource(data)) {
-    const verdict = canResucitar(card);
-    if (!verdict.ok) continue;
-    const sku = asText(card.sku);
-    const old = prev.get(sku);
-    const resurrected_at = (old && old.resurrected_at) || new Date().toISOString();
-    const resurrect_reason = "gate_ok_post_import";
-    const prev_state = prevStateOf(card, verdict.paused);
-    const cured_pause_reason = !!verdict.cured;
-    const found_landed = verdict.offer && verdict.offer.found_landed != null ? verdict.offer.found_landed : undefined;
-    const util = estimatedGain(card);
-    const roi = estimatedRoi(card);
-    if (card && typeof card === "object") {
-      card.status = RESURGIDO;
-      card.tag = RESURGIDO;
-      card.resurgido = true;
-      card.resurrected_at = resurrected_at;
-      card.resurrect_reason = resurrect_reason;
-      card.prev_state = prev_state;
-      card.cured_pause_reason = cured_pause_reason;
-    }
+
+  function add(card, seed, verdict) {
+    const sku = asText((card && card.sku) || (seed && seed.sku));
+    if (!sku || seen.has(sku)) return;
+    seen.add(sku);
+    const old = prev.get(sku) || seed || {};
+    const offer = (verdict && verdict.offer) || (card && cardExternalOffer(card));
+    const resurrected_at = old.resurrected_at || (seed && seed.resurrected_at) || new Date().toISOString();
+    const resurrect_reason = old.resurrect_reason || (seed && seed.resurrect_reason) || "gate_ok_post_import";
+    const paused = !!(verdict && verdict.paused) || isOperatorPaused(card);
+    const prev_state = (seed && seed.prev_state) || old.prev_state || prevStateOf(card, paused);
+    const cured_pause_reason = seed && seed.cured_pause_reason != null
+      ? !!seed.cured_pause_reason
+      : (verdict ? !!verdict.cured : !!old.cured_pause_reason);
+    const found_landed = (seed && seed.found_landed != null)
+      ? seed.found_landed
+      : (offer && offer.found_landed != null ? offer.found_landed : old.found_landed);
+    const util = seed && seed.util != null ? seed.util : estimatedGain(card);
+    const roi = seed && seed.roi != null ? seed.roi : estimatedRoi(card);
     const row = {
       sku,
       status: RESURGIDO,
@@ -729,11 +812,25 @@ function refreshResurgidos(data) {
       prev_state,
       cured_pause_reason
     };
-    const doneId = cardId(card);
+    const doneId = (card && cardId(card)) || asText(seed && seed.done_id);
     if (doneId) row.done_id = doneId;
     if (found_landed != null) row.found_landed = found_landed;
+    if (card) stampResurgidoCard(card, row);
     items.push(row);
   }
+
+  for (const row of rootResurgidos(data)) {
+    if (!row || (row.status && normTag(row.status) !== "resurgido")) continue;
+    add(findCardForResurge(data, row), row, null);
+  }
+  for (const card of allCardBags(data)) {
+    if (cardLooksResurgido(card)) add(card, prev.get(asText(card.sku)), null);
+  }
+  for (const card of decidedSource(data)) {
+    const verdict = canResucitar(card);
+    if (verdict.ok) add(card, prev.get(asText(card.sku)), verdict);
+  }
+
   writeResurgidosDoc({ resurgidos: items });
   resurgidoBySku = new Map(items.map((x) => [x.sku, x]));
   if (data && typeof data === "object") data.resurgidos = items;
@@ -1277,7 +1374,27 @@ function appendInboxAction({ sku, done_id, outcome }) {
   localStorage.setItem(INBOX_KEY, JSON.stringify(doc));
 }
 
-function isHidden(st) {
+function hideIsStaleForResurgido(st, card) {
+  const sku = asText((card && card.sku) || (st && st.sku));
+  const row = resurgidoRowForSku(sku, cachedData);
+  const flagged = !!(card && isResurgido(card))
+    || !!(st && (truthyFlag(st.resurgido) || normTag(st.status) === "resurgido"))
+    || !!row;
+  if (!flagged) return false;
+  const resurrectedAt = Date.parse(
+    (card && card.resurrected_at) || (st && st.resurrected_at) || (row && row.resurrected_at) || 0
+  );
+  if (!st || !st.hide_until) return true;
+  const hideUntil = Date.parse(st.hide_until);
+  if (Number.isNaN(hideUntil)) return true;
+  if (Number.isNaN(resurrectedAt) || !resurrectedAt) return true;
+  const hideDays = Number(st.hide_days) || 0;
+  const hideStart = hideUntil - hideDays * 86400000;
+  return resurrectedAt > hideStart;
+}
+
+function isHidden(st, card) {
+  if (hideIsStaleForResurgido(st, card)) return false;
   if (!st || !st.hide_until) return false;
   if (st.outcome === "purchased") return false;
   const t = Date.parse(st.hide_until);
@@ -1830,16 +1947,16 @@ function pageLead(tab, cards, data) {
   }
   if (tab === TAB_DECIDED) {
     if (!cards.length) return "Aquí verás lo pausado o descartado.";
-    const n = resurgidoBySku.size;
-    if (n) return n === 1 ? "1 resurgido por oferta. El radar no compra solo." : `${n} resurgidos por oferta. El radar no compra solo.`;
     return "Pausadas, descartadas o ya resueltas.";
   }
   if (!cards.length) return "Respira. Nada ejecutable hoy.";
   const buscar = cards.filter((c) => cardAction(c) === "BUSCAR").length;
   const comprar = cards.length - buscar;
+  const resurgidos = cards.filter(isResurgido).length;
   const bits = [];
   if (comprar > 0) bits.push(comprar === 1 ? "1 para comprar" : `${comprar} para comprar`);
   if (buscar > 0) bits.push(buscar === 1 ? "1 para buscar quién te lo venda" : `${buscar} para buscar proveedor`);
+  if (resurgidos > 0) bits.push(resurgidos === 1 ? "1 resurgido" : `${resurgidos} resurgidos`);
   return bits.join(". ") + ".";
 }
 
@@ -1875,15 +1992,51 @@ function decidedMetaLine(card) {
   return parts.join(" · ");
 }
 
+function cardKey(card) {
+  return cardId(card) || asText(card && card.sku);
+}
+
+function promoteResurgidosFromDecided(hoySeed, queueBase, decidedAll) {
+  const seen = new Set();
+  const mark = (c) => {
+    const key = cardKey(c);
+    if (key) seen.add(key);
+  };
+  (hoySeed || []).forEach(mark);
+  (queueBase || []).forEach(mark);
+  const promoted = [];
+  const decided = [];
+  for (const c of decidedAll || []) {
+    const key = cardKey(c);
+    if (isResurgido(c)) {
+      if (key && !seen.has(key)) {
+        promoted.push(c);
+        seen.add(key);
+      }
+      continue;
+    }
+    decided.push(c);
+  }
+  const hoy = filterVisible(hoySeed || []).slice(0, HOY_MAX);
+  const overflow = [];
+  for (const c of promoted) {
+    if (hoy.length < HOY_MAX) hoy.push(c);
+    else overflow.push(c);
+  }
+  const queue = [...overflow, ...(queueBase || [])];
+  return { cards: hoy, queue, decided, promoted, overflow };
+}
+
 function tabLists(data) {
-  const cards = (data.cards || []).filter(isHoyExecutable).slice(0, 3);
-  const queue = (Array.isArray(data.queue) ? data.queue : []).filter(isHoyExecutable);
-  const decided = decidedSource(data);
-  return { cards, queue, decided };
+  const hoySeed = (data.cards || []).filter(isHoyExecutable).slice(0, HOY_MAX);
+  const queueBase = (Array.isArray(data.queue) ? data.queue : []).filter(isHoyExecutable);
+  const decidedAll = decidedSource(data);
+  const promoted = promoteResurgidosFromDecided(hoySeed, queueBase, decidedAll);
+  return { cards: promoted.cards, queue: promoted.queue, decided: promoted.decided, hoySeed };
 }
 
 function filterVisible(cards) {
-  return cards.filter((c) => !isHidden(readState(cardId(c))));
+  return (cards || []).filter((c) => !isHidden(readState(cardId(c)), c));
 }
 
 function countsFor(data) {
@@ -2020,7 +2173,7 @@ function renderCard(card, i, opts) {
   const cls = purchase ? (imported ? "registered-buy" : "pending-buy") : (!st ? "" : (st.outcome === "skip" ? "skipped" : "done"));
   const img = photoHtml(card);
   const ev = evidenceLine(card.evidence);
-  const locked = decided || (!!st && isHidden(st));
+  const locked = decided || (!!st && isHidden(st, card));
   const stores = storeLinks(card);
   const storeHtml = stores.map((u) => `<a class="ghost" href="${esc(u.url)}" target="_blank" rel="noopener">${esc(u.label)}</a>`).join("");
   const parkLine = decided ? decidedMetaLine(card) : "";
@@ -2030,7 +2183,7 @@ function renderCard(card, i, opts) {
   const bits = purchaseBits(purchase);
   let statusFromCard;
   if (resurgido) {
-    statusFromCard = "RESURGIDO · el radar no compra solo";
+    statusFromCard = "Resurgido · el radar no compra solo";
   } else if (decided) {
     statusFromCard = statusMessage(st) || (card.outcome ? (OUTCOME_TEXT[card.outcome] || localizeToken(card.outcome)) : "") || "Ya decidida";
   } else if (imported) {
@@ -2082,7 +2235,7 @@ function renderCard(card, i, opts) {
   return `<article class="card ${cls}" data-done-id="${esc(id)}" data-context="${esc(contextText(card))}" data-sku="${esc(card.sku || "")}" data-action-key="${esc(id)}" data-tab-kind="${decided ? "decided" : "active"}" data-gate-ok="${card.gate_ok === true ? "true" : card.gate_ok === false ? "false" : ""}" data-can-comprar="${canComprar ? "true" : "false"}" data-resurgido="${resurgido ? "true" : ""}">
     <div class="badges">
       <span class="badge ${esc(tipo)}">${esc(tipo)}</span>
-      ${resurgido ? `<span class="resurge-chip">RESURGIDO</span>` : ""}
+      ${resurgido ? `<span class="resurge-chip">Resurgido</span>` : ""}
       ${!hideBuy && !canComprar && reason ? `<span class="gate-chip">${esc(reason)}</span>` : ""}
       ${offerFound ? `<span class="offer-chip">Oferta encontrada</span>` : ""}
       ${stateChip}
@@ -2132,6 +2285,15 @@ function renderPendingStrip(items) {
   </section>`;
 }
 
+function tabForResurgidoSku(sku) {
+  if (!cachedData) return TAB_HOY;
+  const lists = tabLists(cachedData);
+  const key = asText(sku);
+  if (lists.cards.some((c) => asText(c.sku) === key)) return TAB_HOY;
+  if (lists.queue.some((c) => asText(c.sku) === key)) return TAB_QUEUE;
+  return TAB_HOY;
+}
+
 function renderResurgidosStrip() {
   const items = [...resurgidoBySku.values()];
   if (!items.length) return "";
@@ -2139,7 +2301,8 @@ function renderResurgidosStrip() {
     const bits = [];
     if (it.util != null) bits.push(`ganas ~${money0(it.util)}`);
     if (it.roi != null) bits.push(`ROI ~${Number(it.roi).toFixed(0)}%`);
-    return `<li><button type="button" class="resurge-item" data-tab="${TAB_DECIDED}">${esc(it.sku || "")}${bits.length ? " · " + esc(bits.join(" · ")) : ""} · RESURGIDO</button></li>`;
+    const tab = tabForResurgidoSku(it.sku);
+    return `<li><button type="button" class="resurge-item" data-tab="${tab}">${esc(it.sku || "")}${bits.length ? " · " + esc(bits.join(" · ")) : ""} · Resurgido</button></li>`;
   }).join("");
   return `<section class="resurgidos-strip" aria-label="Resurgidos">
     <h2>Resurgidos (${items.length})</h2>
@@ -2180,7 +2343,8 @@ function renderData(data) {
   if (!cards.length) {
     let reason = null;
     if (activeTab === TAB_HOY) {
-      const hidden = lists.cards.length && filterVisible(lists.cards).length === 0;
+      const seed = lists.hoySeed || lists.cards;
+      const hidden = seed.length && filterVisible(seed).length === 0;
       reason = hidden ? "Ya resolviste las de hoy (siguen ocultas un rato)." : null;
     }
     body = `<div class="state"><h2>${esc(pageHeadline(activeTab, 0))}</h2><p>${esc(emptyCopy(activeTab, data, reason))}</p>${
@@ -2199,7 +2363,7 @@ function renderData(data) {
     ${ceiling}
     ${tabs}
     ${renderActiveTabCsvBar(cards.length)}
-    ${activeTab === TAB_QUEUE || activeTab === TAB_DECIDED ? renderResurgidosStrip() : ""}
+    ${activeTab === TAB_HOY || activeTab === TAB_QUEUE ? renderResurgidosStrip() : ""}
     ${body}
     ${strip}
     <footer>Actualizado ${esc(data.generated_at || data.date || "")} · el radar nunca compra solo · <button type="button" class="text-link" id="resetHidden">Ver de nuevo</button></footer>`;
@@ -2929,7 +3093,7 @@ function lockCard(cardEl, outcome, extra) {
     outcome,
     ...(extra && extra.purchase ? { purchase: extra.purchase } : {})
   });
-  if (!keepVisible && activeTab === TAB_HOY && isHidden(payload) && cachedData) {
+  if (!keepVisible && activeTab === TAB_HOY && isHidden(payload, card) && cachedData) {
     paint(cachedData);
     return;
   }
@@ -3245,8 +3409,9 @@ function wire(root) {
 }
 
 function paint(data) {
-  rememberCards(data);
+  rememberRootOffers(data);
   refreshResurgidos(data);
+  rememberCards(data);
   const app = document.getElementById("app");
   app.classList.toggle("wide", activeTab === TAB_HALLAZGO);
   app.innerHTML = renderData(data);

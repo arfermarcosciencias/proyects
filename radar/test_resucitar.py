@@ -137,6 +137,11 @@ def check_spa_markers(html: str, errors: list[str]) -> None:
         ("cured_pause_reason", r"cured_pause_reason"),
         ("util field", r"\butil\b"),
         ("found_landed optional", r"found_landed"),
+        ("Resurgido chip", r">Resurgido<"),
+        ("promoteResurgidosFromDecided", r"function promoteResurgidosFromDecided\("),
+        ("HOY_MAX", r"const HOY_MAX = 3"),
+        ("clearHideForResurgido", r"function clearHideForResurgido\("),
+        ("isHidden card arg", r"function isHidden\(st, card\)"),
     ):
         if re.search(pat, html) is None:
             errors.append(f"SPA missing {label}")
@@ -193,6 +198,14 @@ def main() -> int:
     desc = dict(by_sku["NICX002"], outcome="descartado")
     if can_resucitar(desc, {"status": "OFERTA_ENCONTRADA", "found_landed": 800}):
         errors.append("descartado must never resurrect")
+
+    hoy_n = len(snap.get("cards") or [])
+    if hoy_n > 3:
+        errors.append("snapshot Hoy must stay at most 3 cards")
+    if re.search(r"\.resurge-chip\{[^}]*#6d28d9", html):
+        errors.append("Resurgido chip must not reuse BUSCAR purple")
+    if not re.search(r"\.resurge-chip\{[^}]*min-height:var\(--tap\)", html):
+        errors.append("Resurgido chip must be ≥44px (var(--tap))")
 
     if errors:
         print("resucitar tests FAILED:")

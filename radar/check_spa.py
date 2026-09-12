@@ -94,6 +94,12 @@ MARKERS = [
     ("prev_state", r"prev_state"),
     ("cured_pause_reason", r"cured_pause_reason"),
     ("no auto-compra resurgido", r"el radar no compra solo"),
+    ("Resurgido chip copy", r">Resurgido<"),
+    ("resurge chip 44px", r"\.resurge-chip\{[^}]*min-height:var\(--tap\)"),
+    ("promote Ya to Hoy", r"function promoteResurgidosFromDecided\("),
+    ("Hoy max 3", r"const HOY_MAX = 3"),
+    ("clear hide on resurge", r"function clearHideForResurgido\("),
+    ("data-resurgido hook", r"data-resurgido"),
 ]
 
 BANNED = [
@@ -262,6 +268,13 @@ def main() -> int:
         from test_import_csv import main as import_csv_main
     if import_csv_main() != 0:
         errors.append("radar/test_import_csv.py failed")
+    try:
+        from test_resurgido_ui import main as resurgido_ui_main
+    except ImportError:
+        sys.path.insert(0, str(ROOT / "radar"))
+        from test_resurgido_ui import main as resurgido_ui_main
+    if resurgido_ui_main() != 0:
+        errors.append("radar/test_resurgido_ui.py failed")
     if errors:
         print("radar SPA guard FAILED:")
         for e in errors:
