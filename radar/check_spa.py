@@ -105,6 +105,8 @@ MARKERS = [
     ("Hoy RESURGIDO Ya lo compré", r"Ya lo compré"),
     ("Hoy/Más Ya lo compré primary", r"btn-comprar\" data-act=\"comprar\".*>Ya lo compré<"),
     ("jump Hoy after Anota", r"if \(activeTab !== TAB_HOY\) setActiveTab\(TAB_HOY\)"),
+    ("afterOfferImport jumps Hoy", r"function afterOfferImport\([^)]*\)\s*\{[\s\S]{0,240}setActiveTab\(TAB_HOY\)"),
+    ("afterOfferImport paints", r"function afterOfferImport\([^)]*\)\s*\{[\s\S]{0,280}paint\("),
 ]
 
 BANNED = [

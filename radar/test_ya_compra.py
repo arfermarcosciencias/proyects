@@ -96,6 +96,8 @@ def main() -> int:
     promote = _fn_body(html, "promoteResurgidosFromDecided")
     if "HOY_MAX" not in promote:
         errors.append("promoteResurgidosFromDecided must still use HOY_MAX")
+    if "promoted.forEach(take)" not in promote:
+        errors.append("promote must seat RESURGIDO on Hoy before other executables")
     if "upsertPurchase" in promote or "lockCard" in promote:
         errors.append("promote must not auto-buy")
 
