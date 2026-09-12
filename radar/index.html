@@ -615,14 +615,61 @@ function pauseReasonBlob(card) {
   ].join(" ").toLowerCase();
 }
 
-function passesResurgeNumbers(card) {
+function cardPayout(card) {
+  if (!card || typeof card !== "object") return null;
+  const bags = [card, card.economics, card.evidence, card.why];
+  const keys = [
+    "payout", "payout_mxn", "net_payout", "net_payout_mxn",
+    "sale_price", "sale_price_mxn", "precio_venta", "ml_payout"
+  ];
+  for (const bag of bags) {
+    if (!bag || typeof bag !== "object") continue;
+    for (const k of keys) {
+      const n = parseMoney(bag[k]);
+      if (n != null && n > 0) return n;
+    }
+  }
   const util = estimatedGain(card);
-  const roi = estimatedRoi(card);
-  const margen = estimatedMargin(card);
+  const techo = capAmount(card);
+  if (util != null && techo != null) return util + techo;
+  return null;
+}
+
+function offerFoundLanded(card, offer) {
+  const o = offer || cardExternalOffer(card);
+  if (!o) return null;
+  const n = parseMoney(firstDefined(o.found_landed, o.found_landed_cost_mxn));
+  return n != null && n > 0 ? n : null;
+}
+
+function resurgeEconomics(card, offer) {
+  const landed = offerFoundLanded(card, offer);
+  const payout = cardPayout(card);
+  if (landed != null && payout != null) {
+    const util = payout - landed;
+    const roi = landed > 0 ? (util / landed) * 100 : null;
+    return { util, roi, margen: util, landed, payout, from_landed: true };
+  }
+  return {
+    util: estimatedGain(card),
+    roi: estimatedRoi(card),
+    margen: estimatedMargin(card),
+    landed,
+    payout,
+    from_landed: false
+  };
+}
+
+function passesResurgeNumbers(card, offer) {
+  const eco = resurgeEconomics(card, offer || cardExternalOffer(card));
+  const util = eco.util;
+  const roi = eco.roi;
+  const margen = eco.margen;
   const utilOk = util != null && util >= RESURGIDO_UTIL_MIN;
   const roiOk = roi != null && roi >= RESURGIDO_ROI_MIN;
   const margenOk = margen != null && margen > 0;
   if (utilOk && roiOk && margenOk) return true;
+  if (eco.from_landed) return false;
   if (card && card.gate_ok === true) {
     if (util != null && util < RESURGIDO_UTIL_MIN) return false;
     if (roi != null && roi < RESURGIDO_ROI_MIN) return false;
@@ -643,7 +690,7 @@ function offerCuresPause(card, offer) {
   if (!genericOp && !offerRelated && !gateRelated) return false;
   const cap = offerCap(card, offer);
   if (offer.found_landed != null && cap != null && offer.found_landed > cap) return false;
-  if (gateRelated && !passesResurgeNumbers(card)) return false;
+  if (gateRelated && !passesResurgeNumbers(card, offer)) return false;
   return true;
 }
 
@@ -651,8 +698,8 @@ function canResucitar(card) {
   if (!card) return { ok: false, why: "sin_tarjeta" };
   if (hasNuncaTag(card)) return { ok: false, why: "nunca" };
   if (descartadoWithin30d(card)) return { ok: false, why: "descartado_30d" };
-  if (!passesResurgeNumbers(card)) return { ok: false, why: "piso" };
   const offer = cardExternalOffer(card);
+  if (!passesResurgeNumbers(card, offer)) return { ok: false, why: "piso" };
   if (!isOfertaEncontrada(offer)) return { ok: false, why: "sin_oferta" };
   const paused = isOperatorPaused(card);
   const cured = paused && offerCuresPause(card, offer);
@@ -731,6 +778,33 @@ function decidedSource(data) {
   return [];
 }
 
+function hasLocalDecision(card) {
+  const st = readState(cardId(card));
+  if (!st) return false;
+  if (normTag(st.outcome) === "purchased") return false;
+  if (isHidden(st, card)) return true;
+  return !!normTag(st.outcome);
+}
+
+function resurgidoCandidates(data) {
+  const seen = new Set();
+  const out = [];
+  const push = (card) => {
+    if (!card || typeof card !== "object") return;
+    const key = cardKey(card);
+    if (!key || seen.has(key)) return;
+    seen.add(key);
+    out.push(card);
+  };
+  for (const card of decidedSource(data)) push(card);
+  for (const list of [(data && data.cards) || [], (data && data.queue) || []]) {
+    for (const card of list) {
+      if (hasLocalDecision(card)) push(card);
+    }
+  }
+  return out;
+}
+
 function allCardBags(data) {
   return [
     ...((data && data.cards) || []),
@@ -800,8 +874,9 @@ function refreshResurgidos(data) {
     const found_landed = (seed && seed.found_landed != null)
       ? seed.found_landed
       : (offer && offer.found_landed != null ? offer.found_landed : old.found_landed);
-    const util = seed && seed.util != null ? seed.util : estimatedGain(card);
-    const roi = seed && seed.roi != null ? seed.roi : estimatedRoi(card);
+    const eco = resurgeEconomics(card, offer);
+    const util = eco.util != null ? eco.util : (seed && seed.util != null ? seed.util : old.util);
+    const roi = eco.roi != null ? eco.roi : (seed && seed.roi != null ? seed.roi : old.roi);
     const row = {
       sku,
       status: RESURGIDO,
@@ -826,7 +901,7 @@ function refreshResurgidos(data) {
   for (const card of allCardBags(data)) {
     if (cardLooksResurgido(card)) add(card, prev.get(asText(card.sku)), null);
   }
-  for (const card of decidedSource(data)) {
+  for (const card of resurgidoCandidates(data)) {
     const verdict = canResucitar(card);
     if (verdict.ok) add(card, prev.get(asText(card.sku)), verdict);
   }

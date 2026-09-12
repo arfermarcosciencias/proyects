@@ -81,13 +81,74 @@ def tags_of(card: dict) -> set[str]:
     return out
 
 
-def passes_numbers(card: dict) -> bool:
+def card_payout(card: dict) -> float | None:
+    bags = [card, card.get("economics") or {}, card.get("evidence") or {}, card.get("why") or {}]
+    for bag in bags:
+        if not isinstance(bag, dict):
+            continue
+        for key in (
+            "payout",
+            "payout_mxn",
+            "net_payout",
+            "net_payout_mxn",
+            "sale_price",
+            "sale_price_mxn",
+            "precio_venta",
+            "ml_payout",
+        ):
+            v = bag.get(key)
+            if v is None:
+                continue
+            try:
+                n = float(v)
+            except (TypeError, ValueError):
+                continue
+            if n > 0:
+                return n
     util = estimated_gain(card)
-    roi = estimated_roi(card)
-    margen = estimated_margin(card)
+    techo = card.get("max_landed_cost")
+    if techo is None:
+        techo = card.get("alert_price")
+    if util is not None and techo is not None:
+        try:
+            return float(util) + float(techo)
+        except (TypeError, ValueError):
+            return None
+    return None
+
+
+def offer_landed(offer: dict | None) -> float | None:
+    if not offer:
+        return None
+    v = offer.get("found_landed")
+    if v is None:
+        v = offer.get("found_landed_cost_mxn")
+    if v is None:
+        return None
+    try:
+        n = float(v)
+    except (TypeError, ValueError):
+        return None
+    return n if n > 0 else None
+
+
+def resurge_economics(card: dict, offer: dict | None) -> tuple[float | None, float | None, float | None, bool]:
+    landed = offer_landed(offer)
+    payout = card_payout(card)
+    if landed is not None and payout is not None:
+        util = payout - landed
+        roi = (util / landed) * 100 if landed else None
+        return util, roi, util, True
+    return estimated_gain(card), estimated_roi(card), estimated_margin(card), False
+
+
+def passes_numbers(card: dict, offer: dict | None = None) -> bool:
+    util, roi, margen, from_landed = resurge_economics(card, offer)
     if util is not None and roi is not None and margen is not None:
         if util >= UTIL_MIN and roi >= ROI_MIN and margen > 0:
             return True
+    if from_landed:
+        return False
     if card.get("gate_ok") is True:
         if util is not None and util < UTIL_MIN:
             return False
@@ -115,7 +176,7 @@ def can_resucitar(card: dict, offer: dict | None) -> bool:
         return False
     if str(card.get("outcome") or "").lower() == "descartado":
         return False
-    if not passes_numbers(card):
+    if not passes_numbers(card, offer):
         return False
     if not offer_cures(card, offer):
         return False
@@ -137,6 +198,10 @@ def check_spa_markers(html: str, errors: list[str]) -> None:
         ("cured_pause_reason", r"cured_pause_reason"),
         ("util field", r"\butil\b"),
         ("found_landed optional", r"found_landed"),
+        ("resurgeEconomics", r"function resurgeEconomics\("),
+        ("cardPayout", r"function cardPayout\("),
+        ("resurgidoCandidates", r"function resurgidoCandidates\("),
+        ("hasLocalDecision", r"function hasLocalDecision\("),
         ("Resurgido chip", r">Resurgido<"),
         ("promoteResurgidosFromDecided", r"function promoteResurgidosFromDecided\("),
         ("HOY_MAX", r"const HOY_MAX = 3"),
@@ -153,6 +218,10 @@ def check_spa_markers(html: str, errors: list[str]) -> None:
         body = html[start:nxt]
         if "upsertPurchase" in body or "lockCard" in body:
             errors.append("refreshResurgidos must not auto-buy")
+    if "for (const card of resurgidoCandidates(data))" not in html:
+        errors.append("refreshResurgidos must scan resurgidoCandidates (Ya + localStorage)")
+    if "resurgeEconomics(card, offer)" not in html:
+        errors.append("refreshResurgidos must persist util/roi from resurgeEconomics")
     # Export multi-tab (PR #13) must stay
     for label, pat in (
         ("exportHallazgoCsv", r"function exportHallazgoCsv\("),
@@ -178,8 +247,9 @@ def main() -> int:
     cases = [
         ("NIJU004", {"status": "OFERTA_ENCONTRADA", "found_landed": 200}, True, "piso+oferta bajo techo"),
         ("NICX002", {"status": "OFERTA_ENCONTRADA", "found_landed": 800}, True, "piso+oferta bajo techo"),
-        ("10LU001", {"status": "OFERTA_ENCONTRADA", "found_landed": 50}, False, "util < 120"),
-        ("07BU001", {"status": "OFERTA_ENCONTRADA", "found_landed": 400}, False, "util/ROI bajo piso"),
+        ("10LU001", {"status": "OFERTA_ENCONTRADA", "found_landed": 50}, False, "util < 120 even after recalc"),
+        ("07BU001", {"status": "OFERTA_ENCONTRADA"}, False, "sin landed no recomputa; stale util~65"),
+        ("07BU001", {"status": "OFERTA_ENCONTRADA", "found_landed": 428}, True, "landed 428 recomputa util≥120 ROI≥30%"),
         ("NIFU011", {"status": "OFERTA_ENCONTRADA", "found_landed": 400}, False, "landed > techo no cura"),
         ("NIFU011", {"status": "OFERTA_ENCONTRADA", "found_landed": 250}, True, "oferta cura techo"),
     ]
@@ -189,8 +259,26 @@ def main() -> int:
             errors.append(f"snapshot missing dismissed sku {sku}")
             continue
         got = can_resucitar(card, offer)
+        util, roi, _, _ = resurge_economics(card, offer)
         if got != expect:
-            errors.append(f"{sku} expected {expect} ({why}); got {got} util={estimated_gain(card)} roi={estimated_roi(card)}")
+            errors.append(f"{sku} expected {expect} ({why}); got {got} util={util} roi={roi}")
+
+    bu = by_sku.get("07BU001")
+    if bu:
+        util, roi, margen, from_landed = resurge_economics(
+            bu, {"status": "OFERTA_ENCONTRADA", "found_landed": 428}
+        )
+        if not from_landed:
+            errors.append("07BU001 landed 428 must recompute from imported landed")
+        if util is None or util < UTIL_MIN:
+            errors.append(f"07BU001 landed 428 util must be ≥{UTIL_MIN}; got {util}")
+        if roi is None or roi < ROI_MIN:
+            errors.append(f"07BU001 landed 428 ROI must be ≥{ROI_MIN}%; got {roi}")
+        if margen is None or not (margen > 0):
+            errors.append(f"07BU001 landed 428 margen must be >0; got {margen}")
+        stale = estimated_gain(bu)
+        if stale is not None and stale >= UTIL_MIN:
+            errors.append("07BU001 stale techo util should stay under piso (sanity)")
 
     nunca = dict(by_sku["NIJU004"], tag="nunca")
     if can_resucitar(nunca, {"status": "OFERTA_ENCONTRADA", "found_landed": 200}):
