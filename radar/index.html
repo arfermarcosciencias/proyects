@@ -297,7 +297,6 @@ const CSV_COLS = [
 const HALLAZGO_CSV_COLS = [
   { key: "sku", header: "sku" },
   { key: "upc", header: "upc" },
-  { key: "name", header: "name" },
   { key: "estado", header: "estado" },
   { key: "qty", header: "qty" },
   { key: "techo", header: "techo" },
@@ -312,6 +311,14 @@ const HALLAZGO_CSV_COLS = [
   { key: "oferta_encontrada", header: "oferta_encontrada" }
 ];
 const HALLAZGO_CSV_FILE = "radar-hallazgo.csv";
+const HOY_CSV_FILE = "radar-hoy.csv";
+const DECIDED_CSV_FILE = "radar-ya-decididas.csv";
+const DECIDED_CSV_COLS = CSV_COLS.concat([
+  { key: "reason", header: "reason" },
+  { key: "outcome", header: "outcome" },
+  { key: "park_note", header: "park_note" },
+  { key: "hide_until", header: "hide_until" }
+]);
 const HIDE_DAYS = { purchased: 7, not_found: 3, tomorrow: 1, descartado: 30, done: 1, skip: 1 };
 const OUTCOME_TEXT = {
   purchased: "Anotado como comprado",
@@ -1374,6 +1381,41 @@ function renderHallazgoCsvBar() {
   </div>`;
 }
 
+function renderQueueCsvBar() {
+  return `<div class="csv-bar" role="group" aria-label="CSV Más oportunidades">
+      <button type="button" class="ghost-btn" id="exportCsv">Exportar CSV</button>
+      <button type="button" class="csv-copy" id="copyCsv">Copiar CSV</button>
+      <button type="button" class="ghost-btn" id="importCsv">Importar CSV</button>
+      <input id="importCsvFile" type="file" accept=".csv,text/csv,text/plain" hidden>
+      <p class="csv-status" id="csvStatus" hidden></p>
+    </div>`;
+}
+
+function renderHoyCsvBar(n) {
+  const label = n === 1 ? "1 ejecutable" : `${n} ejecutables`;
+  return `<div class="csv-bar" role="group" aria-label="CSV Hoy">
+    <button type="button" class="ghost-btn" id="exportHoyCsv">Exportar CSV</button>
+    <button type="button" class="csv-copy" id="copyHoyCsv">Copiar CSV</button>
+    <p class="csv-status" id="hoyCsvStatus">${esc(`Archivo ${HOY_CSV_FILE} · ${label}`)}</p>
+  </div>`;
+}
+
+function renderDecidedCsvBar(n) {
+  const label = n === 1 ? "1 decidida" : `${n} decididas`;
+  return `<div class="csv-bar" role="group" aria-label="CSV Ya decididas">
+    <button type="button" class="ghost-btn" id="exportDecidedCsv">Exportar CSV</button>
+    <button type="button" class="csv-copy" id="copyDecidedCsv">Copiar CSV</button>
+    <p class="csv-status" id="decidedCsvStatus">${esc(`Archivo ${DECIDED_CSV_FILE} · ${label}`)}</p>
+  </div>`;
+}
+
+function renderActiveTabCsvBar(n) {
+  if (activeTab === TAB_QUEUE) return renderQueueCsvBar();
+  if (activeTab === TAB_HOY) return renderHoyCsvBar(n);
+  if (activeTab === TAB_DECIDED) return renderDecidedCsvBar(n);
+  return "";
+}
+
 function renderHallazgoBody() {
   if (hallazgoStatus === "loading" || hallazgoStatus === "idle") {
     return `<div class="state"><h2>Armando el catálogo de Hallazgo</h2><p>Estoy leyendo hallazgos_inventario.json.</p></div>
@@ -1687,7 +1729,7 @@ function renderCard(card, i, opts) {
   const offerFound = isOfertaEncontrada(offer);
   const offerUrl = offerFound && offer.found_url && /^https?:\/\//i.test(offer.found_url) ? offer.found_url : "";
 
-  return `<article class="card ${cls}" data-done-id="${esc(id)}" data-context="${esc(contextText(card))}" data-sku="${esc(card.sku || "")}" data-action-key="${esc(id)}" data-tab-kind="${decided ? "decided" : "active"}" data-gate-ok="${card.gate_ok === true ? "true" : card.gate_ok === false ? "false" : ""}" data-can-comprar="${canComprar ? "true" : "false"}">
+  return `<article class="card ${cls}" data-done-id="${esc(id)}" data-context="${esc(contextText(card))}" data-sku="${esc(card.sku || "")}" data-action-key="${esc(id)}" data-tab-kind="${decided ? "decided" : "active"}" data-gate-ok="${card.gate_ok === true ? "true" : card.gate_ok === false ? "false" : ""}" data-can-comprar="${canComprar ? "true" : "false"}" data-resurgido="${card.resurgido === true || card.resurgido === "true" ? "true" : ""}">
     <div class="badges">
       <span class="badge ${esc(tipo)}">${esc(tipo)}</span>
       ${!hideBuy && !canComprar && reason ? `<span class="gate-chip">${esc(reason)}</span>` : ""}
@@ -1789,13 +1831,7 @@ function renderData(data) {
     <p class="lead">${esc(pageLead(activeTab, cards, data))}</p>
     ${ceiling}
     ${tabs}
-    ${activeTab === TAB_QUEUE ? `<div class="csv-bar" role="group" aria-label="CSV Más oportunidades">
-      <button type="button" class="ghost-btn" id="exportCsv">Exportar CSV</button>
-      <button type="button" class="csv-copy" id="copyCsv">Copiar CSV</button>
-      <button type="button" class="ghost-btn" id="importCsv">Importar CSV</button>
-      <input id="importCsvFile" type="file" accept=".csv,text/csv,text/plain" hidden>
-      <p class="csv-status" id="csvStatus" hidden></p>
-    </div>` : ""}
+    ${renderActiveTabCsvBar(cards.length)}
     ${body}
     ${strip}
     <footer>Actualizado ${esc(data.generated_at || data.date || "")} · el radar nunca compra solo · <button type="button" class="text-link" id="resetHidden">Ver de nuevo</button></footer>`;
@@ -1932,6 +1968,25 @@ function queueCsv(data) {
   const rows = (data && Array.isArray(data.queue) ? data.queue : []).map((c) => CSV_COLS.map((col) => csvValue(c, col.key, ctx)));
   const header = CSV_COLS.map((col) => col.header).join(",");
   return "\uFEFF" + [header, ...rows.map((r) => r.map(csvCell).join(","))].join("\n");
+}
+
+function cardsCsv(cards, cols) {
+  const now = new Date();
+  const ctx = { export_id: makeExportId(now), exported_at: now.toISOString() };
+  const use = cols || CSV_COLS;
+  const rows = (cards || []).map((c) => use.map((col) => csvValue(c, col.key, ctx)));
+  const header = use.map((col) => col.header).join(",");
+  return "\uFEFF" + [header, ...rows.map((r) => r.map(csvCell).join(","))].join("\n");
+}
+
+function hoyCsv() {
+  if (!cachedData) return "";
+  return cardsCsv(filterVisible(tabLists(cachedData).cards), CSV_COLS);
+}
+
+function decidedCsv() {
+  if (!cachedData) return "";
+  return cardsCsv(tabLists(cachedData).decided, DECIDED_CSV_COLS);
 }
 
 function lookupCardBySku(sku) {
@@ -2230,6 +2285,26 @@ async function exportHallazgoCsv() {
 async function copyHallazgoCsv() {
   if (hallazgoStatus !== "ok" || !hallazgoDoc) return;
   await copyTextCsv(hallazgoCsv());
+}
+
+async function exportHoyCsv() {
+  if (!cachedData) return;
+  await downloadText(HOY_CSV_FILE, hoyCsv(), "text/csv;charset=utf-8");
+}
+
+async function copyHoyCsv() {
+  if (!cachedData) return;
+  await copyTextCsv(hoyCsv());
+}
+
+async function exportDecidedCsv() {
+  if (!cachedData) return;
+  await downloadText(DECIDED_CSV_FILE, decidedCsv(), "text/csv;charset=utf-8");
+}
+
+async function copyDecidedCsv() {
+  if (!cachedData) return;
+  await copyTextCsv(decidedCsv());
 }
 
 function pendingJsonText() {
@@ -2604,6 +2679,10 @@ function paint(data) {
   document.getElementById("copyCsv")?.addEventListener("click", copyQueueCsv);
   document.getElementById("exportHallazgoCsv")?.addEventListener("click", exportHallazgoCsv);
   document.getElementById("copyHallazgoCsv")?.addEventListener("click", copyHallazgoCsv);
+  document.getElementById("exportHoyCsv")?.addEventListener("click", exportHoyCsv);
+  document.getElementById("copyHoyCsv")?.addEventListener("click", copyHoyCsv);
+  document.getElementById("exportDecidedCsv")?.addEventListener("click", exportDecidedCsv);
+  document.getElementById("copyDecidedCsv")?.addEventListener("click", copyDecidedCsv);
   document.getElementById("importCsv")?.addEventListener("click", () => document.getElementById("importCsvFile")?.click());
   document.getElementById("importCsvFile")?.addEventListener("change", onImportCsvFile);
   document.getElementById("retryAllSync")?.addEventListener("click", retryAllPending);

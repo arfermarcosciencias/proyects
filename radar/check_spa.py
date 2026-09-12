@@ -65,6 +65,16 @@ MARKERS = [
     ("Hallazgo CSV Todos", r"data-hallazgo-csv-scope=[\"']all[\"']"),
     ("oferta_encontrada column", r"oferta_encontrada"),
     ("queue Importar still present", r"id=[\"']importCsv[\"']"),
+    ("hoy csv filename", r"radar-hoy\.csv"),
+    ("decided csv filename", r"radar-ya-decididas\.csv"),
+    ("exportHoyCsv", r"function exportHoyCsv\("),
+    ("copyHoyCsv", r"function copyHoyCsv\("),
+    ("exportDecidedCsv", r"function exportDecidedCsv\("),
+    ("copyDecidedCsv", r"function copyDecidedCsv\("),
+    ("exportHoy button", r"id=[\"']exportHoyCsv[\"']"),
+    ("copyHoy button", r"id=[\"']copyHoyCsv[\"']"),
+    ("exportDecided button", r"id=[\"']exportDecidedCsv[\"']"),
+    ("copyDecided button", r"id=[\"']copyDecidedCsv[\"']"),
 ]
 
 BANNED = [
@@ -155,8 +165,17 @@ def check_hallazgo_csv_cols(path: Path, html: str, errors: list[str]) -> None:
     missing = [h for h in LOCKED_HALLAZGO_CSV if h not in headers]
     if missing:
         errors.append(f"{path.name}: HALLAZGO_CSV_COLS missing locked column(s) {missing}")
+    extra = [h for h in headers if h not in LOCKED_HALLAZGO_CSV]
+    if extra:
+        errors.append(f"{path.name}: HALLAZGO_CSV_COLS has extra column(s) {extra} (GCX-165 locked)")
+    if headers != list(LOCKED_HALLAZGO_CSV):
+        errors.append(f"{path.name}: HALLAZGO_CSV_COLS order must be {list(LOCKED_HALLAZGO_CSV)}")
     if "radar-hallazgo.csv" not in html:
         errors.append(f"{path.name}: Hallazgo export must use radar-hallazgo.csv")
+    if "radar-hoy.csv" not in html:
+        errors.append(f"{path.name}: Hoy export must use radar-hoy.csv")
+    if "radar-ya-decididas.csv" not in html:
+        errors.append(f"{path.name}: Ya decididas export must use radar-ya-decididas.csv")
 
 
 def check(path: Path, html: str, errors: list[str]) -> None:
