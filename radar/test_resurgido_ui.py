@@ -44,6 +44,8 @@ def main() -> int:
         ("export Decided stays", r"function exportDecidedCsv\("),
         ("export Hallazgo stays", r"function exportHallazgoCsv\("),
         ("no auto-buy", r"el radar no compra solo"),
+        ("RESURGIDO canComprar", r"canComprar = !hideBuy && \(resurgido \|\| showComprarCta"),
+        ("Ya Registré compra", r"Registré compra"),
     ):
         if re.search(pat, html) is None:
             errors.append(f"missing {label}")
