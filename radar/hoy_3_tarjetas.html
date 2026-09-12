@@ -2289,8 +2289,8 @@ function renderCard(card, i, opts) {
       </div>`;
   } else {
     actionsHtml = `${canComprar ? `<div class="actions with-comprar">
-        <button type="button" class="btn-comprar" data-act="comprar" ${locked ? "disabled" : ""}>COMPRAR</button>
-        ${resurgido ? `<button type="button" class="btn-primary" data-act="comprar" ${locked ? "disabled" : ""}>Ya lo compré</button>` : ""}
+        <button type="button" class="btn-comprar" data-act="comprar" ${locked ? "disabled" : ""}>Ya lo compré</button>
+        <button type="button" class="btn-primary" data-act="comprar" ${locked ? "disabled" : ""}>COMPRAR</button>
         <div class="actions-sub">
           <button type="button" class="btn-primary" data-act="done" ${locked ? "disabled" : ""}>Ya lo hice</button>
           <button type="button" class="btn-secondary" data-act="skip" ${locked ? "disabled" : ""}>Saltar</button>
@@ -2300,7 +2300,7 @@ function renderCard(card, i, opts) {
         <button type="button" class="btn-secondary" data-act="skip" ${locked ? "disabled" : ""}>Saltar</button>
       </div>`}
     <div class="outcomes" data-outcomes>
-      ${canComprar ? `<button type="button" data-act="comprar">${resurgido ? "Ya lo compré" : "Anota la compra"}</button>` : ""}
+      ${canComprar ? `<button type="button" data-act="comprar">Ya lo compré</button>` : ""}
       <button type="button" data-outcome="not_found">No lo encontré</button>
       <button type="button" data-outcome="tomorrow">Mañana</button>
       <button type="button" data-outcome="descartado">Descartar 30d</button>
@@ -3370,6 +3370,7 @@ function openPurchaseModal(cardEl) {
     const sync = await syncPurchaseToMac(item);
     const saved = markSynced(item, !!(sync.ok && sync.imported));
     lockCard(cardEl, "purchased", { purchase: saved });
+    if (activeTab !== TAB_HOY) setActiveTab(TAB_HOY);
   });
   qtyEl.focus();
 }
