@@ -2733,7 +2733,10 @@ function normCsvHeader(h) {
 
 function afterOfferImport() {
   const items = refreshResurgidos(cachedData);
-  if (items && items.length) activeTab = TAB_HOY;
+  if (items && items.length && activeTab !== TAB_HOY) {
+    setActiveTab(TAB_HOY);
+    return items;
+  }
   if (cachedData) paint(cachedData);
   return items;
 }
