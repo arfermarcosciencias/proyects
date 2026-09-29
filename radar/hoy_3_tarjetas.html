@@ -82,7 +82,7 @@
     font-size:16px;letter-spacing:-.02em;background:var(--bg);
   }
   .hallazgo-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .hallazgo-table{width:100%;border-collapse:separate;border-spacing:0;min-width:980px}
+  .hallazgo-table{width:100%;border-collapse:separate;border-spacing:0;min-width:1052px}
   .hallazgo-table th{
     text-align:left;font-size:12px;font-weight:750;
     letter-spacing:.04em;text-transform:uppercase;color:var(--muted);
@@ -103,6 +103,18 @@
   .hallazgo-table .techo-block{margin:0}
   .hallazgo-table .techo-amount{font-size:clamp(28px,3.2vw,40px)}
   .hallazgo-table .techo-empty{color:var(--muted-2);font-size:28px}
+  .hallazgo-table td.h-photo,.hallazgo-table th.h-photo{width:72px;vertical-align:middle}
+  .hallazgo-thumb{
+    display:block;width:clamp(40px,48px,56px);height:clamp(40px,48px,56px);
+    object-fit:cover;border-radius:11px;flex-shrink:0;background:#f1f5f9;
+  }
+  .hallazgo-thumb.ph{
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    font-size:11px;font-weight:750;line-height:1.05;letter-spacing:-.02em;
+    color:var(--muted);padding:2px;overflow:hidden;
+  }
+  .hallazgo-card-top{display:flex;align-items:flex-start;gap:12px}
+  .hallazgo-card-main{min-width:0;flex:1 1 auto}
   .badge.RECOMPRAR{color:#166534;background:#dcfce7}
   .badge.PRECIO_BUENO{color:#1d4ed8;background:#dbeafe}
   .badge.ESPERAR{color:#334155;background:#e2e8f0}
@@ -1668,6 +1680,32 @@ function numOrNull(v) {
   return Number.isNaN(n) ? null : n;
 }
 
+function hallazgoImageUrlUsable(raw) {
+  const s = typeof raw === "string" ? raw.trim() : "";
+  if (!s) return false;
+  if (/^data:/i.test(s)) return s.length <= 120000;
+  if (/^https?:\/\//i.test(s)) return true;
+  if (/^[a-z][a-z0-9+.-]*:/i.test(s)) return false;
+  if (/\\/.test(s) || /^[A-Za-z]:\//.test(s)) return false;
+  if (s.startsWith("./") || s.startsWith("../")) return true;
+  if (s.startsWith("/")) {
+    if (/^\/(?:Users|home|var|tmp|private|Volumes|opt|mnt|Applications)\b/i.test(s)) return false;
+    return /\/img\//i.test(s) || /\.(?:jpe?g|png|webp|gif|avif)(?:[?#].*)?$/i.test(s);
+  }
+  return /^[\w./-]+\.(?:jpe?g|png|webp|gif|avif)(?:[?#].*)?$/i.test(s);
+}
+
+function passthroughHallazgoImage(raw) {
+  if (!raw || typeof raw !== "object") return "";
+  for (const key of ["image_url", "Img", "product_image_path"]) {
+    const v = raw[key];
+    if (typeof v !== "string") continue;
+    const s = v.trim();
+    if (s && hallazgoImageUrlUsable(s)) return s;
+  }
+  return "";
+}
+
 function normalizeHallazgoItem(raw) {
   if (!raw || typeof raw !== "object") return null;
   const sku = asText(raw.sku);
@@ -1676,6 +1714,7 @@ function normalizeHallazgoItem(raw) {
     sku,
     upc: asText(raw.upc),
     name: asText(raw.name) || sku,
+    image_url: passthroughHallazgoImage(raw),
     decision: hallazgoDecision(raw.decision),
     qty: numOrNull(raw.qty),
     techo_mxn: numOrNull(raw.techo_mxn),
@@ -1868,9 +1907,50 @@ function renderHallazgoCells(item) {
   };
 }
 
+function hallazgoNameInitials(name) {
+  const words = String(name || "").split(/[^0-9A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+/).filter((w) => w && !/^(de|del|la|el|los|las|un|una|y|a|en|con|para|por|al|the|of|and|m)$/i.test(w));
+  return words.slice(0, 3).map((w) => w.charAt(0)).join("").toUpperCase().slice(0, 3);
+}
+
+function hallazgoThumbCaption(item) {
+  const sku = asText(item && item.sku).replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+  if (sku && sku.length <= 8) {
+    const tail = sku.match(/^(.*?)(\d{3})$/);
+    if (tail && tail[1] && tail[1].length <= 5) return `${tail[1]}|${tail[2]}`;
+    if (sku.length <= 4) return sku;
+    const mid = Math.ceil(sku.length / 2);
+    return `${sku.slice(0, mid)}|${sku.slice(mid)}`;
+  }
+  const initials = hallazgoNameInitials(item && item.name);
+  if (initials) return initials;
+  if (sku.length >= 3) return sku.slice(-3);
+  return sku || "·";
+}
+
+function hallazgoPhotoSrc(item) {
+  const raw = asText(item && item.image_url);
+  if (raw && hallazgoImageUrlUsable(raw)) return raw;
+  const sku = asText(item && item.sku).replace(/[^A-Za-z0-9_-]/g, "");
+  return sku ? `./img/${sku}.jpg` : "";
+}
+
+function hallazgoPlaceholderHtml(caption) {
+  const html = String(caption || "·").split("|").map((line) => esc(line)).join("<br>");
+  return `<div class="hallazgo-thumb ph" aria-hidden="true"><span>${html}</span></div>`;
+}
+
+function hallazgoPhotoHtml(item) {
+  const caption = hallazgoThumbCaption(item);
+  const src = hallazgoPhotoSrc(item);
+  if (!src) return hallazgoPlaceholderHtml(caption);
+  const onerror = "this.onerror=null;var d=document.createElement('div');d.className='hallazgo-thumb ph';d.setAttribute('aria-hidden','true');var s=document.createElement('span');(this.getAttribute('data-ph')||'').split('|').forEach(function(line,i){if(i)s.appendChild(document.createElement('br'));s.appendChild(document.createTextNode(line));});d.appendChild(s);this.replaceWith(d)";
+  return `<img class="hallazgo-thumb" src="${esc(src)}" alt="" loading="lazy" decoding="async" data-ph="${esc(caption)}" onerror="${onerror}">`;
+}
+
 function renderHallazgoRow(item) {
   const c = renderHallazgoCells(item);
   return `<tr data-sku="${esc(item.sku)}" data-decision="${esc(item.decision)}">
+    <td class="h-photo">${hallazgoPhotoHtml(item)}</td>
     <td>${c.sku}</td>
     <td><span class="badge ${esc(item.decision)}">${esc(decisionLabel(item.decision))}</span></td>
     <td>${c.name}</td>
@@ -1882,9 +1962,14 @@ function renderHallazgoRow(item) {
 function renderHallazgoCard(item) {
   const c = renderHallazgoCells(item);
   return `<article class="hallazgo-card" data-sku="${esc(item.sku)}" data-decision="${esc(item.decision)}">
-    <div class="badges"><span class="badge ${esc(item.decision)}">${esc(decisionLabel(item.decision))}</span></div>
-    <p class="index">${esc(item.sku)}${item.upc ? " · " + esc(item.upc) : ""}</p>
-    ${c.name}
+    <div class="hallazgo-card-top">
+      ${hallazgoPhotoHtml(item)}
+      <div class="hallazgo-card-main">
+        <div class="badges"><span class="badge ${esc(item.decision)}">${esc(decisionLabel(item.decision))}</span></div>
+        <p class="index">${esc(item.sku)}${item.upc ? " · " + esc(item.upc) : ""}</p>
+        ${c.name}
+      </div>
+    </div>
     ${c.techo}
     ${c.why}
     ${c.signal}
@@ -1901,7 +1986,7 @@ function renderHallazgoGroup(id, items) {
   const table = items.length
     ? `<div class="hallazgo-scroll"><table class="hallazgo-table">
         <thead><tr>
-          <th>SKU</th><th>Decisión</th><th>Qué hacer</th><th>Techo</th><th>Por qué</th>
+          <th class="h-photo">Foto</th><th>SKU</th><th>Decisión</th><th>Qué hacer</th><th>Techo</th><th>Por qué</th>
         </tr></thead>
         <tbody>${items.map(renderHallazgoRow).join("")}</tbody>
       </table></div>
