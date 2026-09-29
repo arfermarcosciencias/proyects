@@ -1687,7 +1687,11 @@ function hallazgoImageUrlUsable(raw) {
   if (/^https?:\/\//i.test(s)) return true;
   if (/^[a-z][a-z0-9+.-]*:/i.test(s)) return false;
   if (/\\/.test(s) || /^[A-Za-z]:\//.test(s)) return false;
-  if (s.startsWith("./") || s.startsWith("../") || s.startsWith("/")) return true;
+  if (s.startsWith("./") || s.startsWith("../")) return true;
+  if (s.startsWith("/")) {
+    if (/^\/(?:Users|home|var|tmp|private|Volumes|opt|mnt|Applications)\b/i.test(s)) return false;
+    return /\/img\//i.test(s) || /\.(?:jpe?g|png|webp|gif|avif)(?:[?#].*)?$/i.test(s);
+  }
   return /^[\w./-]+\.(?:jpe?g|png|webp|gif|avif)(?:[?#].*)?$/i.test(s);
 }
 
